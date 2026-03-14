@@ -10,6 +10,12 @@ type DeepgramTranscriberEvents = {
   error: (error: Error) => void;
 };
 
+export interface DeepgramAudioConfig {
+  encoding: string;
+  sampleRate: number;
+  channels: number;
+}
+
 export class DeepgramTranscriber extends TypedEmitter<DeepgramTranscriberEvents> {
   private client: DeepgramClient;
   private socket: V1Socket | null = null;
@@ -27,7 +33,11 @@ export class DeepgramTranscriber extends TypedEmitter<DeepgramTranscriberEvents>
     this.client = new DeepgramClient({ apiKey });
   }
 
-  async connect(): Promise<void> {
+  async connect(audioConfig?: DeepgramAudioConfig): Promise<void> {
+    const enc = audioConfig?.encoding ?? 'linear16';
+    const rate = audioConfig?.sampleRate ?? 16000;
+    const ch = audioConfig?.channels ?? 1;
+
     // The v5 SDK uses client.listen.v1.connect() for live streaming
     // Deepgram v5 SDK types are incomplete for live streaming config — cast required
     this.socket = await this.client.listen.v1.connect({
@@ -36,9 +46,9 @@ export class DeepgramTranscriber extends TypedEmitter<DeepgramTranscriberEvents>
       smart_format: true,
       diarize: true,
       interim_results: true,
-      encoding: 'linear16',
-      sample_rate: 16000,
-      channels: 1,
+      encoding: enc,
+      sample_rate: rate,
+      channels: ch,
       endpointing: 800,
       utterance_end_ms: 1500,
       vad_events: true,
@@ -118,7 +128,7 @@ export class DeepgramTranscriber extends TypedEmitter<DeepgramTranscriberEvents>
       if (!this.closing && this.reconnectAttempts < this.maxReconnectAttempts) {
         this.reconnectAttempts++;
         logger.warn(`Deepgram connection dropped, reconnecting (attempt ${this.reconnectAttempts})...`);
-        setTimeout(() => this.connect().catch((err) => {
+        setTimeout(() => this.connect(audioConfig).catch((err) => {
           logger.error(`Deepgram reconnect failed: ${(err as Error).message}`);
         }), 1000 * this.reconnectAttempts);
       } else {

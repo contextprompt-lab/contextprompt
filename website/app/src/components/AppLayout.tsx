@@ -12,62 +12,128 @@ import {
   ListItemIcon,
   ListItemText,
   IconButton,
+  Divider,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import HomeIcon from '@mui/icons-material/Home';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import MicIcon from '@mui/icons-material/Mic';
 import FolderIcon from '@mui/icons-material/Folder';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const DRAWER_WIDTH = 240;
 
-const NAV_ITEMS = [
-  { label: 'Meetings', path: '/', icon: <HomeIcon /> },
-  { label: 'Record', path: '/record', icon: <FiberManualRecordIcon /> },
-  { label: 'Repos', path: '/repos', icon: <FolderIcon /> },
-  { label: 'Issues', path: '/issues', icon: <GitHubIcon /> },
+interface NavItem {
+  label: string;
+  path: string;
+  icon: ReactNode;
+}
+
+const MAIN_NAV: { section: string; items: NavItem[] }[] = [
+  {
+    section: 'Setup',
+    items: [
+      { label: 'Repos', path: '/repos', icon: <FolderIcon /> },
+    ],
+  },
+  {
+    section: 'Workflows',
+    items: [
+      { label: 'Meetings', path: '/record', icon: <MicIcon /> },
+      { label: 'Issues', path: '/issues', icon: <GitHubIcon /> },
+    ],
+  },
+];
+
+const BOTTOM_NAV: NavItem[] = [
   { label: 'Settings', path: '/settings', icon: <SettingsIcon /> },
 ];
+
+function NavButton({ item, active, onClick }: { item: NavItem; active: boolean; onClick: () => void }) {
+  return (
+    <ListItem disablePadding>
+      <ListItemButton
+        selected={active}
+        onClick={onClick}
+        sx={{
+          mx: 1,
+          borderRadius: 2,
+          '&.Mui-selected': {
+            bgcolor: 'rgba(108, 99, 255, 0.12)',
+            '&:hover': { bgcolor: 'rgba(108, 99, 255, 0.18)' },
+          },
+        }}
+      >
+        <ListItemIcon sx={{ minWidth: 40, color: active ? 'primary.main' : 'text.secondary' }}>
+          {item.icon}
+        </ListItemIcon>
+        <ListItemText primary={item.label} />
+      </ListItemButton>
+    </ListItem>
+  );
+}
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
+
+  const handleNav = (path: string) => {
+    navigate(path);
+    setMobileOpen(false);
+  };
+
   const drawer = (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Toolbar>
         <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
           meetcode
         </Typography>
       </Toolbar>
-      <List>
-        {NAV_ITEMS.map((item) => (
-          <ListItem key={item.path} disablePadding>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => {
-                navigate(item.path);
-                setMobileOpen(false);
-              }}
-              sx={{
-                mx: 1,
-                borderRadius: 2,
-                '&.Mui-selected': {
-                  bgcolor: 'rgba(108, 99, 255, 0.12)',
-                  '&:hover': { bgcolor: 'rgba(108, 99, 255, 0.18)' },
-                },
-              }}
+
+      {/* Main nav sections */}
+      <Box sx={{ flex: 1 }}>
+        {MAIN_NAV.map((section, i) => (
+          <Box key={section.section}>
+            {i > 0 && <Divider sx={{ mx: 2, my: 0.5, borderColor: 'rgba(255,255,255,0.06)' }} />}
+            <Typography
+              variant="overline"
+              sx={{ px: 2, pt: 1.5, pb: 0.5, display: 'block', color: 'text.secondary', fontSize: '0.65rem', letterSpacing: 1.2 }}
             >
-              <ListItemIcon sx={{ minWidth: 40, color: location.pathname === item.path ? 'primary.main' : 'text.secondary' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          </ListItem>
+              {section.section}
+            </Typography>
+            <List dense disablePadding>
+              {section.items.map((item) => (
+                <NavButton
+                  key={item.path}
+                  item={item}
+                  active={isActive(item.path)}
+                  onClick={() => handleNav(item.path)}
+                />
+              ))}
+            </List>
+          </Box>
         ))}
-      </List>
+      </Box>
+
+      {/* Bottom nav (Settings) */}
+      <Box>
+        <Divider sx={{ mx: 2, borderColor: 'rgba(255,255,255,0.06)' }} />
+        <List dense disablePadding sx={{ pb: 1 }}>
+          {BOTTOM_NAV.map((item) => (
+            <NavButton
+              key={item.path}
+              item={item}
+              active={isActive(item.path)}
+              onClick={() => handleNav(item.path)}
+            />
+          ))}
+        </List>
+      </Box>
     </Box>
   );
 

@@ -8,6 +8,7 @@ import { settingsRouter } from './routes/settings.js';
 import { recordingRouter, getRecordingStatus } from './routes/recording.js';
 import { issuesRouter } from './routes/issues.js';
 import { closeDb } from './db.js';
+import { attachWebSocket } from './ws.js';
 import { logger } from '../utils/logger.js';
 
 export const DEFAULT_PORT = 3847;
@@ -67,6 +68,7 @@ export async function startServer(port = DEFAULT_PORT): Promise<void> {
 
   return new Promise((resolve, reject) => {
     const server = app.listen(port, () => {
+      attachWebSocket(server);
       logger.success(`Dashboard running at http://localhost:${port}`);
       resolve();
     });

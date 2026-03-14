@@ -3,39 +3,30 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { join } from 'node:path';
 import { getRepos, touchRepo } from '../db.js';
 import { logger } from '../../utils/logger.js';
+import {
+  getRecordingState,
+  setRecordingState,
+  addRecordingLog,
+  resetRecordingState,
+} from '../recording-state.js';
 
 export const recordingRouter = Router();
 
-interface RecordingState {
-  status: 'idle' | 'recording' | 'processing';
-  startedAt: string | null;
-  pid: number | null;
-  repos: string[];
-  logs: string[];
-}
-
-let recordingState: RecordingState = {
-  status: 'idle',
-  startedAt: null,
-  pid: null,
-  repos: [],
-  logs: [],
-};
-
 let recordingProcess: ChildProcess | null = null;
 
-export function getRecordingStatus(): RecordingState {
-  return { ...recordingState };
+export function getRecordingStatus() {
+  return getRecordingState();
 }
 
 // Get recording status (includes recent logs)
 recordingRouter.get('/status', (_req, res) => {
-  res.json(getRecordingStatus());
+  res.json(getRecordingState());
 });
 
-// Start recording
+// Start recording (CLI-spawned mode)
 recordingRouter.post('/start', (req, res) => {
-  if (recordingState.status !== 'idle') {
+  const state = getRecordingState();
+  if (state.status !== 'idle') {
     res.status(409).json({ error: 'Already recording' });
     return;
   }
@@ -91,55 +82,39 @@ recordingRouter.post('/start', (req, res) => {
   });
 
   recordingProcess = child;
-  recordingState = {
+  setRecordingState({
     status: 'recording',
     startedAt: new Date().toISOString(),
     pid: child.pid ?? null,
     repos: repoPaths,
     logs: [],
-  };
-
-  const addLog = (line: string) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
-    recordingState.logs.push(trimmed);
-    // Keep last 50 lines
-    if (recordingState.logs.length > 50) {
-      recordingState.logs = recordingState.logs.slice(-50);
-    }
-    logger.debug(`[recording] ${trimmed}`);
-  };
+  });
 
   child.stdout?.on('data', (data: Buffer) => {
     for (const line of data.toString().split('\n')) {
-      addLog(line);
+      addRecordingLog(line);
+      logger.debug(`[recording] ${line.trim()}`);
     }
   });
 
   child.stderr?.on('data', (data: Buffer) => {
     for (const line of data.toString().split('\n')) {
-      addLog(line);
+      addRecordingLog(line);
+      logger.debug(`[recording] ${line.trim()}`);
     }
   });
 
   child.on('error', (err) => {
     logger.error(`Recording process error: ${err.message}`);
-    addLog(`Error: ${err.message}`);
-    recordingState.status = 'idle';
-    recordingState.pid = null;
+    addRecordingLog(`Error: ${err.message}`);
+    resetRecordingState();
     recordingProcess = null;
   });
 
   child.on('exit', (code, signal) => {
     logger.debug(`Recording process exited (code=${code}, signal=${signal})`);
-    addLog(`Process exited (code=${code})`);
-    recordingState = {
-      status: 'idle',
-      startedAt: null,
-      pid: null,
-      repos: [],
-      logs: recordingState.logs, // Preserve logs so dashboard can show them
-    };
+    addRecordingLog(`Process exited (code=${code})`);
+    resetRecordingState();
     recordingProcess = null;
   });
 
@@ -148,12 +123,13 @@ recordingRouter.post('/start', (req, res) => {
 
 // Stop recording
 recordingRouter.post('/stop', (_req, res) => {
-  if (recordingState.status !== 'recording' || !recordingProcess) {
+  const state = getRecordingState();
+  if (state.status !== 'recording' || !recordingProcess) {
     res.status(409).json({ error: 'Not recording' });
     return;
   }
 
-  recordingState.status = 'processing';
+  setRecordingState({ status: 'processing' });
 
   // Send SIGINT to trigger graceful shutdown (same as Ctrl+C)
   recordingProcess.kill('SIGINT');

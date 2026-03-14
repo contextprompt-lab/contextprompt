@@ -69,6 +69,90 @@ The value is not "meeting notes." It is turning human feedback into usable execu
 
 ---
 
+## Demo Pitch (Boss / Internal Stakeholder)
+
+### The Problem (30 seconds)
+
+Every engineering team has the same broken workflow: you sit in a meeting, someone says "we need to refactor the auth flow" or "that button should also update the cart" — and then what? Someone writes a Jira ticket from memory, half the context is lost, and a developer spends 30 minutes just figuring out which files to touch.
+
+AI coding tools like Claude Code and Cursor are incredible at *executing* — but they need well-structured input. The bottleneck isn't writing code anymore. It's translating messy human conversations into precise, actionable work.
+
+### The Solution (30 seconds)
+
+meetcode sits in your meetings, listens to the conversation, understands your actual codebase, and produces a structured execution plan — with specific files, confidence levels, and tasks ready to hand directly to an AI coding agent.
+
+It's a bridge from human intent to AI execution.
+
+### Live Demo Flow (3-5 minutes)
+
+**Step 1: Start recording**
+```bash
+meetcode start --repos ~/our-app --verbose
+```
+- Show it connecting to Deepgram, scanning the repo
+- Point out: "It's already indexing our codebase — function signatures, exports, file structure"
+
+**Step 2: Simulate a meeting conversation**
+- Have a short conversation (or play a pre-recorded clip) discussing 2-3 feature requests/bugs
+- Example topics:
+  - "We need to add rate limiting to the API endpoints"
+  - "The dashboard should show task completion percentages"
+  - "There's a bug where the transcript drops speaker labels after 30 minutes"
+
+**Step 3: Stop and show extraction**
+- Press Ctrl+C
+- Show the spinner: "Extracting tasks with Claude..."
+- Open the generated markdown file
+
+**Step 4: Walk through the output**
+- Show the **decisions** section (what was agreed on)
+- Show the **tasks table** with:
+  - Confidence levels (high/medium/low)
+  - Specific file paths from the actual repo
+  - Execution status (ready / review / clarify)
+- Show **ambiguities** flagged automatically
+- Key selling point: "These aren't generic tasks — they reference our actual files"
+
+**Step 5: Execute with Claude Code**
+```bash
+claude "Read meetcode-2026-03-14-103000.md and implement task T1"
+```
+- Show Claude Code reading the plan and starting implementation
+- "Zero translation step. Meeting to code in one pipeline."
+
+**Step 6: Bonus features (quick mentions)**
+- `meetcode issue <url>` — same structured analysis for GitHub issues
+- `meetcode dashboard` — web UI to browse past meetings and tasks
+- Cost: ~$0.50 per hour-long meeting
+
+### Why This Matters (30 seconds)
+
+Right now, the gap between "what the team decided" and "what gets built" is filled by manual work — writing tickets, re-reading Slack threads, guessing which files matter. meetcode eliminates that gap entirely.
+
+For a team of 10 engineers, if each person saves even 30 minutes a week on meeting-to-task translation, that's 250 hours a year — at less than a dollar per meeting.
+
+### Handling Objections
+
+| Objection | Response |
+|-----------|----------|
+| "How accurate is it?" | "It uses your actual codebase to ground tasks — not hallucinated file paths. Confidence levels tell you what to trust vs. review." |
+| "What about privacy?" | "Audio is streamed to Deepgram for transcription and Claude for extraction. No data stored externally. Local SQLite for history." |
+| "Does it work with our stack?" | "Repo scanning uses TypeScript AST for TS/JS projects. File tree + README analysis works for any language." |
+| "Cost?" | "~$0.50/meeting. Deepgram nova-3 + Claude Sonnet. Orders of magnitude cheaper than the engineering time it saves." |
+| "Why not just use meeting notes + ChatGPT?" | "Two things: codebase awareness (it knows your actual files/exports) and structured output (confidence-calibrated, ready for AI agents)." |
+
+### Demo Prep Checklist
+
+- [ ] Have API keys configured (`meetcode config`)
+- [ ] Have a demo repo ready with recognizable file structure
+- [ ] Pre-test the full flow end-to-end at least once
+- [ ] Have a backup pre-generated markdown output in case of network issues
+- [ ] Have the dashboard running as a visual wow-factor (`meetcode dashboard`)
+- [ ] Prepare 2-3 realistic meeting topics relevant to your boss's domain
+- [ ] Test audio capture works on demo machine (macOS 14.2+ required for system audio)
+
+---
+
 ## One-liners
 
 - AI made coding faster. We make feedback executable.

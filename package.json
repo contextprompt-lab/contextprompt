@@ -50,6 +50,7 @@
     "ignore": "^7.0.5",
     "ora": "^9.3.0",
     "typescript": "^5.9.3",
+    "ws": "^8.18.0",
     "zod": "^4.3.6"
   },
   "optionalDependencies": {
@@ -62,6 +63,7 @@
     "@types/node": "^25.4.0",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
+    "@types/ws": "^8.5.13",
     "vitest": "^3.2.4"
   }
 }

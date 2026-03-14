@@ -40,7 +40,6 @@ export function Issues() {
   const [issues, setIssues] = useState<GitHubIssueSummary[]>([]);
   const [analyses, setAnalyses] = useState<IssueAnalysis[]>([]);
   const [issuesLoading, setIssuesLoading] = useState(false);
-  const [analysesLoading, setAnalysesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [analyzingIds, setAnalyzingIds] = useState<Map<string, number>>(new Map());
 
@@ -48,17 +47,14 @@ export function Issues() {
 
   const connectedRepos = repos.filter((r) => r.github_owner && r.github_repo);
 
+  const loadAnalyses = useCallback(() => {
+    getIssueAnalyses().then(setAnalyses).catch(() => {});
+  }, []);
+
   useEffect(() => {
     getRepos().then(setRepos).catch(() => {});
     loadAnalyses();
-  }, []);
-
-  const loadAnalyses = () => {
-    getIssueAnalyses()
-      .then(setAnalyses)
-      .catch((err) => setError(err.message))
-      .finally(() => setAnalysesLoading(false));
-  };
+  }, [loadAnalyses]);
 
   const loadIssues = useCallback(async (repoId?: number) => {
     setIssuesLoading(true);
@@ -106,6 +102,7 @@ export function Issues() {
               next.delete(key);
               return next;
             });
+            loadAnalyses();
             navigate(`/issues/${id}`);
           } else if (status.status === 'failed') {
             clearInterval(timer);
@@ -137,7 +134,7 @@ export function Issues() {
     }
   };
 
-  if (connectedRepos.length === 0 && !analysesLoading) {
+  if (connectedRepos.length === 0) {
     return (
       <Box>
         <Typography variant="h4" sx={{ mb: 3 }}>Issues</Typography>
@@ -155,7 +152,7 @@ export function Issues() {
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
-      {/* Open Issues Section */}
+      {/* Analyze: open issues */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
@@ -242,71 +239,64 @@ export function Issues() {
         </CardContent>
       </Card>
 
-      <Divider sx={{ my: 3 }} />
-
-      {/* Past Analyses Section */}
-      <Typography variant="h6" sx={{ mb: 2 }}>Past Analyses</Typography>
-      {analysesLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-          <CircularProgress size={32} />
-        </Box>
-      ) : analyses.length === 0 ? (
-        <Typography color="text.secondary">
-          No analyses yet. Select an issue above and click "Analyze" to get started.
-        </Typography>
-      ) : (
-        <Stack spacing={1}>
-          {analyses.map((analysis) => (
-            <Card key={analysis.id} variant="outlined">
-              <CardActionArea onClick={() => analysis.status === 'completed' && navigate(`/issues/${analysis.id}`)}>
-                <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Box sx={{ flex: 1 }}>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <GitHubIcon fontSize="small" color="action" />
-                        <Typography variant="subtitle2" fontWeight={600}>
-                          #{analysis.issue_number}: {analysis.issue_title}
-                        </Typography>
-                        <Chip
-                          label={analysis.status}
-                          size="small"
-                          color={analysis.status === 'completed' ? 'success' : analysis.status === 'failed' ? 'error' : 'warning'}
-                          variant="outlined"
-                        />
-                        {analysis.status === 'completed' && (
-                          <Chip label={`${analysis.task_count} tasks`} size="small" variant="outlined" />
+      {/* Results: past analyses */}
+      {analyses.length > 0 && (
+        <>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" sx={{ mb: 2 }}>Past Analyses</Typography>
+          <Stack spacing={1}>
+            {analyses.map((analysis) => (
+              <Card key={analysis.id} variant="outlined">
+                <CardActionArea onClick={() => analysis.status === 'completed' && navigate(`/issues/${analysis.id}`)}>
+                  <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Box sx={{ flex: 1 }}>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <GitHubIcon fontSize="small" color="action" />
+                          <Typography variant="subtitle2" fontWeight={600}>
+                            #{analysis.issue_number}: {analysis.issue_title}
+                          </Typography>
+                          <Chip
+                            label={analysis.status}
+                            size="small"
+                            color={analysis.status === 'completed' ? 'success' : analysis.status === 'failed' ? 'error' : 'warning'}
+                            variant="outlined"
+                          />
+                          {analysis.status === 'completed' && (
+                            <Chip label={`${analysis.task_count} tasks`} size="small" variant="outlined" />
+                          )}
+                        </Stack>
+                        <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            {analysis.repo_name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {new Date(analysis.created_at).toLocaleString()}
+                          </Typography>
+                        </Stack>
+                        {analysis.error && (
+                          <Typography variant="caption" color="error.main" sx={{ mt: 0.5, display: 'block' }}>
+                            {analysis.error}
+                          </Typography>
                         )}
-                      </Stack>
-                      <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
-                        <Typography variant="caption" color="text.secondary">
-                          {analysis.repo_name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {new Date(analysis.created_at).toLocaleString()}
-                        </Typography>
-                      </Stack>
-                      {analysis.error && (
-                        <Typography variant="caption" color="error.main" sx={{ mt: 0.5, display: 'block' }}>
-                          {analysis.error}
-                        </Typography>
-                      )}
-                    </Box>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteAnalysis(analysis.id);
-                      }}
-                      title="Delete analysis"
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Stack>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          ))}
-        </Stack>
+                      </Box>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteAnalysis(analysis.id);
+                        }}
+                        title="Delete analysis"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            ))}
+          </Stack>
+        </>
       )}
     </Box>
   );

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>meetcode — Turn meetings into repo-aware coding tasks</title>
+  <meta name="description" content="We turn product and engineering conversations into project-aware execution plans for AI-assisted teams. Listen to meetings, understand your codebase, output structured tasks.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="meetcode — Turn meetings into repo-aware coding tasks">
+  <meta property="og:description" content="Your team decides what to build in meetings. meetcode turns that into repo-aware tasks you hand to Claude Code.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/og-image.svg">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="meetcode — Turn meetings into repo-aware coding tasks">
+  <meta name="twitter:description" content="Your team decides what to build in meetings. meetcode turns that into repo-aware tasks you hand to Claude Code.">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <script type="module" crossorigin src="/assets/main-DBtcdWb4.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="/assets/main-DCA8Y-5-.css">
+  <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
+</head>
+<body>
+
+  <!-- ====== NAV ====== -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo">meetcode</a>
+      <div class="nav-links">
+        <a href="/playground/">See it work</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+        <a href="/app/" class="nav-link--app">Dashboard</a>
+      </div>
+      <button class="nav-install copy-trigger" data-copy="npm install -g meetcode">
+        <span>npm install -g meetcode</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 11V2.5A1.5 1.5 0 0 1 4.5 1H10" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ====== HERO ====== -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-text">
+        <h1>Turn feedback calls into<br>execution-ready work</h1>
+        <p class="hero-sub">Your team already decides what to build in meetings. meetcode turns that conversation into repo-aware tasks you can hand directly to Claude Code.</p>
+      </div>
+
+      <div class="terminal-demo" id="terminal-demo">
+        <div class="terminal-pane terminal-pane--meeting">
+          <div class="terminal-chrome">
+            <div class="terminal-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="terminal-title">meetcode --verbose</span>
+          </div>
+          <pre class="terminal-body" id="demo-input"><span class="terminal-line"><span class="ts">[02:14]</span> <span class="speaker speaker-1">Sarah:</span> The auth middleware needs to move to JWT
+         before the compliance deadline next month.</span>
+<span class="terminal-line"><span class="ts">[02:31]</span> <span class="speaker speaker-2">Mike:</span>  Which files are we talking about? The session
+         store is used in like three places.</span>
+<span class="terminal-line"><span class="ts">[02:45]</span> <span class="speaker speaker-1">Sarah:</span> Yeah, the main auth.ts and whatever imports
+         the session types. Let's also add a refresh
+         endpoint while we're at it.</span></pre>
+        </div>
+
+        <div class="terminal-arrow">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div class="terminal-pane terminal-pane--output">
+          <div class="terminal-chrome">
+            <div class="terminal-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="terminal-title">meetcode-2026-03-12.md</span>
+          </div>
+          <pre class="terminal-body" id="demo-output"><span class="output-block"><span class="output-heading">T1: Replace session tokens with JWT</span>
+<span class="output-meta"><span class="badge badge--high">high</span> ready</span>
+<span class="output-label">Files:</span>
+  src/middleware/auth.ts
+  src/types/session.ts
+<span class="output-label">Steps:</span>
+  1. Remove express-session dependency
+  2. Install jsonwebtoken
+  3. Replace session checks with JWT verify</span>
+
+<span class="output-block"><span class="output-heading">T2: Add token refresh endpoint</span>
+<span class="output-meta"><span class="badge badge--med">medium</span> review <span class="output-dep">depends on T1</span></span>
+<span class="output-label">Files:</span>
+  src/routes/auth.ts
+<span class="output-label">Steps:</span>
+  1. Create POST /auth/refresh route
+  2. Validate refresh token, issue new JWT</span></pre>
+        </div>
+      </div>
+
+      <div class="hero-oneliner">
+        <p>AI made coding faster. We make feedback executable.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PROBLEM ====== -->
+  <section class="problem" data-reveal>
+    <div class="container">
+      <div class="problem-block">
+        <div class="problem-cmd">
+          <span class="prompt">$</span> grep "what did they want changed" meeting-notes.txt
+          <div class="problem-result">0 results</div>
+        </div>
+        <p class="problem-quote">"Wait, what exactly did they want changed?"</p>
+        <p class="problem-desc">You replay the call. You scrub through 47 minutes. You find the 90 seconds that matter. Then you do it again for the next task.</p>
+      </div>
+
+      <div class="problem-block">
+        <div class="problem-cmd">
+          <span class="prompt">$</span> find ./src -name "*.ts" | wc -l
+          <div class="problem-result">847 files</div>
+        </div>
+        <p class="problem-quote">"Which files does this probably touch?"</p>
+        <p class="problem-desc">Someone mentioned "the calendar component" and "that API route." Good luck mapping that to actual file paths across three repos.</p>
+      </div>
+
+      <div class="problem-block">
+        <div class="problem-cmd">
+          <span class="prompt">$</span> claude "do the thing they said in the meeting"
+          <div class="problem-result">I need more context. Which meeting? What thing?</div>
+        </div>
+        <p class="problem-quote">"How do I phrase this for Claude?"</p>
+        <p class="problem-desc">You spend 15 minutes writing a prompt that captures what was discussed, guessing at file paths, and hoping you didn't miss a detail.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== HOW IT WORKS ====== -->
+  <section class="how-it-works" id="how-it-works" data-reveal>
+    <div class="container">
+      <h2>Three commands. That's it.</h2>
+      <div class="terminal-pane terminal-pane--full">
+        <div class="terminal-chrome">
+          <div class="terminal-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="terminal-title">Terminal</span>
+        </div>
+        <pre class="terminal-body"><span class="dim"># 1. Configure your API keys (once)</span>
+<span class="prompt">$</span> meetcode config
+  Deepgram API key: <span class="dim">••••••••</span>
+  Anthropic API key: <span class="dim">••••••••</span>
+  <span class="green">Saved to ~/.meetcode/.env</span>
+
+<span class="dim"># 2. Start before your meeting</span>
+<span class="prompt">$</span> meetcode start --repos ./my-app --verbose
+  <span class="dim">Capturing system audio...</span>
+  <span class="ts">[00:12]</span> <span class="speaker speaker-1">Speaker 1:</span> The calendar arrows need to go...
+  <span class="ts">[00:31]</span> <span class="speaker speaker-1">Speaker 1:</span> And the AI chat modal needs a close button...
+  <span class="ts">[01:45]</span> <span class="speaker speaker-2">Speaker 2:</span> What about the loading screen blur?
+  <span class="dim">^C</span>
+
+  Scanning repos... <span class="green">847 files, 12,400 tokens</span>
+  Extracting tasks with Claude...
+
+  <span class="green">meetcode-2026-03-12-143045.md</span> (4 tasks, 3 high confidence)
+
+<span class="dim"># 3. Hand it to your AI coding tool</span>
+<span class="prompt">$</span> claude "Read meetcode-2026-03-12-143045.md and implement task T1"
+  <span class="dim">Reading execution plan...</span>
+  <span class="green">Task T1: Remove month navigation arrows from Calendar</span>
+  <span class="dim">Editing src/components/ui/Calendar.tsx...</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== OUTPUT SHOWCASE ====== -->
+  <section class="showcase" data-reveal>
+    <div class="container">
+      <h2>Real output from a real meeting</h2>
+      <p class="showcase-sub">This is actual meetcode output from a 2-minute product feedback call. Four tasks, all high confidence, all ready to execute.</p>
+
+      <div class="showcase-toggle">
+        <button class="toggle-btn active" data-view="rendered">Rendered</button>
+        <button class="toggle-btn" data-view="raw">Raw .md</button>
+      </div>
+
+      <div class="showcase-content">
+        <!-- Rendered view -->
+        <div class="showcase-rendered active" id="showcase-rendered">
+          <div class="showcase-header">
+            <h3>Execution Plan — March 12, 2026</h3>
+            <p class="showcase-meta">4 tasks from 2m meeting &middot; 1 speaker</p>
+          </div>
+
+          <div class="showcase-decisions">
+            <h4>Decisions Made</h4>
+            <ol>
+              <li>Remove navigation arrows from calendar month view</li>
+              <li>Add a close button to the AI chat modal</li>
+              <li>Make background image on analyzing screen more blurred with white overlay</li>
+              <li>Change gradient in LifestyleTipCard from blue-to-green to blue-to-yellow</li>
+            </ol>
+          </div>
+
+          <div class="showcase-table-wrap">
+            <table class="showcase-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Task</th>
+                  <th>Confidence</th>
+                  <th>Files</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>T1</td>
+                  <td>Remove month navigation arrows from Calendar</td>
+                  <td><span class="badge badge--high">high</span></td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>T2</td>
+                  <td>Add close button to AI chat modal</td>
+                  <td><span class="badge badge--high">high</span></td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>T3</td>
+                  <td>Increase blur + white overlay on AnalyzingScreen</td>
+                  <td><span class="badge badge--high">high</span></td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>T4</td>
+                  <td>Change gradient from blue-green to blue-yellow</td>
+                  <td><span class="badge badge--high">high</span></td>
+                  <td>4</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="showcase-task">
+            <h4>T1: Remove month navigation arrows from Calendar component</h4>
+            <p class="showcase-confidence"><span class="badge badge--high">high</span> &mdash; The Calendar component is a dedicated file with a single export. The speaker explicitly referenced the dashboard calendar arrows.</p>
+
+            <div class="showcase-evidence">
+              <span class="showcase-evidence-label">Evidence</span>
+              <blockquote>"The calendar month has arrows &mdash; we should not need that. We don't want the user to navigate through months; just stay in the current month."</blockquote>
+            </div>
+
+            <div class="showcase-files">
+              <p class="showcase-files-label">Confirmed files:</p>
+              <ul>
+                <li><code>src/components/ui/Calendar.tsx</code> <span class="dim">&mdash; Exports Calendar and MONTH_NAMES</span></li>
+              </ul>
+              <p class="showcase-files-label">Possible related:</p>
+              <ul>
+                <li><code>src/screens/profile/ProfileScreen.tsx</code> <span class="dim">&mdash; May pass month-navigation props</span></li>
+              </ul>
+            </div>
+
+            <div class="showcase-steps">
+              <p class="showcase-files-label">Implementation:</p>
+              <ol>
+                <li>Open <code>src/components/ui/Calendar.tsx</code></li>
+                <li>Remove left/right arrow button elements from JSX</li>
+                <li>Keep state initialized to current month, remove handlers</li>
+                <li>Verify calendar renders current month correctly</li>
+              </ol>
+            </div>
+
+            <div class="showcase-ambiguities">
+              <span class="showcase-amb-label">Ambiguities</span>
+              <ul>
+                <li>Exact screen not named &mdash; assumed dashboard/profile</li>
+                <li>Whether month title tap behavior should also be removed</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Raw view -->
+        <div class="showcase-raw" id="showcase-raw">
+          <pre class="terminal-body"><span class="dim"># Execution Plan — Thursday, March 12, 2026 02:40 AM</span>
+
+> 4 task(s) from 2m meeting · 1 speaker(s)
+
+## Decisions Made
+
+1. Remove navigation arrows from the calendar month view
+2. Add a close button (top right) to the AI chat modal
+3. Make the background image more blurred with white overlay
+4. Change gradient from blue-to-green to blue-to-yellow
+
+| ID | Task                          | Confidence | Files |
+|----|-------------------------------|------------|-------|
+| T1 | Remove month nav arrows       | high       | 2     |
+| T2 | Add close button to chat modal| high       | 4     |
+| T3 | Blur + white overlay          | high       | 2     |
+| T4 | Change gradient colors        | high       | 4     |
+
+---
+
+### T1: Remove month navigation arrows from Calendar
+
+**Confidence:** high
+
+**Evidence:**
+> "The calendar month has arrows — we should not need
+> that. Just stay in the current month."
+
+**Confirmed files:**
+- `src/components/ui/Calendar.tsx`
+
+**Possible related files:**
+- `src/screens/profile/ProfileScreen.tsx`
+
+**Steps:**
+1. Remove left/right arrow buttons from JSX
+2. Keep state initialized to current month
+3. Remove navigation handlers
+4. Verify current month renders correctly</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FEATURES COMPARISON ====== -->
+  <section class="features" data-reveal>
+    <div class="container">
+      <h2>What changes</h2>
+
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Without meetcode</th>
+              <th>With meetcode</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Replay 47-min call for action items</td>
+              <td>Tasks extracted with transcript evidence</td>
+            </tr>
+            <tr>
+              <td>Guess which files need changes</td>
+              <td>File mapping with confidence levels</td>
+            </tr>
+            <tr>
+              <td>Write Claude prompts from memory</td>
+              <td>Agent-ready execution blocks, copy-paste</td>
+            </tr>
+            <tr>
+              <td>Miss ambiguities until implementation</td>
+              <td>Ambiguities surfaced before you start</td>
+            </tr>
+            <tr>
+              <td>One person's interpretation of the call</td>
+              <td>Speaker-attributed transcript as evidence</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="feature-pills">
+        <span class="pill">Speaker diarization</span>
+        <span class="pill">Chunked extraction</span>
+        <span class="pill">Customizable prompt</span>
+        <span class="pill">Token budget mgmt</span>
+        <span class="pill">macOS + Windows</span>
+        <span class="pill">Zod validation</span>
+        <span class="pill">Multi-repo support</span>
+        <span class="pill">TypeScript AST aware</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PRICING ====== -->
+  <section class="pricing" id="pricing" data-reveal>
+    <div class="container">
+      <h2>Pricing</h2>
+
+      <div class="pricing-grid">
+        <div class="pricing-card pricing-card--featured">
+          <div class="pricing-card-header">
+            <h3>Open Source</h3>
+            <div class="pricing-price">Free forever</div>
+          </div>
+          <p class="pricing-desc">Self-hosted. Bring your own API keys.</p>
+          <ul class="pricing-features">
+            <li>Full CLI functionality</li>
+            <li>Unlimited meetings</li>
+            <li>All repo scanning features</li>
+            <li>Customizable Claude prompt</li>
+            <li>Speaker diarization</li>
+            <li>macOS + Windows</li>
+          </ul>
+          <div class="pricing-cost">
+            <span class="pricing-cost-label">API costs only</span>
+            <span class="pricing-cost-value">~$0.40-0.60 / hr</span>
+          </div>
+          <button class="pricing-cta copy-trigger" data-copy="npm install -g meetcode">
+            npm install -g meetcode
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 11V2.5A1.5 1.5 0 0 1 4.5 1H10" stroke="currentColor" stroke-width="1.2"/></svg>
+          </button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-card-header">
+            <h3>Pro</h3>
+            <div class="pricing-price">$29<span class="pricing-period"> / team / mo</span></div>
+          </div>
+          <span class="pricing-soon">Coming soon</span>
+          <p class="pricing-desc">Managed transcription. Team features.</p>
+          <ul class="pricing-features">
+            <li>Everything in Open Source</li>
+            <li>No API keys needed</li>
+            <li>Team dashboard</li>
+            <li>Shared task history</li>
+            <li>Slack integration</li>
+            <li>Priority support</li>
+          </ul>
+          <button class="pricing-cta pricing-cta--secondary" disabled>Join waitlist</button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-card-header">
+            <h3>Enterprise</h3>
+            <div class="pricing-price">Custom</div>
+          </div>
+          <p class="pricing-desc">For teams with compliance needs.</p>
+          <ul class="pricing-features">
+            <li>Everything in Pro</li>
+            <li>SSO / SAML</li>
+            <li>Audit logs</li>
+            <li>Custom models</li>
+            <li>Volume API pricing</li>
+            <li>Dedicated support</li>
+          </ul>
+          <button class="pricing-cta pricing-cta--secondary">Contact us</button>
+        </div>
+      </div>
+
+      <!-- Cost calculator -->
+      <div class="cost-calc">
+        <h3>Cost calculator</h3>
+        <p class="cost-calc-sub">Open Source plan &mdash; estimate your monthly API costs</p>
+        <div class="cost-calc-slider">
+          <label for="hours-slider">Hours of meetings per week</label>
+          <div class="slider-row">
+            <input type="range" id="hours-slider" min="1" max="40" value="5" step="1">
+            <span class="slider-value" id="slider-value">5 hrs/wk</span>
+          </div>
+        </div>
+        <div class="cost-calc-breakdown">
+          <div class="cost-item">
+            <span class="cost-label">Deepgram</span>
+            <span class="cost-value" id="cost-deepgram">$5.63</span>
+          </div>
+          <div class="cost-item">
+            <span class="cost-label">Claude</span>
+            <span class="cost-value" id="cost-claude">$4.33</span>
+          </div>
+          <div class="cost-item cost-item--total">
+            <span class="cost-label">Total / month</span>
+            <span class="cost-value" id="cost-total">$9.96</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== CTA ====== -->
+  <section class="cta" data-reveal>
+    <div class="container">
+      <h2>Get started in 30 seconds</h2>
+      <div class="cta-command copy-trigger" data-copy="npm install -g meetcode && meetcode config">
+        <code>npm install -g meetcode && meetcode config</code>
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 11V2.5A1.5 1.5 0 0 1 4.5 1H10" stroke="currentColor" stroke-width="1.2"/></svg>
+      </div>
+      <p class="cta-sub">Then start your next meeting with <code>meetcode start --repos .</code></p>
+      <div class="cta-links">
+        <a href="https://github.com" target="_blank" rel="noopener" class="cta-link">GitHub</a>
+        <a href="https://github.com" target="_blank" rel="noopener" class="cta-link">Documentation</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span class="footer-logo">meetcode</span>
+      <span class="footer-sep">&middot;</span>
+      <span>MIT License</span>
+      <span class="footer-sep">&middot;</span>
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+</body>
+</html>

@@ -1,5 +1,6 @@
 node_modules/
 dist/
+!website/dist/
 .env
 *.js
 *.d.ts

@@ -39,7 +39,15 @@ export function createServer() {
 
   if (existsSync(staticRoot)) {
     app.use(express.static(staticRoot));
-    // SPA fallback for /app/* routes (Express v5 syntax)
+    // SPA fallback for /app routes (Express v5 syntax)
+    app.get('/app/', (_req, res) => {
+      const appIndex = join(staticRoot, 'app', 'index.html');
+      if (existsSync(appIndex)) {
+        res.sendFile(appIndex);
+      } else {
+        res.sendFile(join(staticRoot, 'index.html'));
+      }
+    });
     app.get('/app/{*path}', (_req, res) => {
       const appIndex = join(staticRoot, 'app', 'index.html');
       if (existsSync(appIndex)) {

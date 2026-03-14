@@ -10,24 +10,54 @@ import {
   Stack,
   Skeleton,
   Alert,
+  IconButton,
+  Tooltip,
+  CircularProgress,
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import GroupIcon from '@mui/icons-material/Group';
-import { getMeetings, type Meeting } from '../api';
+import ReplayIcon from '@mui/icons-material/Replay';
+import { getMeetings, rerunMeeting, type Meeting } from '../api';
 
 export function Home() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rerunningId, setRerunningId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const fetchMeetings = () => {
     getMeetings()
       .then(setMeetings)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchMeetings();
   }, []);
+
+  // Poll while any meeting is processing
+  useEffect(() => {
+    const hasProcessing = meetings.some(m => m.status === 'processing');
+    if (!hasProcessing) return;
+    const interval = setInterval(fetchMeetings, 3000);
+    return () => clearInterval(interval);
+  }, [meetings]);
+
+  const handleRerun = async (e: React.MouseEvent, meetingId: number) => {
+    e.stopPropagation(); // Don't navigate to meeting detail
+    setRerunningId(meetingId);
+    try {
+      await rerunMeeting(meetingId);
+      setMeetings(prev => prev.map(m => m.id === meetingId ? { ...m, status: 'processing' } : m));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setRerunningId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -92,12 +122,28 @@ export function Home() {
                       )}
                     </Stack>
                   </Box>
-                  <Chip
-                    label={meeting.status}
-                    size="small"
-                    color={meeting.status === 'completed' ? 'success' : 'default'}
-                    variant="outlined"
-                  />
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    {meeting.status === 'failed' && (
+                      <Tooltip title="Rerun analysis">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleRerun(e, meeting.id)}
+                          disabled={rerunningId === meeting.id}
+                        >
+                          {rerunningId === meeting.id ? <CircularProgress size={18} /> : <ReplayIcon fontSize="small" />}
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {meeting.status === 'processing' && (
+                      <CircularProgress size={18} />
+                    )}
+                    <Chip
+                      label={meeting.status}
+                      size="small"
+                      color={meeting.status === 'completed' ? 'success' : meeting.status === 'failed' ? 'error' : 'default'}
+                      variant="outlined"
+                    />
+                  </Stack>
                 </Box>
               </CardContent>
             </CardActionArea>

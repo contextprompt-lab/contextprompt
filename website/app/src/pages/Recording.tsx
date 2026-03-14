@@ -28,6 +28,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import GroupIcon from '@mui/icons-material/Group';
+import ReplayIcon from '@mui/icons-material/Replay';
 import {
   getRepos,
   getMeetings,
@@ -36,6 +37,7 @@ import {
   getBotStatus,
   leaveBotCall,
   deleteMeeting,
+  rerunMeeting,
   buildRepoMaps,
   type Repo,
   type Meeting,
@@ -180,6 +182,32 @@ export function Recording() {
       await leaveBotCall(activeBotId);
     } catch (err) {
       setError((err as Error).message);
+    }
+  };
+
+  const [rerunningId, setRerunningId] = useState<number | null>(null);
+
+  const handleRerunMeeting = async (id: number) => {
+    setRerunningId(id);
+    setError(null);
+    try {
+      await rerunMeeting(id);
+      setMeetings((prev) => prev.map((m) => m.id === id ? { ...m, status: 'processing' } : m));
+      // Poll until done
+      const checkInterval = setInterval(() => {
+        getMeetings().then((updated) => {
+          setMeetings(updated);
+          const meeting = updated.find(m => m.id === id);
+          if (meeting && meeting.status !== 'processing') {
+            clearInterval(checkInterval);
+            setRerunningId(null);
+          }
+        }).catch(() => {});
+      }, 3000);
+      setTimeout(() => { clearInterval(checkInterval); setRerunningId(null); }, 300000);
+    } catch (err) {
+      setError((err as Error).message);
+      setRerunningId(null);
     }
   };
 
@@ -408,6 +436,17 @@ export function Recording() {
                       </Box>
                     </CardContent>
                   </CardActionArea>
+                  {meeting.status === 'failed' && (
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRerunMeeting(meeting.id)}
+                      disabled={rerunningId === meeting.id}
+                      sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}
+                      title="Rerun analysis"
+                    >
+                      <ReplayIcon fontSize="small" />
+                    </IconButton>
+                  )}
                   <IconButton
                     size="small"
                     onClick={() => handleDeleteMeeting(meeting.id)}

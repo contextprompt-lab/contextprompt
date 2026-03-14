@@ -18,6 +18,6 @@ ENV NODE_ENV=production
 ENV CONTEXTPROMPT_DB_PATH=/data/contextprompt.db
 ENV PORT=3847
 
-EXPOSE 3847
+EXPOSE ${PORT}
 
-CMD ["node", "dist/bin/contextprompt.js", "dashboard", "--port", "3847"]
+CMD node dist/bin/contextprompt.js dashboard --port ${PORT}

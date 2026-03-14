@@ -1,11 +1,15 @@
 import { Router } from 'express';
-import { existsSync, readdirSync, statSync } from 'node:fs';
-import { resolve, basename, join } from 'node:path';
+import { existsSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
+import { resolve, basename, join, dirname } from 'node:path';
 import { homedir } from 'node:os';
 import { getRepos, getRepo, addRepo, removeRepo, updateRepoGithub } from '../db.js';
 import { detectGithubRemote } from '../../github/client.js';
 
 export const reposRouter = Router();
+
+// Base directory for uploaded repos (works in Docker with /data, falls back to local .data)
+const UPLOAD_DIR = process.env.CONTEXTPROMPT_UPLOAD_DIR
+  || (existsSync('/data') ? '/data/repos' : resolve(process.cwd(), '.data', 'repos'));
 
 // List all repos
 reposRouter.get('/', (_req, res) => {
@@ -35,6 +39,41 @@ reposRouter.post('/', (req, res) => {
   const name = basename(fullPath);
   const id = addRepo(fullPath, name);
   res.json({ id, path: fullPath, name });
+});
+
+// Upload a repo (files sent from browser via File System Access API)
+reposRouter.post('/upload', (req, res) => {
+  const { name, files } = req.body as {
+    name?: string;
+    files?: Array<{ path: string; content: string }>;
+  };
+
+  if (!name || !files || !Array.isArray(files) || files.length === 0) {
+    res.status(400).json({ error: 'Missing name or files' });
+    return;
+  }
+
+  // Sanitize repo name
+  const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const repoDir = join(UPLOAD_DIR, `${safeName}_${Date.now()}`);
+
+  try {
+    mkdirSync(repoDir, { recursive: true });
+
+    for (const file of files) {
+      // Prevent path traversal
+      const sanitizedPath = file.path.replace(/\.\./g, '_');
+      const filePath = join(repoDir, sanitizedPath);
+      const dir = dirname(filePath);
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(filePath, file.content, 'utf-8');
+    }
+
+    const id = addRepo(repoDir, safeName);
+    res.json({ id, path: repoDir, name: safeName });
+  } catch (err) {
+    res.status(500).json({ error: `Upload failed: ${(err as Error).message}` });
+  }
 });
 
 // Browse directories on disk

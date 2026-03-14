@@ -84,7 +84,7 @@ export const connectRepoGithub = (id: number, owner?: string, repo?: string) =>
 export const disconnectRepoGithub = (id: number) =>
   request<{ ok: true }>(`/repos/${id}/github`, { method: 'DELETE' });
 
-// Folder browser
+// Folder browser (server-side, for local dev)
 export interface BrowseResult {
   current: string;
   parent: string;
@@ -93,6 +93,85 @@ export interface BrowseResult {
 
 export const browseFolders = (path?: string) =>
   request<BrowseResult>(`/repos/browse${path ? `?path=${encodeURIComponent(path)}` : ''}`);
+
+// Upload repo (for deployed use — files read client-side via File System Access API)
+export interface UploadFile {
+  path: string;
+  content: string;
+}
+
+export async function uploadRepo(name: string, files: UploadFile[]) {
+  return request<{ id: number; path: string; name: string }>('/repos/upload', {
+    method: 'POST',
+    body: JSON.stringify({ name, files }),
+  });
+}
+
+// Check if File System Access API is available
+export function supportsFileSystemAccess(): boolean {
+  return 'showDirectoryPicker' in window;
+}
+
+// Read a directory recursively using File System Access API
+const SKIP_DIRS = new Set([
+  'node_modules', 'dist', 'build', '.git', '.next', '.nuxt',
+  'coverage', '.cache', '.turbo', 'vendor', '__pycache__',
+  '.venv', 'venv', 'target', '.DS_Store',
+]);
+
+const SKIP_EXT = new Set([
+  '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp',
+  '.woff', '.woff2', '.ttf', '.eot',
+  '.lock', '.map',
+  '.mp3', '.mp4', '.wav', '.avi',
+  '.zip', '.tar', '.gz',
+  '.pdf', '.doc', '.docx',
+  '.exe', '.dll', '.so', '.dylib',
+]);
+
+const MAX_FILE_SIZE = 100_000; // 100KB per file
+const MAX_TOTAL_FILES = 2000;
+
+export async function readDirectoryHandle(
+  dirHandle: FileSystemDirectoryHandle,
+  onProgress?: (count: number) => void,
+): Promise<{ name: string; files: UploadFile[] }> {
+  const files: UploadFile[] = [];
+
+  async function walk(handle: FileSystemDirectoryHandle, prefix: string) {
+    if (files.length >= MAX_TOTAL_FILES) return;
+
+    for await (const entry of handle.values()) {
+      if (files.length >= MAX_TOTAL_FILES) break;
+
+      if (entry.kind === 'directory') {
+        if (SKIP_DIRS.has(entry.name)) continue;
+        if (entry.name.startsWith('.') && entry.name !== '.gitignore') continue;
+        await walk(entry as FileSystemDirectoryHandle, `${prefix}${entry.name}/`);
+      } else {
+        const ext = entry.name.includes('.') ? '.' + entry.name.split('.').pop()!.toLowerCase() : '';
+        if (SKIP_EXT.has(ext)) continue;
+
+        try {
+          const file = await (entry as FileSystemFileHandle).getFile();
+          if (file.size > MAX_FILE_SIZE) continue;
+
+          const content = await file.text();
+          // Skip binary-looking files
+          if (content.includes('\0')) continue;
+
+          files.push({ path: `${prefix}${entry.name}`, content });
+          onProgress?.(files.length);
+        } catch {
+          // Skip files we can't read
+        }
+      }
+    }
+  }
+
+  await walk(dirHandle, '');
+  return { name: dirHandle.name, files };
+}
 
 // Recording
 export interface RecordingStatus {

@@ -32,7 +32,11 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import SourceIcon from '@mui/icons-material/Source';
-import { getRepos, addRepo, removeRepo, browseFolders, connectRepoGithub, disconnectRepoGithub, type Repo, type BrowseResult } from '../api';
+import {
+  getRepos, addRepo, removeRepo, browseFolders, connectRepoGithub, disconnectRepoGithub,
+  uploadRepo, supportsFileSystemAccess, readDirectoryHandle,
+  type Repo, type BrowseResult,
+} from '../api';
 
 export function Repos() {
   const [repos, setRepos] = useState<Repo[]>([]);
@@ -87,8 +91,34 @@ export function Repos() {
     }
   };
 
+  // --- Upload state (for File System Access API) ---
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
+
   // --- Folder browser ---
   const openBrowser = async () => {
+    // Use File System Access API when available (deployed / Chrome)
+    if (supportsFileSystemAccess()) {
+      setError(null);
+      try {
+        const dirHandle = await (window as any).showDirectoryPicker({ mode: 'read' });
+        setUploadProgress('Reading files...');
+        const { name, files } = await readDirectoryHandle(dirHandle, (count) => {
+          setUploadProgress(`Reading files... (${count} files)`);
+        });
+        setUploadProgress(`Uploading ${files.length} files...`);
+        await uploadRepo(name, files);
+        setUploadProgress(null);
+        loadRepos();
+      } catch (err: any) {
+        setUploadProgress(null);
+        // User cancelled the picker
+        if (err.name === 'AbortError') return;
+        setError(err.message);
+      }
+      return;
+    }
+
+    // Fallback: server-side browse (local dev)
     setBrowseOpen(true);
     setBrowseError(null);
     setBrowseLoading(true);
@@ -138,6 +168,7 @@ export function Repos() {
       <Typography variant="h4" sx={{ mb: 3 }}>Repos</Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {uploadProgress && <Alert severity="info" sx={{ mb: 2 }}>{uploadProgress}</Alert>}
 
       {/* Add repo */}
       <Card sx={{ mb: 3 }}>

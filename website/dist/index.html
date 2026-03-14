@@ -26,9 +26,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
-  <script type="module" crossorigin src="/assets/main-DBtcdWb4.js"></script>
+  <script type="module" crossorigin src="/assets/main-Pw-rKD5Q.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-DCA8Y-5-.css">
+  <link rel="stylesheet" crossorigin href="/assets/main-CYmyadI5.css">
   <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
 </head>
 <body>
@@ -141,6 +141,42 @@
         </div>
         <p class="problem-quote">"How do I phrase this for Claude?"</p>
         <p class="problem-desc">You spend 15 minutes writing a prompt that captures what was discussed, guessing at file paths, and hoping you didn't miss a detail.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== SPLIT DEMO ====== -->
+  <section class="split-demo" id="split-demo">
+    <div class="container">
+      <h2>See the difference</h2>
+
+      <div class="demo-timer">
+        <span class="demo-timer-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <span class="demo-timer-value" id="demo-timer">0:00</span>
+      </div>
+
+      <div class="demo-split">
+        <div class="demo-panel demo-panel--left">
+          <div class="demo-panel-header">
+            <span class="demo-panel-label demo-panel-label--dim">Current Process</span>
+          </div>
+          <div class="demo-panel-body" id="demo-left"></div>
+          <div class="demo-panel-status" id="demo-left-status"></div>
+        </div>
+
+        <div class="demo-divider"></div>
+
+        <div class="demo-panel demo-panel--right">
+          <div class="demo-panel-header">
+            <span class="demo-panel-label demo-panel-label--green">meetcode</span>
+          </div>
+          <div class="demo-panel-body" id="demo-right"></div>
+          <div class="demo-panel-status" id="demo-right-status"></div>
+        </div>
+      </div>
+
+      <div class="demo-progress">
+        <div class="demo-progress-bar" id="demo-progress-bar"></div>
       </div>
     </div>
   </section>

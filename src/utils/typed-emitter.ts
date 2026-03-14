@@ -1,7 +1,6 @@
 /**
  * A minimal typed event emitter. Replaces the identical `on`/`emit`/`listeners`
- * boilerplate duplicated across AudioCapture, MicCapture, AudioMixer, and
- * DeepgramTranscriber.
+ * boilerplate duplicated across AudioCapture, MicCapture, and AudioMixer.
  */
 export class TypedEmitter<Events extends Record<string, (...args: any[]) => void>> {
   private listeners = new Map<string, Set<Function>>();

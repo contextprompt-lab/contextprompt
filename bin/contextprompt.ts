@@ -10,7 +10,7 @@ import { dashboardCommand } from './commands/dashboard.js';
 const program = new Command();
 
 program
-  .name('meetcode')
+  .name('contextprompt')
   .description('Capture meeting conversations, understand your codebase, output structured coding tasks')
   .version('0.1.0');
 
@@ -29,7 +29,7 @@ program
 
 program
   .command('stop')
-  .description('Stop a running meetcode session')
+  .description('Stop a running contextprompt session')
   .action(stopCommand);
 
 program
@@ -48,7 +48,7 @@ program
 
 program
   .command('dashboard')
-  .description('Open the meetcode web dashboard')
+  .description('Open the contextprompt web dashboard')
   .option('--port <port>', 'Port for the dashboard server', '3847')
   .action((opts) => dashboardCommand({ port: parseInt(opts.port, 10) }));
 

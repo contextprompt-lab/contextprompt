@@ -215,3 +215,5 @@ export const sendBot = (meetingUrl: string, repoIds?: number[], botName?: string
     body: JSON.stringify({ meeting_url: meetingUrl, repo_ids: repoIds, bot_name: botName }),
   });
 export const getBotStatus = (botId: string) => request<BotStatus>(`/bots/${botId}`);
+export const leaveBotCall = (botId: string) =>
+  request<{ ok: true }>(`/bots/${botId}/leave`, { method: 'POST' });

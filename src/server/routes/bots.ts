@@ -14,6 +14,8 @@ import {
   downloadTranscript,
   formatRecallTranscript,
   isRecallConfigured,
+  leaveBotCall,
+  type RecallBot,
 } from '../recall.js';
 import {
   getRepos,
@@ -34,6 +36,8 @@ export const botsRouter = Router();
 
 // Track active bot sessions: botId -> { meetingDbId, repoIds }
 const activeBots = new Map<string, { meetingId: number; repoPaths: string[] }>();
+// Track bots already being processed (to avoid duplicate processing)
+const processingBots = new Set<string>();
 
 // Check if Recall.ai is configured
 botsRouter.get('/status', (_req, res) => {
@@ -50,7 +54,7 @@ botsRouter.post('/', async (req, res) => {
   }
 
   if (!isRecallConfigured()) {
-    res.status(400).json({ error: 'Recall.ai API key not configured. Go to Settings.' });
+    res.status(400).json({ error: 'RECALL_API_KEY not set in .env file.' });
     return;
   }
 
@@ -75,7 +79,7 @@ botsRouter.post('/', async (req, res) => {
   }
 
   try {
-    const bot = await createBot(meeting_url, bot_name || 'meetcode');
+    const bot = await createBot(meeting_url, bot_name || 'contextprompt');
 
     // Insert a pending meeting in the DB
     const meetingId = insertMeeting({
@@ -102,17 +106,37 @@ botsRouter.post('/', async (req, res) => {
   }
 });
 
-// Get bot status
+// Tell bot to leave the meeting early
+botsRouter.post('/:id/leave', async (req, res) => {
+  try {
+    await leaveBotCall(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// Get bot status — also triggers processing when bot is done (fallback for no webhook)
 botsRouter.get('/:id', async (req, res) => {
   try {
     const bot = await getBot(req.params.id);
     const latestStatus = bot.status_changes[bot.status_changes.length - 1];
     const session = activeBots.get(req.params.id);
+    const statusCode = latestStatus?.code ?? 'unknown';
+
+    // If bot is done and we haven't started processing yet, trigger it
+    if (statusCode === 'done' && session && !processingBots.has(req.params.id)) {
+      processingBots.add(req.params.id);
+      processCompletedBot(req.params.id).catch(err => {
+        logger.error(`Failed to process bot ${req.params.id}: ${err.message}`);
+        processingBots.delete(req.params.id);
+      });
+    }
 
     res.json({
       bot_id: bot.id,
       meeting_id: session?.meetingId ?? null,
-      status: latestStatus?.code ?? 'unknown',
+      status: statusCode,
       status_changes: bot.status_changes,
       has_recording: bot.recordings.length > 0,
     });
@@ -150,6 +174,18 @@ botsRouter.post('/webhook', async (req, res) => {
   }
 });
 
+async function waitForTranscript(botId: string, maxRetries = 10): Promise<RecallBot> {
+  for (let i = 0; i < maxRetries; i++) {
+    const bot = await getBot(botId);
+    if (bot.recordings.length > 0 && bot.recordings[0].media_shortcuts.transcript?.data?.download_url) {
+      return bot;
+    }
+    logger.info(`Waiting for transcript to be ready (attempt ${i + 1}/${maxRetries})...`);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+  return getBot(botId);
+}
+
 async function processCompletedBot(botId: string): Promise<void> {
   const session = activeBots.get(botId);
   if (!session) {
@@ -160,11 +196,11 @@ async function processCompletedBot(botId: string): Promise<void> {
   const { meetingId, repoPaths } = session;
 
   try {
-    // 1. Get bot details with recording URLs
-    const bot = await getBot(botId);
+    // 1. Wait for recording + transcript to be ready (may take a few seconds after 'done')
+    const bot = await waitForTranscript(botId);
 
     if (bot.recordings.length === 0) {
-      logger.warn(`Bot ${botId} has no recordings`);
+      logger.error(`Bot ${botId} has no recordings after waiting`);
       const { getDb } = await import('../db.js');
       const db = getDb();
       db.prepare('UPDATE meetings SET status = ? WHERE id = ?').run('failed', meetingId);
@@ -173,10 +209,10 @@ async function processCompletedBot(botId: string): Promise<void> {
     }
 
     const recording = bot.recordings[0];
-    const transcriptUrl = recording.media_shortcuts.transcript?.download_url;
+    const transcriptUrl = recording.media_shortcuts.transcript?.data?.download_url;
 
     if (!transcriptUrl) {
-      logger.warn(`Bot ${botId} has no transcript`);
+      logger.error(`Bot ${botId} has no transcript URL. Available media: ${JSON.stringify(recording.media_shortcuts)}`);
       const { getDb } = await import('../db.js');
       const db = getDb();
       db.prepare('UPDATE meetings SET status = ? WHERE id = ?').run('failed', meetingId);
@@ -223,8 +259,9 @@ async function processCompletedBot(botId: string): Promise<void> {
     }
 
     // 4. Extract tasks with Claude
-    const config = loadConfig({ requireDeepgram: false });
+    const config = loadConfig();
     const model = getSetting('default_model') || 'claude-sonnet-4-6';
+    const language = getSetting('response_language') || undefined;
     logger.info(`Extracting tasks with ${model}...`);
 
     const plan = await extractTasks(
@@ -232,6 +269,7 @@ async function processCompletedBot(botId: string): Promise<void> {
       repoMaps,
       config.anthropicApiKey,
       model,
+      language,
     );
     logger.info(`Extracted ${plan.tasks.length} task(s)`);
 
@@ -282,5 +320,6 @@ async function processCompletedBot(botId: string): Promise<void> {
     db.prepare('UPDATE meetings SET status = ? WHERE id = ?').run('failed', meetingId);
   } finally {
     activeBots.delete(botId);
+    processingBots.delete(botId);
   }
 }

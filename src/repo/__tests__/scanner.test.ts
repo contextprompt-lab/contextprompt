@@ -8,7 +8,7 @@ describe('scanRepo', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), 'meetcode-test-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'contextprompt-test-'));
   });
 
   afterEach(() => {

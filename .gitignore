@@ -8,4 +8,4 @@ dist/
 !tsup.config.ts
 !website/**/*.js
 !website/vite.config.js
-meetcode-*.md
+contextprompt-*.md

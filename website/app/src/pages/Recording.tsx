@@ -18,7 +18,10 @@ import {
   TextField,
   LinearProgress,
   Divider,
+  IconButton,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
@@ -31,6 +34,8 @@ import {
   getRecallStatus,
   sendBot,
   getBotStatus,
+  leaveBotCall,
+  deleteMeeting,
   type Repo,
   type Meeting,
 } from '../api';
@@ -102,21 +107,29 @@ export function Recording() {
         if (status.status === 'done') {
           clearInterval(pollRef.current!);
           pollRef.current = null;
-          // Wait a moment then reload meetings (processing takes a few seconds)
+          // Poll meeting status until processing completes
           setTimeout(() => {
             loadMeetings();
-            // Keep polling the meeting status until it's completed
             const checkMeeting = setInterval(() => {
               getMeetings().then((meetings) => {
                 setMeetings(meetings);
                 const meeting = meetings.find(m => m.id === status.meeting_id);
                 if (meeting && (meeting.status === 'completed' || meeting.status === 'failed')) {
                   clearInterval(checkMeeting);
+                  // Clear active bot — processing is done
+                  setActiveBotId(null);
+                  setActiveMeetingId(null);
+                  setBotStatus('');
                 }
               }).catch(() => {});
             }, 3000);
             // Stop checking after 5 minutes
-            setTimeout(() => clearInterval(checkMeeting), 300000);
+            setTimeout(() => {
+              clearInterval(checkMeeting);
+              setActiveBotId(null);
+              setActiveMeetingId(null);
+              setBotStatus('');
+            }, 300000);
           }, 2000);
         } else if (status.status === 'fatal' || status.status === 'recording_permission_denied') {
           clearInterval(pollRef.current!);
@@ -151,6 +164,24 @@ export function Recording() {
     }
   };
 
+  const handleStopBot = async () => {
+    if (!activeBotId) return;
+    try {
+      await leaveBotCall(activeBotId);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  const handleDeleteMeeting = async (id: number) => {
+    try {
+      await deleteMeeting(id);
+      setMeetings((prev) => prev.filter((m) => m.id !== id));
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
   const toggleRepo = (id: number) => {
     setSelectedRepos((prev) => {
       const next = new Set(prev);
@@ -166,12 +197,9 @@ export function Recording() {
       <Box>
         <Typography variant="h4" sx={{ mb: 3 }}>Meetings</Typography>
         <Alert severity="info" sx={{ mb: 2 }}>
-          Add your Recall.ai API key in <strong>Settings</strong> to start recording meetings.
+          Set <strong>RECALL_API_KEY</strong> in your project <strong>.env</strong> file to start recording meetings.
           Get your key at <strong>recall.ai</strong>.
         </Alert>
-        <Button variant="contained" onClick={() => navigate('/settings')}>
-          Go to Settings
-        </Button>
       </Box>
     );
   }
@@ -206,8 +234,19 @@ export function Recording() {
             )}
             {botStatus === 'in_waiting_room' && (
               <Typography variant="body2" color="warning.main" sx={{ mt: 1 }}>
-                The meetcode bot is in the waiting room. Please admit it from your meeting.
+                The contextprompt bot is in the waiting room. Please admit it from your meeting.
               </Typography>
+            )}
+            {isRecording && (
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<StopCircleIcon />}
+                onClick={handleStopBot}
+                sx={{ mt: 2 }}
+              >
+                Stop recording
+              </Button>
             )}
           </CardContent>
         </Card>
@@ -223,7 +262,7 @@ export function Recording() {
                   Add repos before recording
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  meetcode needs to scan your codebase to map meeting conversations to code.
+                  contextprompt needs to scan your codebase to map meeting conversations to code.
                 </Typography>
                 <Button
                   variant="outlined"
@@ -306,57 +345,67 @@ export function Recording() {
           <Stack spacing={1}>
             {meetings.map((meeting) => (
               <Card key={meeting.id}>
-                <CardActionArea
-                  onClick={() => meeting.status === 'completed' && navigate(`/meetings/${meeting.id}`)}
-                  disabled={meeting.status !== 'completed'}
-                >
-                  <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box>
-                        <Typography variant="subtitle2" fontWeight={600}>
-                          {formatDate(meeting.date)}
-                        </Typography>
-                        <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
-                          {meeting.status === 'completed' && (
-                            <>
-                              <Stack direction="row" spacing={0.5} alignItems="center">
-                                <AccessTimeIcon sx={{ fontSize: 14 }} color="action" />
-                                <Typography variant="caption" color="text.secondary">
-                                  {formatDuration(meeting.duration_minutes)}
-                                </Typography>
-                              </Stack>
-                              <Stack direction="row" spacing={0.5} alignItems="center">
-                                <TaskAltIcon sx={{ fontSize: 14 }} color="action" />
-                                <Typography variant="caption" color="text.secondary">
-                                  {meeting.task_count} task{meeting.task_count !== 1 ? 's' : ''}
-                                </Typography>
-                              </Stack>
-                              {meeting.speaker_count > 0 && (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CardActionArea
+                    onClick={() => meeting.status === 'completed' && navigate(`/meetings/${meeting.id}`)}
+                    disabled={meeting.status !== 'completed'}
+                    sx={{ flex: 1 }}
+                  >
+                    <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight={600}>
+                            {formatDate(meeting.date)}
+                          </Typography>
+                          <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
+                            {meeting.status === 'completed' && (
+                              <>
                                 <Stack direction="row" spacing={0.5} alignItems="center">
-                                  <GroupIcon sx={{ fontSize: 14 }} color="action" />
+                                  <AccessTimeIcon sx={{ fontSize: 14 }} color="action" />
                                   <Typography variant="caption" color="text.secondary">
-                                    {meeting.speaker_count} speaker{meeting.speaker_count !== 1 ? 's' : ''}
+                                    {formatDuration(meeting.duration_minutes)}
                                   </Typography>
                                 </Stack>
-                              )}
-                            </>
-                          )}
-                        </Stack>
+                                <Stack direction="row" spacing={0.5} alignItems="center">
+                                  <TaskAltIcon sx={{ fontSize: 14 }} color="action" />
+                                  <Typography variant="caption" color="text.secondary">
+                                    {meeting.task_count} task{meeting.task_count !== 1 ? 's' : ''}
+                                  </Typography>
+                                </Stack>
+                                {meeting.speaker_count > 0 && (
+                                  <Stack direction="row" spacing={0.5} alignItems="center">
+                                    <GroupIcon sx={{ fontSize: 14 }} color="action" />
+                                    <Typography variant="caption" color="text.secondary">
+                                      {meeting.speaker_count} speaker{meeting.speaker_count !== 1 ? 's' : ''}
+                                    </Typography>
+                                  </Stack>
+                                )}
+                              </>
+                            )}
+                          </Stack>
+                        </Box>
+                        <Chip
+                          label={meeting.status}
+                          size="small"
+                          color={
+                            meeting.status === 'completed' ? 'success'
+                            : meeting.status === 'failed' ? 'error'
+                            : meeting.status === 'recording' ? 'warning'
+                            : 'default'
+                          }
+                          variant="outlined"
+                        />
                       </Box>
-                      <Chip
-                        label={meeting.status}
-                        size="small"
-                        color={
-                          meeting.status === 'completed' ? 'success'
-                          : meeting.status === 'failed' ? 'error'
-                          : meeting.status === 'recording' ? 'warning'
-                          : 'default'
-                        }
-                        variant="outlined"
-                      />
-                    </Box>
-                  </CardContent>
-                </CardActionArea>
+                    </CardContent>
+                  </CardActionArea>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDeleteMeeting(meeting.id)}
+                    sx={{ mr: 1, color: 'text.secondary', '&:hover': { color: 'error.main' } }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
               </Card>
             ))}
           </Stack>

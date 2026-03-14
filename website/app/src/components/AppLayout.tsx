@@ -91,7 +91,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Toolbar>
         <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-          meetcode
+          contextprompt
         </Typography>
       </Toolbar>
 

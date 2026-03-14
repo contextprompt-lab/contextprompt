@@ -8,9 +8,15 @@ let db: Database.Database | null = null;
 export function getDb(): Database.Database {
   if (db) return db;
 
-  const configDir = getConfigDir();
-  mkdirSync(configDir, { recursive: true });
-  const dbPath = join(configDir, 'meetcode.db');
+  let dbPath: string;
+  if (process.env.CONTEXTPROMPT_DB_PATH) {
+    dbPath = process.env.CONTEXTPROMPT_DB_PATH;
+    mkdirSync(join(dbPath, '..'), { recursive: true });
+  } else {
+    const configDir = getConfigDir();
+    mkdirSync(configDir, { recursive: true });
+    dbPath = join(configDir, 'contextprompt.db');
+  }
 
   db = new Database(dbPath);
   db.pragma('journal_mode = WAL');

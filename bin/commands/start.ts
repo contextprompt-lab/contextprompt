@@ -7,7 +7,6 @@ import { loadConfig } from '../../src/config.js';
 import { createAudioCapture } from '../../src/audio/capture.js';
 import { MicCapture } from '../../src/audio/mic.js';
 import { AudioMixer } from '../../src/audio/mixer.js';
-import { DeepgramTranscriber } from '../../src/transcription/deepgram.js';
 import { Transcript } from '../../src/transcription/transcript.js';
 import { scanRepo } from '../../src/repo/scanner.js';
 import { extractTasks } from '../../src/tasks/extractor.js';
@@ -60,14 +59,12 @@ export async function startCommand(options: StartOptions): Promise<void> {
   const audio = useMicOnly ? null : await createAudioCapture(options.audioDevice);
   const mic = (options.mic || useMicOnly) ? new MicCapture() : null;
   const mixer = useMixer ? new AudioMixer() : null;
-  const transcriber = new DeepgramTranscriber(config.deepgramApiKey);
   const startTime = Date.now();
 
-  // Wire audio → Deepgram
+  // Wire audio sources
   let audioChunks = 0;
 
   if (useMicOnly && mic) {
-    // Mic-only: send mic audio directly to Deepgram, no system audio or mixer
     mic.on('data', (chunk) => {
       audioChunks++;
       if (audioChunks === 1) {
@@ -76,14 +73,12 @@ export async function startCommand(options: StartOptions): Promise<void> {
       if (audioChunks % 100 === 0) {
         logger.debug(`Mic chunks sent: ${audioChunks}`);
       }
-      transcriber.send(chunk);
     });
 
     mic.on('error', (err) => {
       logger.error(`Mic error: ${err.message}`);
     });
   } else if (mixer && mic && audio) {
-    // Bidirectional: mix system audio + mic, then send to Deepgram
     audio.on('data', (chunk) => mixer.pushSystem(chunk));
     mic.on('data', (chunk) => mixer.pushMic(chunk));
 
@@ -95,14 +90,12 @@ export async function startCommand(options: StartOptions): Promise<void> {
       if (audioChunks % 100 === 0) {
         logger.debug(`Mixed audio chunks sent: ${audioChunks}`);
       }
-      transcriber.send(chunk);
     });
 
     mic.on('error', (err) => {
       logger.error(`Mic error: ${err.message}`);
     });
   } else if (audio) {
-    // System audio only
     audio.on('data', (chunk) => {
       audioChunks++;
       if (audioChunks === 1) {
@@ -111,7 +104,6 @@ export async function startCommand(options: StartOptions): Promise<void> {
       if (audioChunks % 100 === 0) {
         logger.debug(`Audio chunks sent: ${audioChunks}`);
       }
-      transcriber.send(chunk);
     });
   }
 
@@ -121,19 +113,6 @@ export async function startCommand(options: StartOptions): Promise<void> {
     });
   }
 
-  // Wire Deepgram → Transcript
-  transcriber.on('utterance', (utterance) => {
-    transcript.addUtterance(utterance);
-    if (options.verbose) {
-      const label = transcript.getSpeakerLabel(utterance.speaker);
-      logger.transcript(label, utterance.text);
-    }
-  });
-
-  transcriber.on('error', (err) => {
-    logger.error(`Transcription error: ${err.message}`);
-  });
-
   // Start recording
   const spinner = ora({
     text: chalk.green('Recording... Press Ctrl+C to stop'),
@@ -142,11 +121,10 @@ export async function startCommand(options: StartOptions): Promise<void> {
 
   try {
     await Promise.all([
-      transcriber.connect(),
       ...(audio ? [audio.start()] : []),
       ...(mic ? [mic.start()] : []),
     ]);
-    if (useMicOnly) logger.debug('Mic-only capture: microphone → Deepgram (no system audio)');
+    if (useMicOnly) logger.debug('Mic-only capture: microphone (no system audio)');
     else if (mic) logger.debug('Bidirectional capture: system audio + microphone');
     if (mixer) mixer.start();
     spinner.start();
@@ -181,13 +159,9 @@ export async function startCommand(options: StartOptions): Promise<void> {
       mic ? mic.stop() : Promise.resolve(),
       audio ? audio.stop() : Promise.resolve(),
     ]);
-    // Phase 2: Flush mixer (sends remaining buffered audio to transcriber)
+    // Phase 2: Flush mixer
     if (mixer) mixer.stop();
-    // Phase 3: Close transcriber (finalize + wait for final results from Deepgram)
-    const transcriberResult = await Promise.allSettled([
-      transcriber.close(),
-    ]);
-    for (const result of [...sourceResults, ...transcriberResult]) {
+    for (const result of [...sourceResults]) {
       if (result.status === 'rejected') {
         logger.debug(`Cleanup step failed: ${result.reason}`);
       }
@@ -295,7 +269,7 @@ export async function startCommand(options: StartOptions): Promise<void> {
 
   // Handle Ctrl+C
   process.on('SIGINT', shutdown);
-  // Handle `meetcode stop`
+  // Handle `contextprompt stop`
   if (platform() === 'win32') {
     // Windows: watch for sentinel file since SIGUSR2 doesn't exist
     watchForStopSentinel(shutdown);

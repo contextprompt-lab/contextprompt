@@ -47,7 +47,7 @@ async function selectTask(taskId) {
   // Prompt line
   const header = document.createElement('div');
   header.className = 'exec-terminal-header-line';
-  header.innerHTML = `<span class="exec-prompt">claude</span> Implement task ${taskId} from meetcode-2026-03-12.md`;
+  header.innerHTML = `<span class="exec-prompt">claude</span> Implement task ${taskId} from contextprompt-2026-03-12.md`;
   terminalEl.appendChild(header);
 
   const sep = document.createElement('div');

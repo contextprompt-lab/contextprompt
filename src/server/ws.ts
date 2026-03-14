@@ -1,12 +1,11 @@
 import { type Server } from 'node:http';
 import { WebSocketServer, WebSocket } from 'ws';
-import { DeepgramTranscriber } from '../transcription/deepgram.js';
 import { Transcript } from '../transcription/transcript.js';
 import { scanRepo } from '../repo/scanner.js';
 import { extractTasks } from '../tasks/extractor.js';
 import { renderMarkdown, generateOutputFilename } from '../output/markdown.js';
 import { loadConfig } from '../config.js';
-import { getRepos, touchRepo, insertMeeting, insertTasksForMeeting } from './db.js';
+import { getRepos, touchRepo, insertMeeting, insertTasksForMeeting, getSetting } from './db.js';
 import { getRecordingState, setRecordingState, addRecordingLog, resetRecordingState } from './recording-state.js';
 import { logger } from '../utils/logger.js';
 import { writeFileSync } from 'node:fs';
@@ -35,7 +34,6 @@ export function attachWebSocket(server: Server): void {
   const wss = new WebSocketServer({ server, path: '/ws/recording' });
 
   wss.on('connection', (ws) => {
-    let transcriber: DeepgramTranscriber | null = null;
     let transcript: Transcript | null = null;
     let startTime = 0;
     let repoPaths: string[] = [];
@@ -48,11 +46,8 @@ export function attachWebSocket(server: Server): void {
     };
 
     ws.on('message', async (data, isBinary) => {
-      // Binary = audio data from MediaRecorder
+      // Binary = audio data (currently unused)
       if (isBinary) {
-        if (transcriber && active) {
-          transcriber.send(data as Buffer);
-        }
         return;
       }
 
@@ -90,15 +85,6 @@ export function attachWebSocket(server: Server): void {
         return;
       }
 
-      // Load API keys
-      let config;
-      try {
-        config = loadConfig();
-      } catch (err) {
-        sendJson(ws, { type: 'error', message: (err as Error).message });
-        return;
-      }
-
       // Resolve repos
       if (msg.repos && msg.repos.length > 0) {
         const allRepos = getRepos();
@@ -123,37 +109,6 @@ export function attachWebSocket(server: Server): void {
 
       model = msg.model || 'claude-sonnet-4-6';
       transcript = new Transcript(msg.speakers);
-      transcriber = new DeepgramTranscriber(config.deepgramApiKey);
-
-      // Wire utterances back to browser
-      transcriber.on('utterance', (utterance) => {
-        transcript!.addUtterance(utterance);
-        const label = transcript!.getSpeakerLabel(utterance.speaker);
-        log(`[transcript] ${label}: ${utterance.text}`);
-        sendJson(ws, {
-          type: 'utterance',
-          speaker: label,
-          text: utterance.text,
-          startTime: utterance.startTime,
-          endTime: utterance.endTime,
-        });
-      });
-
-      transcriber.on('error', (err) => {
-        log(`[error] Transcription error: ${err.message}`);
-      });
-
-      try {
-        // Browser MediaRecorder sends WebM/Opus at 48kHz
-        await transcriber.connect({
-          encoding: 'opus',
-          sampleRate: 48000,
-          channels: 1,
-        });
-      } catch (err) {
-        sendJson(ws, { type: 'error', message: `Failed to connect to Deepgram: ${(err as Error).message}` });
-        return;
-      }
 
       active = true;
       startTime = Date.now();
@@ -171,7 +126,7 @@ export function attachWebSocket(server: Server): void {
     }
 
     async function handleStop() {
-      if (!active || !transcriber || !transcript) {
+      if (!active || !transcript) {
         sendJson(ws, { type: 'error', message: 'Not recording' });
         return;
       }
@@ -180,9 +135,6 @@ export function attachWebSocket(server: Server): void {
       setRecordingState({ status: 'processing' });
       sendJson(ws, { type: 'processing' });
       log('[info] Stopping recording...');
-
-      // Close transcriber (finalize + wait for last results)
-      await Promise.allSettled([transcriber.close()]);
 
       const durationMs = Date.now() - startTime;
       const durationMinutes = Math.round(durationMs / 60000);
@@ -197,7 +149,7 @@ export function attachWebSocket(server: Server): void {
       log(`[info] Captured ${transcript.getWordCount()} words in ~${durationMinutes} minutes`);
 
       try {
-        // Load config again for Anthropic key
+        // Load config for Anthropic key
         const config = loadConfig();
 
         // 1. Scan repos
@@ -210,6 +162,7 @@ export function attachWebSocket(server: Server): void {
         log(`[info] Scanned ${repoMaps.length} repo(s)`);
 
         // 2. Extract tasks
+        const language = getSetting('response_language') || undefined;
         log(`[info] Extracting tasks with ${model}...`);
         const formattedTranscript = transcript.toFormattedText();
         const plan = await extractTasks(
@@ -217,6 +170,7 @@ export function attachWebSocket(server: Server): void {
           repoMaps,
           config.anthropicApiKey,
           model,
+          language,
         );
         log(`[success] Extracted ${plan.tasks.length} task(s)`);
 
@@ -264,10 +218,6 @@ export function attachWebSocket(server: Server): void {
     }
 
     async function cleanup() {
-      if (transcriber) {
-        await Promise.allSettled([transcriber.close()]);
-        transcriber = null;
-      }
       transcript = null;
       active = false;
       resetRecordingState();

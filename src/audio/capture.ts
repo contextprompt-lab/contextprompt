@@ -21,6 +21,6 @@ export async function createAudioCapture(audioDevice?: string): Promise<AudioSou
   }
 
   throw new Error(
-    `Unsupported platform: ${os}. meetcode supports macOS and Windows.`
+    `Unsupported platform: ${os}. contextprompt supports macOS and Windows.`
   );
 }

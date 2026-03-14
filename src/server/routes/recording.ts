@@ -66,7 +66,7 @@ recordingRouter.post('/start', (req, res) => {
   // Use local tsx binary directly to avoid nvm/PATH issues
   const projectRoot = join(import.meta.dirname, '..', '..', '..');
   const tsxBin = join(projectRoot, 'node_modules', '.bin', 'tsx');
-  const entryScript = join(projectRoot, 'bin', 'meetcode.ts');
+  const entryScript = join(projectRoot, 'bin', 'contextprompt.ts');
 
   logger.debug(`Spawning: ${tsxBin} ${entryScript} ${cliArgs.join(' ')}`);
 

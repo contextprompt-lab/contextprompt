@@ -2,20 +2,19 @@
  * Recall.ai API client for sending meeting bots and retrieving recordings/transcripts.
  */
 
-import { getSetting } from './db.js';
 import { logger } from '../utils/logger.js';
 
 const DEFAULT_REGION = 'us-east-1';
 
 function getBaseUrl(): string {
-  const region = getSetting('recall_region') || DEFAULT_REGION;
+  const region = process.env.RECALL_REGION || DEFAULT_REGION;
   return `https://${region}.recall.ai/api/v1`;
 }
 
 function getApiKey(): string {
-  const key = getSetting('recall_api_key');
+  const key = process.env.RECALL_API_KEY;
   if (!key) {
-    throw new Error('Recall.ai API key not configured. Go to Settings to add it.');
+    throw new Error('RECALL_API_KEY not set in .env file.');
   }
   return key;
 }
@@ -53,8 +52,8 @@ export interface RecallBot {
   recordings: Array<{
     id: string;
     media_shortcuts: {
-      video_mixed?: { download_url: string };
-      transcript?: { download_url: string };
+      video_mixed?: { data: { download_url: string } };
+      transcript?: { data: { download_url: string } };
     };
   }>;
 }
@@ -74,7 +73,7 @@ export interface RecallTranscriptEntry {
 
 // --- API calls ---
 
-export async function createBot(meetingUrl: string, botName = 'meetcode'): Promise<RecallBot> {
+export async function createBot(meetingUrl: string, botName = 'contextprompt'): Promise<RecallBot> {
   logger.info(`Creating Recall.ai bot for meeting: ${meetingUrl}`);
   return recallFetch<RecallBot>('/bot/', {
     method: 'POST',
@@ -129,6 +128,11 @@ export function formatRecallTranscript(entries: RecallTranscriptEntry[]): {
     speakerCount: speakers.size,
     wordCount,
   };
+}
+
+export async function leaveBotCall(botId: string): Promise<void> {
+  logger.info(`Telling bot ${botId} to leave call...`);
+  await recallFetch<void>(`/bot/${botId}/leave_call/`, { method: 'POST' });
 }
 
 export function isRecallConfigured(): boolean {

@@ -38,7 +38,7 @@ export function verifyFfmpeg(ffmpegPath: string): string {
     throw new Error(
       'FFmpeg is required for audio capture on Windows but was not found.\n' +
       'Download it from https://www.gyan.dev/ffmpeg/builds/ (get the "essentials" build)\n' +
-      'and place ffmpeg.exe in the same folder as meetcode, or add it to your PATH.'
+      'and place ffmpeg.exe in the same folder as contextprompt, or add it to your PATH.'
     );
   }
 }

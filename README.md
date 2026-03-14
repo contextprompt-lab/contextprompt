@@ -1,123 +1,51 @@
-# meetcode
+# contextprompt
 
-A CLI that sits in your meetings, listens to the conversation, understands your codebase, and outputs structured coding tasks ready to feed into Claude Code.
+Your meeting decides what to build. contextprompt tells Claude Code how.
 
-**No product does this today.** Meeting tools don't understand code. Coding agents don't attend meetings. meetcode is the glue.
+**No product does this today.** Meeting tools don't understand code. Coding agents don't attend meetings. contextprompt is the glue.
 
 ## How it works
 
 ```
-Meeting audio → Deepgram transcription → Repo scan → Claude task extraction → Structured .md file
+Meeting → Bot records & transcribes → Repo scan → Claude task extraction → Structured tasks
 ```
 
-1. You start `meetcode` before a meeting
-2. It captures system audio and transcribes in real-time (speaker diarization included)
-3. When you stop it, it scans your repos — file tree, exports, function signatures
-4. It sends the transcript + codebase map to Claude, which extracts specific coding tasks
-5. You get a `.md` file with actionable tasks, file references, and implementation instructions
-
-Then you hand that file to Claude Code:
+1. Sign in with Google at [contextprompt.dev](https://contextprompt.dev)
+2. Connect your repos from the dashboard
+3. Paste a meeting URL (Zoom, Google Meet, or Teams)
+4. The contextprompt bot joins your call, records, and transcribes in real-time
+5. When the meeting ends, Claude scans your repos and extracts specific coding tasks
+6. View tasks in the dashboard, or hand the output to Claude Code:
 
 ```bash
-claude "Read meetcode-2026-03-12-143045.md and implement task T1"
+claude "Read contextprompt-2026-03-12-143045.md and implement task T1"
 ```
 
-## Quick start
+## Features
 
-### Prerequisites
+- **Works with Zoom, Google Meet, and Microsoft Teams** — the bot joins like any other participant
+- **Repo-aware task extraction** — scans your codebase for file paths, exports, function signatures, and types so tasks reference real code
+- **GitHub issue integration** — analyze open issues against your repo structure and get implementation plans
+- **Choose your Claude model** — Sonnet, Opus, or Haiku depending on the depth you need
+- **Multi-language support** — transcription and task extraction in 12 languages
 
-- **macOS 14.2+** (uses CoreAudio Process Tap for system audio capture) or **Windows** (uses FFmpeg DirectShow loopback)
-- **Node.js 20+**
-- API keys: [Deepgram](https://console.deepgram.com/) ($200 free credit) + [Anthropic](https://console.anthropic.com/)
+## Pricing
 
-### Install
+| Plan | Price | Includes |
+|------|-------|----------|
+| **Free** | $0 | 1 hour/week of meeting recording |
+| **Pro** | $30/mo | 15 hours/month of meeting recording |
 
-```bash
-# From npm
-npm install -g meetcode
-
-# Or from source
-git clone <repo-url> && cd meetcode
-npm install
-npm run build
-npm link    # makes `meetcode` available globally
-```
-
-### Configure
-
-```bash
-meetcode config
-```
-
-Prompts for your Deepgram and Anthropic API keys. Saves to `~/.meetcode/.env`.
-
-### Use
-
-```bash
-# Start recording (point it at your repos)
-meetcode start --repos ~/projects/my-app ~/projects/my-api
-
-# Meeting happens...
-# Real-time transcript visible with --verbose
-
-# Press Ctrl+C when done
-# → meetcode-2026-03-12-143045.md appears in your current directory
-```
-
-## CLI reference
-
-### `meetcode start`
-
-```
-Options:
-  --repos <paths...>       Repos to scan for context (default: current directory)
-  --output <path>          Output file path (default: ./meetcode-{date}-{time}.md)
-  --speakers <labels...>   Label speakers by order of appearance
-  --model <model>          Claude model (default: claude-sonnet-4-6)
-  --mic                    Also capture microphone audio (bidirectional)
-  --audio-device <name>    Specify audio device name (Windows only)
-  --verbose                Show real-time transcript in terminal
-```
-
-**Examples:**
-
-```bash
-# Single repo, verbose mode
-meetcode start --repos ./my-project --verbose
-
-# Multiple repos with speaker names
-meetcode start --repos ./frontend ./backend --speakers "Alice" "Bob" "Carol"
-
-# Use Opus for higher-quality task extraction
-meetcode start --repos . --model claude-opus-4-6
-
-# Capture both system audio and microphone
-meetcode start --repos . --mic
-
-# Windows with specific audio device
-meetcode start --repos . --audio-device "Stereo Mix"
-```
-
-### `meetcode stop`
-
-Sends a stop signal to a running meetcode session from another terminal.
-
-```bash
-meetcode stop
-```
-
-### `meetcode config`
-
-Interactive setup for API keys. Existing keys are preserved if you press Enter.
+No API keys needed. Everything is included — recording, transcription, and task extraction.
 
 ## Output format
 
-meetcode generates a structured markdown file:
+contextprompt generates a structured markdown file with actionable tasks:
 
 ```markdown
 # Meeting Tasks - Wednesday, March 12, 2026 2:30 PM
 
-> Generated by meetcode from a 45m meeting
+> Generated by contextprompt from a 45m meeting
 
 ## Summary
 The team decided to refactor the auth middleware to use JWT...
@@ -160,128 +88,12 @@ The team decided to refactor the auth middleware to use JWT...
 </details>
 ```
 
-## How repo scanning works
+## Supported platforms
 
-After the meeting ends, meetcode builds a lightweight codebase map for each repo:
+contextprompt uses [Recall.ai](https://recall.ai) to join meetings across all major platforms:
 
-| What's indexed | How |
-|---|---|
-| File tree | Walks all files, respects `.gitignore` |
-| Exported symbols | TypeScript compiler API (parse-only, no type checking) — extracts function names, classes, interfaces, types, and function signatures |
-| README | First 100 lines |
+- **Zoom** — joins via meeting URL
+- **Google Meet** — joins via meeting URL
+- **Microsoft Teams** — joins via meeting URL
 
-**What's skipped:** `node_modules`, `dist`, `build`, test files, binaries, lock files, images.
-
-The codebase map is kept under ~20k tokens per repo. For large repos, it progressively drops detail (signatures first, then deep files).
-
-## Architecture
-
-```
-bin/
-  meetcode.ts              CLI entry point (commander)
-  commands/
-    start.ts               Pipeline orchestration
-    stop.ts                Sends SIGUSR2 / sentinel file to running process
-    config.ts              Interactive API key setup
-
-src/
-  audio/
-    types.ts               AudioSource interface
-    capture.ts             Platform factory (macOS/Windows)
-    capture-macos.ts       audiotee (CoreAudio Process Tap)
-    capture-windows.ts     FFmpeg DirectShow loopback
-    mic.ts                 Microphone capture (sox/ffmpeg)
-    mixer.ts               PCM 16-bit LE audio mixer
-  transcription/
-    deepgram.ts            Deepgram v5 SDK streaming client
-    transcript.ts          Utterance accumulator with speaker merging
-  repo/
-    scanner.ts             .gitignore-aware file tree walker
-    indexer.ts             TypeScript AST export extraction
-  tasks/
-    extractor.ts           Claude API + zod response validation
-    chunker.ts             Splits long transcripts, deduplicates tasks
-  output/
-    markdown.ts            Renders ExtractedPlan → .md file
-  config.ts                API key loader (~/.meetcode/.env)
-  utils/
-    typed-emitter.ts       Shared TypedEmitter<T> base class
-    lockfile.ts            PID lockfile for start/stop coordination
-    logger.ts              Console logger with levels
-
-templates/
-  task-prompt.txt          Claude system prompt (editable)
-```
-
-## Audio capture
-
-### macOS
-
-meetcode uses [audiotee](https://www.npmjs.com/package/audiotee) to capture system audio via macOS CoreAudio Process Tap API. This captures whatever is playing through your speakers — Zoom, Google Meet, Teams, any audio source.
-
-- **No virtual audio device needed** (no BlackHole, no Loopback)
-- **Requires macOS 14.2+**
-- On first run, macOS will prompt for audio capture permission
-
-### Windows
-
-meetcode uses FFmpeg with DirectShow to capture system audio via loopback devices (Stereo Mix, What U Hear, etc.).
-
-- **Requires FFmpeg** in PATH or bundled alongside
-- Automatically detects loopback devices, or specify with `--audio-device`
-- Enable "Stereo Mix" in Windows Sound settings if no loopback device is found
-
-### Bidirectional capture
-
-Use `--mic` to capture both system audio and your microphone, mixed into a single stream for transcription. Useful when you want your own speech included in the transcript.
-
-## Development
-
-```bash
-npm run dev        # Run via tsx
-npm run build      # Build with tsup (ESM + .d.ts)
-npm test           # Run test suite (vitest)
-npm run test:watch # Watch mode
-```
-
-### Testing
-
-59 tests across 6 suites covering:
-- Transcript accumulation, speaker merging, formatting
-- Transcript chunking, overlap, task deduplication
-- Claude response parsing and zod validation
-- Markdown rendering and table escaping
-- TypeScript AST export extraction
-- Repository scanning with .gitignore, skip patterns, token budgets
-
-```bash
-npm test
-```
-
-### Publishing
-
-```bash
-npm run build && npm test   # also runs automatically via prepublishOnly
-npm publish
-```
-
-The `files` field in `package.json` ensures only `dist/`, `templates/`, `README.md`, and `LICENSE` are published.
-
-## Costs
-
-| Service | Rate | 1-hour meeting |
-|---|---|---|
-| Deepgram nova-3 | ~$0.0043/min | ~$0.26 |
-| Claude Sonnet | ~$3/$15 per 1M tokens | ~$0.10-0.30 |
-| **Total** | | **~$0.40-0.60** |
-
-## Limitations
-
-- **macOS + Windows only** — macOS uses CoreAudio Process Tap (14.2+), Windows uses FFmpeg DirectShow
-- **English default** — Deepgram supports 30+ languages but the default is English
-- **Speaker labels are positional** — `--speakers` maps labels to speakers in order of first appearance, which may not always match expectations
-- **No automatic Claude Code trigger** — by design, the output is a file you manually feed to your coding tool
-
-## License
-
-MIT
+The bot appears as a named participant ("contextprompt") that your team admits from the waiting room.

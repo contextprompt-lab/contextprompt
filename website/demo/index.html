@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>contextprompt — See the Difference</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/src/css/reset.css">
+  <link rel="stylesheet" href="/src/css/tokens.css">
+  <link rel="stylesheet" href="/src/css/split-demo.css">
+
+  <style>
+    /* Full-page overrides */
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .split-demo {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      border: none;
+      padding: 0;
+    }
+
+    .split-demo .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .split-demo h2 {
+      font-size: var(--text-3xl);
+      margin-bottom: var(--space-4);
+    }
+
+    .demo-subtitle {
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--text-dim);
+      margin-bottom: var(--space-6);
+    }
+
+    .demo-timer-value {
+      font-size: var(--text-4xl);
+    }
+
+    .demo-panel {
+      min-height: 420px;
+    }
+
+    .demo-panel-body {
+      min-height: 340px;
+    }
+
+    /* Phase label overlay */
+    .demo-panel-phase-label {
+      position: absolute;
+      top: var(--space-3);
+      right: var(--space-3);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      z-index: 2;
+    }
+
+    .demo-panel--left .demo-panel-phase-label {
+      background: rgba(210, 153, 34, 0.1);
+      color: var(--accent-amber);
+      border: 1px solid rgba(210, 153, 34, 0.2);
+    }
+
+    .demo-panel--right .demo-panel-phase-label {
+      background: rgba(63, 185, 80, 0.1);
+      color: var(--accent-green);
+      border: 1px solid rgba(63, 185, 80, 0.2);
+    }
+
+    .demo-panel--right .demo-panel-phase-label--done {
+      background: rgba(63, 185, 80, 0.15);
+    }
+
+    /* Bigger bubbles for full page */
+    .demo-bubble {
+      font-size: var(--text-sm);
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .demo-avatar {
+      width: 42px;
+      height: 42px;
+      font-size: var(--text-sm);
+    }
+
+    .demo-note-line {
+      font-size: var(--text-sm);
+      line-height: 2;
+    }
+
+    .demo-organize-item {
+      font-size: var(--text-sm);
+      padding: var(--space-2) var(--space-4);
+    }
+
+    .demo-ticket-title {
+      font-size: var(--text-sm);
+    }
+
+    .demo-ticket-desc {
+      font-size: var(--text-xs);
+    }
+
+    .demo-file-item {
+      font-size: var(--text-xs);
+      padding: 3px var(--space-2);
+    }
+
+    .demo-prompt-editor {
+      font-size: var(--text-sm);
+      min-height: 160px;
+    }
+
+    .demo-done-time {
+      font-size: var(--text-2xl);
+    }
+
+    .demo-done-check {
+      width: 64px;
+      height: 64px;
+    }
+
+    .demo-time-saved {
+      font-size: var(--text-lg);
+    }
+
+    /* Back link */
+    .demo-back {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-dim);
+      text-decoration: none;
+      z-index: 10;
+      transition: color 0.15s;
+    }
+    .demo-back:hover {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="demo-back">&larr; contextprompt</a>
+
+  <section class="split-demo" id="split-demo">
+    <div class="container">
+      <h2>See the difference</h2>
+      <p class="demo-subtitle">What happens after a meeting — side by side</p>
+
+      <div class="demo-timer">
+        <span class="demo-timer-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <span class="demo-timer-value" id="demo-timer">0:00</span>
+      </div>
+
+      <div class="demo-split">
+        <div class="demo-panel demo-panel--left">
+          <div class="demo-panel-header">
+            <span class="demo-panel-label demo-panel-label--dim">Current Process</span>
+          </div>
+          <div class="demo-panel-body" id="demo-left"></div>
+          <div class="demo-panel-status" id="demo-left-status"></div>
+        </div>
+
+        <div class="demo-divider"></div>
+
+        <div class="demo-panel demo-panel--right">
+          <div class="demo-panel-header">
+            <span class="demo-panel-label demo-panel-label--green">contextprompt</span>
+          </div>
+          <div class="demo-panel-body" id="demo-right"></div>
+          <div class="demo-panel-status" id="demo-right-status"></div>
+        </div>
+      </div>
+
+      <div class="demo-progress">
+        <div class="demo-progress-bar" id="demo-progress-bar"></div>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    // Full-page version — slower tick, always visible, auto-starts
+
+    const TOTAL_DURATION = 330;
+    const TICK_INTERVAL = 100; // 100ms per demo-second → ~33s total loop
+    const LOOP_PAUSE = 3000;
+
+    const ICONS = {
+      file: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+      folder: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+      check: '<svg class="demo-done-check" viewBox="0 0 48 48" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="20"/><polyline points="14 24 22 32 34 18"/></svg>',
+    };
+
+    const PHASE_LABELS = {
+      meeting: 'Meeting',
+      notes: 'Taking Notes',
+      organize: 'Organizing',
+      tickets: 'Creating Tickets',
+      files: 'Finding Files',
+      prompts: 'Writing Prompts',
+      done: 'Complete',
+    };
+
+    const LEFT_PHASES = [
+      { id: 'meeting',  start: 0,   end: 30,  render: renderLeftMeeting },
+      { id: 'notes',    start: 30,  end: 90,  render: renderLeftNotes },
+      { id: 'organize', start: 90,  end: 150, render: renderLeftOrganize },
+      { id: 'tickets',  start: 150, end: 210, render: renderLeftTickets },
+      { id: 'files',    start: 210, end: 270, render: renderLeftFileSearch },
+      { id: 'prompts',  start: 270, end: 330, render: renderLeftPrompts },
+    ];
+
+    const RIGHT_PHASES = [
+      { id: 'meeting',  start: 0,   end: 30,  render: renderRightMeeting },
+      { id: 'notes',    start: 30,  end: 60,  render: renderRightNotes },
+      { id: 'done',     start: 60,  end: 330, render: renderRightDone },
+    ];
+
+    let currentTick = 0;
+    let leftCurrentPhase = null;
+    let rightCurrentPhase = null;
+    let scanInterval = null;
+
+    const timerEl = document.getElementById('demo-timer');
+    const leftBody = document.getElementById('demo-left');
+    const rightBody = document.getElementById('demo-right');
+    const leftStatus = document.getElementById('demo-left-status');
+    const rightStatus = document.getElementById('demo-right-status');
+    const progressBar = document.getElementById('demo-progress-bar');
+    const rightPanel = document.querySelector('.demo-panel--right');
+
+    function formatTime(s) {
+      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function transitionPhase(containerEl, phase, statusEl, side) {
+      const current = containerEl.querySelector('.demo-phase');
+      if (current) {
+        current.classList.add('demo-phase--exiting');
+        setTimeout(() => current.remove(), 300);
+      }
+
+      const phaseEl = document.createElement('div');
+      phaseEl.className = 'demo-phase demo-phase--entering';
+
+      // Add phase label badge
+      const label = document.createElement('div');
+      label.className = 'demo-panel-phase-label' + (phase.id === 'done' ? ' demo-panel-phase-label--done' : '');
+      label.textContent = PHASE_LABELS[phase.id];
+      phaseEl.appendChild(label);
+
+      phase.render(phaseEl);
+      containerEl.appendChild(phaseEl);
+
+      if (phase.id === 'done') {
+        statusEl.className = 'demo-panel-status demo-panel-status--done';
+        statusEl.innerHTML = '\u2713 Complete';
+      } else {
+        statusEl.className = 'demo-panel-status';
+        statusEl.innerHTML = `\u25B6 ${PHASE_LABELS[phase.id]}...`;
+      }
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          phaseEl.classList.remove('demo-phase--entering');
+        });
+      });
+    }
+
+    function tick() {
+      timerEl.textContent = formatTime(currentTick);
+      progressBar.style.width = `${(currentTick / TOTAL_DURATION) * 100}%`;
+
+      const leftPhase = LEFT_PHASES.find(p => currentTick >= p.start && currentTick < p.end);
+      if (leftPhase && leftPhase.id !== leftCurrentPhase) {
+        transitionPhase(leftBody, leftPhase, leftStatus, 'left');
+        leftCurrentPhase = leftPhase.id;
+      }
+
+      const rightPhase = RIGHT_PHASES.find(p => currentTick >= p.start && currentTick < p.end);
+      if (rightPhase && rightPhase.id !== rightCurrentPhase) {
+        transitionPhase(rightBody, rightPhase, rightStatus, 'right');
+        rightCurrentPhase = rightPhase.id;
+        if (rightPhase.id === 'done') {
+          rightPanel.classList.add('demo-panel--done');
+        }
+      }
+
+      currentTick++;
+
+      if (currentTick > TOTAL_DURATION) {
+        setTimeout(resetAndLoop, LOOP_PAUSE);
+        return;
+      }
+
+      setTimeout(tick, TICK_INTERVAL);
+    }
+
+    function resetAndLoop() {
+      if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+      currentTick = 0;
+      leftCurrentPhase = null;
+      rightCurrentPhase = null;
+      leftBody.innerHTML = '';
+      rightBody.innerHTML = '';
+      leftStatus.className = 'demo-panel-status';
+      leftStatus.innerHTML = '';
+      rightStatus.className = 'demo-panel-status';
+      rightStatus.innerHTML = '';
+      timerEl.textContent = '0:00';
+      progressBar.style.width = '0%';
+      rightPanel.classList.remove('demo-panel--done');
+      tick();
+    }
+
+    // --- LEFT renders ---
+
+    function renderLeftMeeting(el) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="demo-meeting">
+          <div class="demo-avatars">
+            <div class="demo-avatar demo-avatar--1">SM</div>
+            <div class="demo-avatar demo-avatar--2">MK</div>
+            <div class="demo-avatar demo-avatar--3">JL</div>
+          </div>
+          <div class="demo-bubbles">
+            <div class="demo-bubble demo-bubble--1" style="animation-delay: 0.2s">The auth middleware needs to move to JWT before the compliance deadline...</div>
+            <div class="demo-bubble demo-bubble--2" style="animation-delay: 0.6s">Which files are we talking about? The session store is used in three places.</div>
+            <div class="demo-bubble demo-bubble--3" style="animation-delay: 1.0s">Let's also add a refresh endpoint while we're at it.</div>
+          </div>
+          <div class="demo-recording-pill demo-recording-pill--off">
+            <span class="demo-recording-dot demo-recording-dot--off"></span>
+            No recording
+          </div>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+    }
+
+    function renderLeftNotes(el) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="demo-notepad">
+          <div class="demo-notepad-title">Meeting Notes</div>
+          <div class="demo-note-line" style="animation-delay: 0.2s">- auth thing... JWT maybe?</div>
+          <div class="demo-note-line demo-note-line--confused" style="animation-delay: 0.8s">- Mike said something about sessions</div>
+          <div class="demo-note-line" style="animation-delay: 1.4s">- which files??? auth.ts?</div>
+          <div class="demo-note-line demo-note-line--confused" style="animation-delay: 2.0s">- refresh endpoint (where?)</div>
+          <div class="demo-note-line demo-note-line--confused" style="animation-delay: 2.6s">- TODO: figure out file paths...</div>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+    }
+
+    function renderLeftOrganize(el) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div>
+          <div class="demo-organize-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+            Reorganizing...
+          </div>
+          <div class="demo-organize-item demo-organize-item--struck">- Mike said something about sessions</div>
+          <div class="demo-organize-item demo-organize-item--moving" style="transition-delay: 0.3s">- JWT migration for auth middleware</div>
+          <div class="demo-organize-item" style="transition-delay: 0.5s">- refresh endpoint needed</div>
+          <div class="demo-organize-item demo-organize-item--moving" style="transition-delay: 0.7s">- figure out which files to change</div>
+          <div class="demo-organize-item demo-organize-item--struck" style="transition-delay: 0.9s">- auth thing... JWT maybe?</div>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+
+      setTimeout(() => {
+        const items = el.querySelectorAll('.demo-organize-item:not(.demo-organize-item--struck):not(.demo-organize-item--moving)');
+        items.forEach(item => item.classList.add('demo-organize-item--moving'));
+      }, 800);
+    }
+
+    function renderLeftTickets(el) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="demo-tickets">
+          <div class="demo-ticket" style="animation-delay: 0.2s">
+            <div class="demo-ticket-title">AUTH-142: Migrate to JWT</div>
+            <div class="demo-ticket-desc" style="animation-delay: 0.5s">Replace session-based auth with JWT tokens...</div>
+          </div>
+          <div class="demo-ticket" style="animation-delay: 0.8s">
+            <div class="demo-ticket-title">AUTH-143: Add refresh endpoint</div>
+            <div class="demo-ticket-desc" style="animation-delay: 1.1s">Create POST /auth/refresh for token renewal...</div>
+          </div>
+          <div class="demo-ticket" style="animation-delay: 1.4s">
+            <div class="demo-ticket-title">AUTH-144: Update session types</div>
+            <div class="demo-ticket-desc" style="animation-delay: 1.7s">Remove old session interfaces, add JWT types...</div>
+          </div>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+    }
+
+    function renderLeftFileSearch(el) {
+      const files = [
+        { icon: 'folder', name: 'src/', indent: 0 },
+        { icon: 'folder', name: 'middleware/', indent: 1 },
+        { icon: 'file', name: 'auth.ts', indent: 2 },
+        { icon: 'file', name: 'cors.ts', indent: 2 },
+        { icon: 'folder', name: 'routes/', indent: 1 },
+        { icon: 'file', name: 'auth.ts', indent: 2 },
+        { icon: 'file', name: 'users.ts', indent: 2 },
+        { icon: 'folder', name: 'types/', indent: 1 },
+        { icon: 'file', name: 'session.ts', indent: 2 },
+        { icon: 'file', name: 'auth.ts', indent: 2 },
+      ];
+
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="demo-file-search">
+          <div class="demo-search-query"><span class="prompt">$</span> grep -r "session" src/</div>
+          <div class="demo-file-list">
+            ${files.map((f, i) => `
+              <div class="demo-file-item" style="padding-left: ${8 + f.indent * 14}px">
+                <span class="demo-file-icon">${ICONS[f.icon]}</span>
+                ${f.name}
+              </div>
+            `).join('')}
+          </div>
+          <div class="demo-thought-bubble">"Which files do I actually need to change?"</div>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+
+      let scanIdx = 0;
+      const fileItems = el.querySelectorAll('.demo-file-item');
+      if (scanInterval) clearInterval(scanInterval);
+      scanInterval = setInterval(() => {
+        fileItems.forEach(f => f.classList.remove('demo-file-item--scanning'));
+        if (scanIdx < fileItems.length) {
+          fileItems[scanIdx].classList.add('demo-file-item--scanning');
+          scanIdx++;
+        } else {
+          scanIdx = 0;
+        }
+      }, 250);
+    }
+
+    function renderLeftPrompts(el) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="demo-prompt-editor">
+          <div class="demo-prompt-line demo-prompt-line--struck" style="animation-delay: 0.2s">claude "migrate auth to JWT in src/auth.ts"</div>
+          <div class="demo-prompt-line demo-prompt-line--struck" style="animation-delay: 0.8s">claude "change the session middleware to use...</div>
+          <div class="demo-prompt-line" style="animation-delay: 1.4s">claude "In src/middleware/auth.ts, replace the</div>
+          <div class="demo-prompt-line" style="animation-delay: 1.8s">&nbsp; express-session based auth with JWT. Also</div>
+          <div class="demo-prompt-line" style="animation-delay: 2.2s">&nbsp; update src/types/session.ts and add a</div>
+          <div class="demo-prompt-line" style="animation-delay: 2.6s">&nbsp; refresh endpoint in src/routes/auth.ts..."</div>
+          <span class="demo-prompt-cursor"></span>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+    }
+
+    // --- RIGHT renders ---
+
+    function renderRightMeeting(el) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="demo-meeting">
+          <div class="demo-avatars">
+            <div class="demo-avatar demo-avatar--1">SM</div>
+            <div class="demo-avatar demo-avatar--2">MK</div>
+            <div class="demo-avatar demo-avatar--3">JL</div>
+          </div>
+          <div class="demo-bubbles">
+            <div class="demo-bubble demo-bubble--1" style="animation-delay: 0.2s">The auth middleware needs to move to JWT before the compliance deadline...</div>
+            <div class="demo-bubble demo-bubble--2" style="animation-delay: 0.6s">Which files are we talking about? The session store is used in three places.</div>
+            <div class="demo-bubble demo-bubble--3" style="animation-delay: 1.0s">Let's also add a refresh endpoint while we're at it.</div>
+          </div>
+          <div class="demo-recording-pill demo-recording-pill--on">
+            <span class="demo-recording-dot demo-recording-dot--on"></span>
+            contextprompt running
+          </div>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+    }
+
+    function renderRightNotes(el) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="demo-notepad">
+          <div class="demo-notepad-title">Quick Notes</div>
+          <div class="demo-note-line demo-note-line--clean" style="animation-delay: 0.3s"><span class="demo-note-check">\u2713</span> JWT migration - compliance deadline</div>
+          <div class="demo-note-line demo-note-line--clean" style="animation-delay: 0.8s"><span class="demo-note-check">\u2713</span> Add refresh endpoint</div>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+    }
+
+    function renderRightDone(el) {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="demo-done">
+          ${ICONS.check}
+          <div class="demo-done-time">Done in 1:00</div>
+          <div class="demo-done-summary">
+            <div>3 tasks extracted &middot; all high confidence</div>
+            <div class="demo-done-tasks">
+              <span class="demo-done-task">T1: JWT migration</span>
+              <span class="demo-done-task">T2: Refresh endpoint</span>
+              <span class="demo-done-task">T3: Update types</span>
+            </div>
+          </div>
+          <div class="demo-time-saved">Time saved: 4:30</div>
+        </div>
+      `;
+      el.appendChild(div.firstElementChild);
+    }
+
+    // Auto-start
+    resetAndLoop();
+  </script>
+</body>
+</html>

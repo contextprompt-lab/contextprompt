@@ -6,6 +6,6 @@ vitest.config.ts
 __tests__/
 .github/
 CLAUDE.md
-meetcode-*.md
+contextprompt-*.md
 .env
 .env.example

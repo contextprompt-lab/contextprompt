@@ -3,10 +3,7 @@ import { getSetting, setSetting, deleteSetting } from '../db.js';
 
 export const settingsRouter = Router();
 
-const ALLOWED_KEYS = ['auth_token', 'default_model', 'default_speakers', 'verbose', 'recall_api_key', 'recall_region'];
-
-// Keys that should be masked when returned via GET
-const MASKED_KEYS = ['recall_api_key'];
+const ALLOWED_KEYS = ['auth_token', 'default_model', 'default_speakers', 'verbose', 'response_language'];
 
 // Get all settings
 settingsRouter.get('/', (_req, res) => {
@@ -14,8 +11,7 @@ settingsRouter.get('/', (_req, res) => {
   for (const key of ALLOWED_KEYS) {
     const value = getSetting(key);
     if (value !== undefined) {
-      // Mask sensitive keys — only show last 4 chars
-      settings[key] = MASKED_KEYS.includes(key) ? '••••' + value.slice(-4) : value;
+      settings[key] = value;
     }
   }
   res.json(settings);

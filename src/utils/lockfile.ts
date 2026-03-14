@@ -2,8 +2,8 @@ import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync, watchFi
 import { join } from 'node:path';
 import { getConfigDir } from '../config.js';
 
-const LOCKFILE_NAME = 'meetcode.pid';
-const STOP_SENTINEL = 'meetcode.stop';
+const LOCKFILE_NAME = 'contextprompt.pid';
+const STOP_SENTINEL = 'contextprompt.stop';
 
 function getLockfilePath(): string {
   return join(getConfigDir(), LOCKFILE_NAME);

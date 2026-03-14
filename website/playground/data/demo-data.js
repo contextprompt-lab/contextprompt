@@ -1,5 +1,5 @@
 // ============================================================
-// Pre-computed demo data for the meetcode playground
+// Pre-computed demo data for the contextprompt playground
 // ============================================================
 
 // -- Meeting transcript (Sarah = PM, Alex = Engineer) --------
@@ -522,5 +522,5 @@ export const extractionSteps = [
   { text: 'Scanning repos...', detail: '3 files, 1,200 tokens', duration: 1200 },
   { text: 'Processing transcript...', detail: '10 utterances, 2 speakers', duration: 800 },
   { text: 'Extracting tasks with Claude...', detail: '', duration: 2000 },
-  { text: 'meetcode-2026-03-12.md', detail: '3 tasks, all high confidence', duration: 0, success: true },
+  { text: 'contextprompt-2026-03-12.md', detail: '3 tasks, all high confidence', duration: 0, success: true },
 ];

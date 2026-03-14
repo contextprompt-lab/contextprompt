@@ -1,13 +1,13 @@
-# meetcode — Claude Code Instructions
+# contextprompt — Claude Code Instructions
 
 ## What this project is
 
-A TypeScript CLI that captures meeting audio, transcribes it via Deepgram, scans connected repos, and uses Claude API to extract structured coding tasks into a markdown file.
+A TypeScript CLI that captures meeting audio, transcribes it via Recall.ai, scans connected repos, and uses Claude API to extract structured coding tasks into a markdown file.
 
 ## Architecture
 
 ```
-bin/meetcode.ts → commands/start.ts (pipeline orchestration)
+bin/contextprompt.ts → commands/start.ts (pipeline orchestration)
                 → commands/stop.ts  (SIGUSR2 signal)
                 → commands/config.ts (API key setup)
 
@@ -21,7 +21,6 @@ src/audio/
 
 src/transcription/
   types.ts              → Utterance, TranscriptSegment
-  deepgram.ts           → Deepgram v5 SDK streaming (nova-3)
   transcript.ts         → Utterance accumulator with speaker merging
 
 src/repo/
@@ -37,7 +36,7 @@ src/tasks/
 src/output/
   markdown.ts           → Renders .md output with table escaping
 
-src/config.ts           → Loads ~/.meetcode/.env
+src/config.ts           → Loads ~/.contextprompt/.env
 src/utils/
   typed-emitter.ts      → Shared TypedEmitter<T> base class (on/off/emit/removeAllListeners)
   logger.ts             → Colored console logger with levels
@@ -48,22 +47,19 @@ templates/task-prompt.txt → Editable Claude system prompt
 
 ## Key patterns
 
-- **Pipeline flow:** audio capture → Deepgram streaming → transcript accumulation → repo scan → Claude extraction → markdown output
-- **TypedEmitter base class:** All event sources (AudioCapture, DeepgramTranscriber, MicCapture, AudioMixer) extend `TypedEmitter<T>` from `src/utils/typed-emitter.ts`. Do NOT duplicate on/emit/listeners boilerplate — use the base class
+- **Pipeline flow:** audio capture → Recall.ai transcription → transcript accumulation → repo scan → Claude extraction → markdown output
+- **TypedEmitter base class:** All event sources (AudioCapture, MicCapture, AudioMixer) extend `TypedEmitter<T>` from `src/utils/typed-emitter.ts`. Do NOT duplicate on/emit/listeners boilerplate — use the base class
 - **Event types must be `type`, not `interface`:** TypeScript interfaces don't satisfy `Record<string, ...>` constraints. All event maps (AudioSourceEvents, MicCaptureEvents, etc.) use `type` aliases
-- **Deepgram v5 SDK:** Uses `client.listen.v1.connect()` → `V1Socket` with `.on('message')`, `.sendMedia()`, `.close()`. The SDK types are incomplete — cast config with `as any` (documented in code). NOT the old v3/v4 `createClient`/`LiveTranscriptionEvents` API
 - **Repo indexing is parse-only:** Uses `ts.createSourceFile()` for AST parsing, NOT `ts.createProgram()`. No type checking, no resolution — just export extraction
 - **Token budget management:** Repo maps are capped at ~20k tokens per repo with progressive trimming (drop signatures → drop deep files)
 - **Chunked extraction:** Transcripts >100k tokens are split into overlapping chunks, tasks are extracted per chunk, then deduplicated via Jaccard word similarity
 - **Zod validation:** Claude API JSON responses are validated with `ExtractedPlanSchema` in `extractor.ts`. Invalid responses throw and trigger retry. Never silently return empty tasks on parse failure
 - **Markdown escaping:** All values interpolated into markdown table cells must go through `escapeTableCell()` in `markdown.ts` to escape `|` and strip newlines
-- **Shutdown cleanup:** Uses `Promise.allSettled` to ensure all resources (mic, audio, transcriber) get cleanup even if one throws. Never use sequential try/catch for multi-resource cleanup
-- **Parallel startup:** `transcriber.connect()` and `audio.start()` run concurrently via `Promise.all`
+- **Shutdown cleanup:** Uses `Promise.allSettled` to ensure all resources (mic, audio) get cleanup even if one throws. Never use sequential try/catch for multi-resource cleanup
 
 ## Dependencies
 
 - `audiotee` — macOS system audio capture (CoreAudio Process Tap, macOS 14.2+)
-- `@deepgram/sdk` v5 — streaming transcription
 - `@anthropic-ai/sdk` — Claude API
 - `zod` — runtime validation of Claude API responses
 - `typescript` — used at runtime for AST parsing in repo indexer
@@ -103,13 +99,12 @@ src/repo/__tests__/scanner.test.ts               — .gitignore, skip patterns, 
 
 ## Strict rules
 
-- Config lives at `~/.meetcode/.env` — never commit API keys
+- Config lives at `~/.contextprompt/.env` — never commit API keys
 - The `templates/task-prompt.txt` is the Claude system prompt — it's intentionally a file so users can customize it
 - Audio capture is macOS-only (audiotee) for system audio. Windows uses FFmpeg DirectShow. Do not add cross-platform audio without a clear abstraction boundary
 - Repo scanning must respect .gitignore and skip node_modules/dist/build
 - Keep repo map under 20k tokens per repo — use progressive trimming
 - The output is always a plain .md file — no services, no APIs, no databases
-- Deepgram SDK v5 API: `DeepgramClient` class with `{ apiKey }` constructor, `client.listen.v1.connect()` for live streaming
 - All event emitters must extend `TypedEmitter<T>` — no standalone on/emit implementations
 - Validate repo paths with `existsSync()` before starting audio capture
 - Log errors in scanner `walkDir()` — never silently swallow permission errors
@@ -117,9 +112,8 @@ src/repo/__tests__/scanner.test.ts               — .gitignore, skip patterns, 
 
 ## Do NOT
 
-- Import `createClient` or `LiveTranscriptionEvents` from `@deepgram/sdk` — those are v3/v4 API
 - Use `ts.createProgram()` in the indexer — parse-only with `ts.createSourceFile()`
-- Store API keys anywhere except `~/.meetcode/.env`
+- Store API keys anywhere except `~/.contextprompt/.env`
 - Add a database or persistence layer — this is a stateless CLI
 - Add real-time UI during recording beyond the terminal spinner and `--verbose` transcript
 - Silently return empty results on parse errors — throw so the retry loop can handle it

@@ -159,7 +159,7 @@ issuesRouter.post('/analyze', async (req, res) => {
   let apiKey = getSetting('auth_token');
   if (!apiKey) {
     try {
-      const config = loadConfig({ requireDeepgram: false });
+      const config = loadConfig();
       apiKey = config.anthropicApiKey;
     } catch {
       res.status(400).json({ error: 'No Anthropic API key configured. Set it in Settings.' });
@@ -187,7 +187,8 @@ issuesRouter.post('/analyze', async (req, res) => {
 
   // Fire-and-forget analysis
   const model = getSetting('default_model') || 'claude-sonnet-4-6';
-  runAnalysis(analysisId, repo.github_owner, repo.github_repo, issue_number, repoPaths, apiKey, model);
+  const language = getSetting('response_language') || undefined;
+  runAnalysis(analysisId, repo.github_owner, repo.github_repo, issue_number, repoPaths, apiKey, model, language);
 });
 
 // Delete an analysis
@@ -210,6 +211,7 @@ async function runAnalysis(
   repoPaths: string[],
   apiKey: string,
   model: string,
+  language?: string,
 ): Promise<void> {
   try {
     // Fetch full issue details
@@ -244,7 +246,7 @@ async function runAnalysis(
 
     // Extract tasks via Claude with all repo context
     logger.info(`Analyzing issue with Claude (${model}) across ${validRepoMaps.length} repo(s)...`);
-    const plan = await extractTasksFromIssue(issue, validRepoMaps, apiKey, model);
+    const plan = await extractTasksFromIssue(issue, validRepoMaps, apiKey, model, language);
 
     // Update with results
     updateIssueAnalysisStatus(

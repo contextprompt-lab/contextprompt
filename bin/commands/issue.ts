@@ -19,7 +19,7 @@ interface IssueOptions {
 export async function issueCommand(url: string, options: IssueOptions): Promise<void> {
   let config;
   try {
-    config = loadConfig({ requireDeepgram: false });
+    config = loadConfig();
   } catch (err) {
     logger.error((err as Error).message);
     process.exit(1);

@@ -6,17 +6,17 @@
   <circle cx="92" cy="72" r="6" fill="#d29922"/>
   <circle cx="112" cy="72" r="6" fill="#3fb950"/>
   <!-- Title -->
-  <text x="80" y="160" font-family="monospace" font-size="48" font-weight="bold" fill="#e6e6e6">meetcode</text>
+  <text x="80" y="160" font-family="monospace" font-size="48" font-weight="bold" fill="#e6e6e6">contextprompt</text>
   <!-- Subtitle -->
   <text x="80" y="220" font-family="sans-serif" font-size="24" fill="#999">Turn feedback calls into execution-ready work</text>
   <!-- Demo snippet -->
   <text x="80" y="300" font-family="monospace" font-size="18" fill="#3fb950">$</text>
-  <text x="105" y="300" font-family="monospace" font-size="18" fill="#e6e6e6">meetcode start --repos ./my-app --verbose</text>
+  <text x="105" y="300" font-family="monospace" font-size="18" fill="#e6e6e6">contextprompt start --repos ./my-app --verbose</text>
   <text x="80" y="340" font-family="monospace" font-size="16" fill="#555">[00:12] Speaker 1: The calendar arrows need to go...</text>
-  <text x="80" y="380" font-family="monospace" font-size="16" fill="#3fb950">meetcode-2026-03-12.md (4 tasks, 3 high confidence)</text>
+  <text x="80" y="380" font-family="monospace" font-size="16" fill="#3fb950">contextprompt-2026-03-12.md (4 tasks, 3 high confidence)</text>
   <!-- Arrow -->
   <text x="80" y="440" font-family="monospace" font-size="18" fill="#3fb950">$</text>
-  <text x="105" y="440" font-family="monospace" font-size="18" fill="#e6e6e6">claude "Read meetcode-2026-03-12.md and implement T1"</text>
+  <text x="105" y="440" font-family="monospace" font-size="18" fill="#e6e6e6">claude "Read contextprompt-2026-03-12.md and implement T1"</text>
   <!-- Footer -->
-  <text x="80" y="540" font-family="monospace" font-size="16" fill="#555">npm install -g meetcode</text>
+  <text x="80" y="540" font-family="monospace" font-size="16" fill="#555">npm install -g contextprompt</text>
 </svg>

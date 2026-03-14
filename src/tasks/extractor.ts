@@ -224,10 +224,14 @@ export async function extractTasks(
   transcript: string,
   repos: RepoMap[],
   apiKey: string,
-  model: string = 'claude-sonnet-4-6'
+  model: string = 'claude-sonnet-4-6',
+  language?: string,
 ): Promise<ExtractedPlan> {
   const client = new Anthropic({ apiKey });
-  const systemPrompt = loadSystemPrompt();
+  let systemPrompt = loadSystemPrompt();
+  if (language && language !== 'English') {
+    systemPrompt += `\n\nIMPORTANT: Write your entire response in ${language}. All task titles, descriptions, steps, assumptions, decisions, and other text fields must be in ${language}. Keep file paths, code identifiers, and JSON keys in English.`;
+  }
   const repoContext = formatRepoContext(repos);
 
   if (!shouldChunk(transcript)) {
@@ -363,10 +367,14 @@ export async function extractTasksFromIssue(
   issue: GitHubIssue,
   repos: RepoMap[],
   apiKey: string,
-  model: string = 'claude-sonnet-4-6'
+  model: string = 'claude-sonnet-4-6',
+  language?: string,
 ): Promise<ExtractedPlan> {
   const client = new Anthropic({ apiKey });
-  const systemPrompt = loadIssuePrompt();
+  let systemPrompt = loadIssuePrompt();
+  if (language && language !== 'English') {
+    systemPrompt += `\n\nIMPORTANT: Write your entire response in ${language}. All task titles, descriptions, steps, assumptions, decisions, and other text fields must be in ${language}. Keep file paths, code identifiers, and JSON keys in English.`;
+  }
   const userPrompt = buildIssueUserPrompt(issue, repos);
   return await callClaude(client, systemPrompt, userPrompt, model);
 }

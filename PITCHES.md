@@ -1,4 +1,4 @@
-# meetcode — Pitches
+# contextprompt — Pitches
 
 ---
 
@@ -79,7 +79,7 @@ AI coding tools like Claude Code and Cursor are incredible at *executing* — bu
 
 ### The Solution (30 seconds)
 
-meetcode sits in your meetings, listens to the conversation, understands your actual codebase, and produces a structured execution plan — with specific files, confidence levels, and tasks ready to hand directly to an AI coding agent.
+contextprompt sits in your meetings, listens to the conversation, understands your actual codebase, and produces a structured execution plan — with specific files, confidence levels, and tasks ready to hand directly to an AI coding agent.
 
 It's a bridge from human intent to AI execution.
 
@@ -87,7 +87,7 @@ It's a bridge from human intent to AI execution.
 
 **Step 1: Start recording**
 ```bash
-meetcode start --repos ~/our-app --verbose
+contextprompt start --repos ~/our-app --verbose
 ```
 - Show it connecting to Deepgram, scanning the repo
 - Point out: "It's already indexing our codebase — function signatures, exports, file structure"
@@ -115,19 +115,19 @@ meetcode start --repos ~/our-app --verbose
 
 **Step 5: Execute with Claude Code**
 ```bash
-claude "Read meetcode-2026-03-14-103000.md and implement task T1"
+claude "Read contextprompt-2026-03-14-103000.md and implement task T1"
 ```
 - Show Claude Code reading the plan and starting implementation
 - "Zero translation step. Meeting to code in one pipeline."
 
 **Step 6: Bonus features (quick mentions)**
-- `meetcode issue <url>` — same structured analysis for GitHub issues
-- `meetcode dashboard` — web UI to browse past meetings and tasks
+- `contextprompt issue <url>` — same structured analysis for GitHub issues
+- `contextprompt dashboard` — web UI to browse past meetings and tasks
 - Cost: ~$0.50 per hour-long meeting
 
 ### Why This Matters (30 seconds)
 
-Right now, the gap between "what the team decided" and "what gets built" is filled by manual work — writing tickets, re-reading Slack threads, guessing which files matter. meetcode eliminates that gap entirely.
+Right now, the gap between "what the team decided" and "what gets built" is filled by manual work — writing tickets, re-reading Slack threads, guessing which files matter. contextprompt eliminates that gap entirely.
 
 For a team of 10 engineers, if each person saves even 30 minutes a week on meeting-to-task translation, that's 250 hours a year — at less than a dollar per meeting.
 
@@ -143,11 +143,11 @@ For a team of 10 engineers, if each person saves even 30 minutes a week on meeti
 
 ### Demo Prep Checklist
 
-- [ ] Have API keys configured (`meetcode config`)
+- [ ] Have API keys configured (`contextprompt config`)
 - [ ] Have a demo repo ready with recognizable file structure
 - [ ] Pre-test the full flow end-to-end at least once
 - [ ] Have a backup pre-generated markdown output in case of network issues
-- [ ] Have the dashboard running as a visual wow-factor (`meetcode dashboard`)
+- [ ] Have the dashboard running as a visual wow-factor (`contextprompt dashboard`)
 - [ ] Prepare 2-3 realistic meeting topics relevant to your boss's domain
 - [ ] Test audio capture works on demo machine (macOS 14.2+ required for system audio)
 

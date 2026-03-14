@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { getMeetings, getMeeting, deleteMeeting, getTasksForMeeting, updateTaskGithubIssue } from '../db.js';
+import { getMeetings, getMeeting, deleteMeeting, getTasksForMeeting, updateTaskGithubIssue, deleteTasksForMeeting, insertTasksForMeeting, getRepos, getSetting } from '../db.js';
+import { scanRepo } from '../../repo/scanner.js';
+import { extractTasks } from '../../tasks/extractor.js';
+import { loadConfig } from '../../config.js';
+import { logger } from '../../utils/logger.js';
+import type { RepoMap } from '../../repo/types.js';
 
 export const meetingsRouter = Router();
 
@@ -42,6 +47,94 @@ meetingsRouter.get('/:id', (req, res) => {
       ambiguities: t.ambiguities_json ? JSON.parse(t.ambiguities_json) : [],
     })),
   });
+});
+
+// Rerun analysis on an existing meeting's transcript
+meetingsRouter.post('/:id/rerun', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: 'Invalid meeting ID' });
+    return;
+  }
+
+  const meeting = getMeeting(id);
+  if (!meeting) {
+    res.status(404).json({ error: 'Meeting not found' });
+    return;
+  }
+
+  if (!meeting.transcript) {
+    res.status(400).json({ error: 'Meeting has no transcript to analyze' });
+    return;
+  }
+
+  // Respond immediately, process in background
+  res.json({ ok: true, status: 'processing' });
+
+  try {
+    const { getDb } = await import('../db.js');
+    const db = getDb();
+    db.prepare('UPDATE meetings SET status = ? WHERE id = ?').run('processing', id);
+
+    // Scan all repos
+    const repos = getRepos();
+    const repoMaps: RepoMap[] = [];
+    for (const repo of repos) {
+      if (repo.path.startsWith('browser://')) continue;
+      try {
+        const map = await scanRepo(repo.path);
+        repoMaps.push(map);
+      } catch (err) {
+        logger.warn(`Skipping repo ${repo.path}: ${(err as Error).message}`);
+      }
+    }
+
+    // Extract tasks
+    const config = loadConfig();
+    const model = getSetting('default_model') || 'claude-sonnet-4-6';
+    const language = getSetting('response_language') || undefined;
+    logger.info(`Rerunning analysis for meeting ${id} with ${model}...`);
+
+    const plan = await extractTasks(
+      meeting.transcript,
+      repoMaps,
+      config.anthropicApiKey,
+      model,
+      language,
+    );
+
+    // Clear old tasks and insert new ones
+    deleteTasksForMeeting(id);
+
+    db.prepare(`
+      UPDATE meetings
+      SET task_count = ?, plan_json = ?, status = ?
+      WHERE id = ?
+    `).run(plan.tasks.length, JSON.stringify(plan), 'completed', id);
+
+    if (plan.tasks.length > 0) {
+      insertTasksForMeeting(id, plan.tasks.map(t => ({
+        task_id: t.id,
+        title: t.title,
+        status: t.status,
+        confidence: t.confidence,
+        confidence_reason: t.confidence_reason,
+        proposed_change: t.proposed_change,
+        evidence: t.evidence,
+        files_json: JSON.stringify([...t.high_confidence_files, ...t.possible_related_files]),
+        steps_json: JSON.stringify(t.agent_steps),
+        dependencies_json: JSON.stringify(t.dependencies),
+        ambiguities_json: JSON.stringify(t.ambiguities),
+      })));
+    }
+
+    logger.success(`Rerun complete for meeting ${id}: ${plan.tasks.length} tasks`);
+  } catch (err) {
+    logger.error(`Rerun failed for meeting ${id}: ${(err as Error).message}`);
+    const { getDb } = await import('../db.js');
+    const db = getDb();
+    db.prepare('UPDATE meetings SET status = ? WHERE id = ?').run('failed', id);
+  }
 });
 
 // Delete a meeting

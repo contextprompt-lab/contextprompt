@@ -11,12 +11,15 @@ import {
   AccordionSummary,
   AccordionDetails,
   IconButton,
+  Button,
   Skeleton,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { getMeeting, type MeetingDetail as MeetingDetailType } from '../api';
+import ReplayIcon from '@mui/icons-material/Replay';
+import { getMeeting, rerunMeeting, type MeetingDetail as MeetingDetailType } from '../api';
 import { TaskCard } from '../components/TaskCard';
 
 export function MeetingDetail() {
@@ -24,15 +27,42 @@ export function MeetingDetail() {
   const navigate = useNavigate();
   const [meeting, setMeeting] = useState<MeetingDetailType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [rerunning, setRerunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchMeeting = () => {
     if (!id) return;
     getMeeting(parseInt(id, 10))
       .then(setMeeting)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchMeeting();
   }, [id]);
+
+  // Poll while processing
+  useEffect(() => {
+    if (!meeting || meeting.status !== 'processing') return;
+    const interval = setInterval(fetchMeeting, 3000);
+    return () => clearInterval(interval);
+  }, [meeting?.status]);
+
+  const handleRerun = async () => {
+    if (!id) return;
+    setRerunning(true);
+    setError(null);
+    try {
+      await rerunMeeting(parseInt(id, 10));
+      // Set status to processing locally while we poll
+      setMeeting(prev => prev ? { ...prev, status: 'processing' } : prev);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setRerunning(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -59,7 +89,7 @@ export function MeetingDetail() {
       </Stack>
 
       {/* Summary chips */}
-      <Stack direction="row" spacing={1} sx={{ mb: 3 }}>
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
         <Chip label={`${meeting.duration_minutes}m`} variant="outlined" />
         <Chip label={`${meeting.task_count} tasks`} variant="outlined" />
         {meeting.speaker_count > 0 && (
@@ -67,9 +97,23 @@ export function MeetingDetail() {
         )}
         <Chip
           label={meeting.status}
-          color={meeting.status === 'completed' ? 'success' : 'default'}
+          color={meeting.status === 'completed' ? 'success' : meeting.status === 'failed' ? 'error' : 'default'}
           variant="outlined"
         />
+        {meeting.transcript && meeting.status !== 'processing' && (
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={rerunning ? <CircularProgress size={16} /> : <ReplayIcon />}
+            disabled={rerunning}
+            onClick={handleRerun}
+          >
+            Rerun Analysis
+          </Button>
+        )}
+        {meeting.status === 'processing' && (
+          <CircularProgress size={20} />
+        )}
       </Stack>
 
       {/* Decisions */}

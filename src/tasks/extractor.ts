@@ -329,10 +329,10 @@ async function callClaude(
         throw lastError;
       }
       // Context window exceeded — give a clear error
-      if (msg.includes('too long') || msg.includes('context length') || msg.includes('token') || msg.includes('maximum')) {
-        throw new Error('Codebase too large for analysis — try connecting fewer repos or a larger model.');
+      if (msg.includes('prompt is too long') || msg.includes('context length exceeded') || msg.includes('exceeds the maximum number of tokens')) {
+        throw new Error(`Codebase too large for analysis — try connecting fewer repos or a larger model. (${msg})`);
       }
-      logger.debug(`Claude API error: ${msg}`);
+      logger.error(`Claude API error (attempt ${attempt + 1}): ${msg}`);
     }
   }
 

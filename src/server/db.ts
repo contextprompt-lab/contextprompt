@@ -215,6 +215,11 @@ export function insertTasksForMeeting(meetingId: number, tasks: Array<{
   insertMany(tasks);
 }
 
+export function deleteTasksForMeeting(meetingId: number): void {
+  const db = getDb();
+  db.prepare('DELETE FROM tasks WHERE meeting_id = ?').run(meetingId);
+}
+
 export function getTasksForMeeting(meetingId: number): TaskRow[] {
   const db = getDb();
   return db.prepare('SELECT * FROM tasks WHERE meeting_id = ? ORDER BY task_id').all(meetingId) as TaskRow[];

@@ -70,9 +70,9 @@ interface FetchedFile {
 }
 
 const CHARS_PER_TOKEN = 4;
-const MAX_SOURCE_FILE_TOKENS = 80_000;
-const MAX_SINGLE_FILE_TOKENS = 10_000;
-const MAX_REQUESTED_FILES = 50;
+const MAX_SOURCE_FILE_TOKENS = 120_000;
+const MAX_SINGLE_FILE_TOKENS = 15_000;
+const MAX_REQUESTED_FILES = 60;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -119,9 +119,10 @@ async function callClaudeFileSelection(
   client: Anthropic,
   userPrompt: string,
   model: string,
+  systemPromptOverride?: string,
 ): Promise<FileSelection> {
   try {
-    const systemPrompt = loadFileSelectPrompt();
+    const systemPrompt = systemPromptOverride || loadFileSelectPrompt();
     const response = await client.messages.create({
       model,
       max_tokens: 2048,
@@ -166,7 +167,7 @@ const ANCHOR_PATTERNS = [
   /^conanfile\.(txt|py)$/,
   /^vcpkg\.json$/,
   // C#/.NET
-  /^\.csproj$/,
+  /\.csproj$/,
   /^Directory\.Build\.props$/,
   // Java/Kotlin
   /^build\.gradle(\.kts)?$/,
@@ -209,23 +210,49 @@ function getAnchorFiles(repos: RepoMap[]): FileSelection['requested_files'] {
   const anchors: FileSelection['requested_files'] = [];
 
   for (const repo of repos) {
-    const treeLines = repo.fileTree.split('\n').map(l => l.trim()).filter(Boolean);
+    // Collect all known full paths from the repo
+    const knownPaths = new Set<string>();
 
-    for (const line of treeLines) {
-      // Check anchor patterns (project manifests)
+    // From source files (browser repos have these)
+    if (repo.sourceFiles) {
+      for (const sf of repo.sourceFiles) {
+        knownPaths.add(sf.path);
+      }
+    }
+
+    // From export entries (both browser and disk repos)
+    for (const f of repo.files) {
+      knownPaths.add(f.path);
+    }
+
+    // For disk repos without sourceFiles, check filesystem for root-level anchors
+    if (!repo.sourceFiles && !repo.rootPath.startsWith('browser://')) {
       for (const pattern of ANCHOR_PATTERNS) {
-        if (pattern.test(line)) {
-          anchors.push({ repo: repo.name, path: line });
-          break;
+        // Root-level manifests — check common names directly
+        const rootCandidates = [
+          'package.json', 'app.json', 'tsconfig.json',
+          'pyproject.toml', 'requirements.txt', 'setup.py',
+          'go.mod', 'Cargo.toml', 'Gemfile', 'composer.json',
+          'CMakeLists.txt', 'Makefile', 'meson.build', 'vcpkg.json',
+          'Package.swift', 'pubspec.yaml', 'mix.exs',
+          'build.gradle', 'build.gradle.kts', 'pom.xml',
+        ];
+        for (const candidate of rootCandidates) {
+          if (pattern.test(candidate) && existsSync(join(repo.rootPath, candidate))) {
+            knownPaths.add(candidate);
+          }
         }
       }
+    }
 
-      // Check entry point patterns
-      for (const pattern of ENTRY_PATTERNS) {
-        if (pattern.test(line)) {
-          anchors.push({ repo: repo.name, path: line });
-          break;
-        }
+    // Match full paths against patterns
+    for (const filePath of knownPaths) {
+      const matched =
+        ANCHOR_PATTERNS.some(p => p.test(filePath)) ||
+        ENTRY_PATTERNS.some(p => p.test(filePath));
+
+      if (matched) {
+        anchors.push({ repo: repo.name, path: filePath });
       }
     }
   }
@@ -281,8 +308,10 @@ export function fetchRequestedFiles(
 
     const fileTokens = Math.ceil(content.length / CHARS_PER_TOKEN);
     if (fileTokens > MAX_SINGLE_FILE_TOKENS) {
-      // Truncate large files to budget
+      const totalLines = content.split('\n').length;
       content = content.slice(0, MAX_SINGLE_FILE_TOKENS * CHARS_PER_TOKEN);
+      const keptLines = content.split('\n').length;
+      content += `\n\n/* ... TRUNCATED: showing ${keptLines}/${totalLines} lines (~${Math.round(fileTokens * CHARS_PER_TOKEN / 1024)}KB total). Remaining content not shown. */`;
     }
 
     const actualTokens = Math.ceil(content.length / CHARS_PER_TOKEN);
@@ -302,9 +331,27 @@ function formatSourceFiles(files: FetchedFile[]): string {
   let ctx = `## Source Files\n\nThe following source files were identified as most relevant to the discussion:\n\n`;
   for (const f of files) {
     const ext = f.path.split('.').pop() || '';
-    ctx += `### ${f.repo}/${f.path}\n\`\`\`${ext}\n${f.content}\n\`\`\`\n\n`;
+    const truncated = f.content.includes('/* ... TRUNCATED:') ? ' (truncated)' : '';
+    ctx += `### ${f.repo}/${f.path}${truncated}\n\`\`\`${ext}\n${f.content}\n\`\`\`\n\n`;
   }
   return ctx;
+}
+
+function loadFileRefinePrompt(): string {
+  const paths = [
+    join(__dirname, '..', '..', 'templates', 'file-refine-prompt.txt'),
+    join(__dirname, '..', 'templates', 'file-refine-prompt.txt'),
+  ];
+
+  for (const p of paths) {
+    try {
+      return readFileSync(p, 'utf-8');
+    } catch {
+      continue;
+    }
+  }
+
+  throw new Error('Could not find file-refine-prompt.txt template');
 }
 
 function loadSystemPrompt(): string {
@@ -435,6 +482,19 @@ function describeFromFileTree(fileTree: string): string {
   return '';
 }
 
+function buildReverseImportGraph(files: RepoMap['files']): Map<string, string[]> {
+  const reverse = new Map<string, string[]>();
+  for (const file of files) {
+    if (!file.imports) continue;
+    for (const imp of file.imports) {
+      const existing = reverse.get(imp) || [];
+      existing.push(file.path);
+      reverse.set(imp, existing);
+    }
+  }
+  return reverse;
+}
+
 function formatRepoContext(repos: RepoMap[]): string {
   return repos
     .map((repo) => {
@@ -445,15 +505,45 @@ function formatRepoContext(repos: RepoMap[]): string {
       ctx += `#### File Tree\n\`\`\`\n${repo.fileTree}\n\`\`\`\n\n`;
 
       if (repo.files.length > 0) {
-        ctx += `#### Key Exports\n`;
+        const reverseGraph = buildReverseImportGraph(repo.files);
+
+        // Group files by directory for tree-style output
+        const byDir = new Map<string, typeof repo.files>();
         for (const file of repo.files) {
-          const exports = file.exports
-            .map((e) => {
-              const sig = e.signature ? `${e.name}${e.signature}` : e.name;
-              return `${e.kind} ${sig}`;
-            })
-            .join(', ');
-          ctx += `- \`${file.path}\`: ${exports}\n`;
+          const parts = file.path.split('/');
+          const dir = parts.length > 1 ? parts.slice(0, -1).join('/') : '.';
+          const existing = byDir.get(dir) || [];
+          existing.push(file);
+          byDir.set(dir, existing);
+        }
+
+        ctx += `#### Key Exports & Dependencies\n`;
+        for (const [dir, files] of byDir) {
+          if (dir !== '.') ctx += `${dir}/\n`;
+          for (const file of files) {
+            const fileName = file.path.split('/').pop();
+            const indent = dir !== '.' ? '  ' : '';
+            const exports = file.exports
+              .map((e) => {
+                const sig = e.signature ? `${e.name}${e.signature}` : e.name;
+                return `${e.kind} ${sig}`;
+              })
+              .join(', ');
+            if (exports) {
+              ctx += `${indent}${fileName} — ${exports}\n`;
+            } else {
+              ctx += `${indent}${fileName}\n`;
+            }
+            // Show imports (what this file depends on)
+            if (file.imports && file.imports.length > 0) {
+              ctx += `${indent}  ← imports: ${file.imports.join(', ')}\n`;
+            }
+            // Show reverse imports for high-connectivity files (imported by 3+)
+            const importedBy = reverseGraph.get(file.path);
+            if (importedBy && importedBy.length >= 3) {
+              ctx += `${indent}  ← imported by: ${importedBy.join(', ')}\n`;
+            }
+          }
         }
         ctx += '\n';
       }
@@ -505,6 +595,37 @@ export async function extractTasks(
     logger.info(`Fetched ${fetchedFiles.length} files (~${Math.ceil(fetchedFiles.reduce((sum, f) => sum + f.content.length, 0) / CHARS_PER_TOKEN)} tokens)`);
   } else {
     logger.info('No files to fetch, proceeding with structure-only analysis');
+  }
+
+  // --- Pass 1.5: Refinement — let Claude request additional files after seeing contents ---
+  if (fetchedFiles.length > 0) {
+    const currentTokens = Math.ceil(fetchedFiles.reduce((sum, f) => sum + f.content.length, 0) / CHARS_PER_TOKEN);
+    const remainingBudget = MAX_SOURCE_FILE_TOKENS - currentTokens;
+
+    if (remainingBudget > 5000) {
+      try {
+        logger.info('Pass 1.5: Refining file selection based on contents...');
+        const refineSystemPrompt = loadFileRefinePrompt();
+        const refineUserPrompt = `## Already Fetched Files\n\n${formatSourceFiles(fetchedFiles)}\n\n## Codebase Map\n\n${repoContext}`;
+
+        const refinement = await callClaudeFileSelection(client, refineUserPrompt, model, refineSystemPrompt);
+
+        if (refinement.requested_files.length > 0) {
+          // Cap refinement at 20 files
+          const refineRequested = refinement.requested_files.slice(0, 20);
+          const fetchedPaths = new Set(fetchedFiles.map(f => `${f.repo}:${f.path}`));
+          const newRequested = refineRequested.filter(r => !fetchedPaths.has(`${r.repo}:${r.path}`));
+
+          if (newRequested.length > 0) {
+            const additionalFiles = fetchRequestedFiles(newRequested, repos);
+            fetchedFiles.push(...additionalFiles);
+            logger.info(`Pass 1.5 added ${additionalFiles.length} files (~${Math.ceil(additionalFiles.reduce((sum, f) => sum + f.content.length, 0) / CHARS_PER_TOKEN)} tokens)`);
+          }
+        }
+      } catch (err) {
+        logger.warn(`Pass 1.5 refinement failed, continuing with initial selection: ${(err as Error).message}`);
+      }
+    }
   }
 
   // --- Pass 2: Deep analysis with file contents ---
@@ -592,7 +713,7 @@ async function callClaude(
 
       const response = await client.messages.create({
         model,
-        max_tokens: 8192,
+        max_tokens: 16384,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       });

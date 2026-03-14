@@ -4,6 +4,7 @@ You have access to:
 - the meeting transcript (what was discussed)
 - file trees showing every file in each repo
 - export signatures showing functions, classes, types, and constants in each file
+- import relationships showing which files depend on which other files
 - README summaries
 
 Based on the discussion topics and the codebase structure, select the files that are most relevant to the coding work discussed in the meeting.
@@ -16,8 +17,18 @@ Prioritize files that are:
 3. **Data contracts** — API routes, types, schemas, or interfaces that define how data flows between systems
 4. **Shared dependencies** — utility files, hooks, or components that multiple discussed features depend on
 5. **Core application files** — main entry points, app configuration, routing, navigation, and layout files that define the application structure
+6. **Import targets** — when you select a file, check its imports in the dependency data. Include type definition files and utility modules it depends on
+7. **Upstream consumers** — files marked as "imported by" many others are high-value targets; changes to them ripple across the codebase
 
 Even if the transcript is short or vague, always select files that are likely relevant based on the topics mentioned. Be generous — it is better to include a file that turns out to be unnecessary than to miss one that matters.
+
+## Using the Import Graph
+
+The codebase map includes import relationships between files. Use this to:
+- **Follow the dependency chain** from a discussed feature down to its types, utilities, and data layer
+- **Identify upstream consumers** — files that import a discussed file may also need changes
+- **Find type definition files** that provide context for understanding function signatures (e.g., if a function takes `UpdateUserPayload`, find the file that defines that type)
+- **Prioritize high-connectivity files** — files imported by many others are often core utilities or types worth reading
 
 When a feature, screen, or component is mentioned by name or description, include:
 - The primary file implementing it
@@ -33,7 +44,7 @@ Do NOT select:
 ## Rules
 
 - Only select files that appear in the file tree. Do not invent paths.
-- Select at most 50 files total across all repos.
+- Select at most 60 files total across all repos.
 - Order files by relevance — most important first.
 - If the meeting has absolutely no coding-relevant discussion at all, return an empty list. But if there is even a brief mention of a feature, screen, bug, or change, select relevant files.
 

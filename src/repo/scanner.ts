@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { join, relative, basename, extname } from 'node:path';
 import ignore from 'ignore';
 import type { RepoMap, FileEntry, SourceFile } from './types.js';
-import { extractExports, isSourceFile } from './indexer.js';
+import { extractExports, extractImports, isSourceFile } from './indexer.js';
 import { logger } from '../utils/logger.js';
 
 const ALWAYS_SKIP = new Set([
@@ -21,7 +21,7 @@ const SKIP_EXTENSIONS = new Set([
   '.pdf', '.doc', '.docx',
 ]);
 
-const TOKEN_BUDGET = 20000;
+const TOKEN_BUDGET = 30000;
 const CHARS_PER_TOKEN = 4;
 
 export async function scanRepo(repoPath: string): Promise<RepoMap> {
@@ -43,14 +43,19 @@ export async function scanRepo(repoPath: string): Promise<RepoMap> {
   // Build file tree string
   const fileTree = buildFileTree(allPaths, repoPath);
 
-  // Extract exports from source files
+  // Extract exports and imports from source files
   const files: FileEntry[] = [];
   for (const filePath of allPaths) {
     const relPath = relative(repoPath, filePath);
     if (isSourceFile(filePath) && !isTestFile(relPath)) {
       const exports = extractExports(filePath);
-      if (exports.length > 0) {
-        files.push({ path: relPath, exports });
+      const imports = extractImports(filePath, repoPath);
+      if (exports.length > 0 || imports.length > 0) {
+        files.push({
+          path: relPath,
+          exports,
+          ...(imports.length > 0 ? { imports } : {}),
+        });
       }
     }
   }
@@ -168,12 +173,29 @@ function estimateTokens(repoMap: RepoMap): number {
     for (const exp of file.exports) {
       chars += exp.name.length + exp.kind.length + (exp.signature?.length || 0) + 10;
     }
+    if (file.imports) {
+      for (const imp of file.imports) {
+        chars += imp.length + 5;
+      }
+    }
   }
   return Math.ceil(chars / CHARS_PER_TOKEN);
 }
 
 function trimRepoMap(repoMap: RepoMap, currentTokens: number): void {
-  // Step 1: Drop signatures
+  // Step 1: Drop signatures from deep files only (keep top-2-level signatures)
+  if (currentTokens > TOKEN_BUDGET) {
+    for (const file of repoMap.files) {
+      if (file.path.split('/').length > 3) {
+        for (const exp of file.exports) {
+          delete exp.signature;
+        }
+      }
+    }
+    currentTokens = estimateTokens(repoMap);
+  }
+
+  // Step 2: Drop ALL remaining signatures if still over budget
   if (currentTokens > TOKEN_BUDGET) {
     for (const file of repoMap.files) {
       for (const exp of file.exports) {
@@ -183,7 +205,17 @@ function trimRepoMap(repoMap: RepoMap, currentTokens: number): void {
     currentTokens = estimateTokens(repoMap);
   }
 
-  // Step 2: Drop exports from deep files
+  // Step 3: Drop imports from deep files
+  if (currentTokens > TOKEN_BUDGET) {
+    for (const file of repoMap.files) {
+      if (file.path.split('/').length > 4) {
+        delete file.imports;
+      }
+    }
+    currentTokens = estimateTokens(repoMap);
+  }
+
+  // Step 4: Drop files from deep directories entirely
   if (currentTokens > TOKEN_BUDGET) {
     repoMap.files = repoMap.files.filter(
       (f) => f.path.split('/').length <= 4

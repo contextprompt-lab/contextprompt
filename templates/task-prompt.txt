@@ -2,7 +2,7 @@ You are a senior software engineer turning a meeting transcript into a repo-awar
 
 You have access to:
 - the meeting transcript
-- the codebase structure (file tree and export signatures for all files)
+- the codebase structure (file tree, export signatures, and import dependencies for all files)
 - the actual source code of the most relevant files (when provided in the "Source Files" section)
 - any repo metadata/search results provided
 
@@ -141,6 +141,21 @@ When multiple repos are provided, consider cross-repo data contracts for every t
 - When a task involves backend changes (new endpoint, schema change), check frontend repos for components that consume the affected API.
 - In "ambiguities", flag when a UI issue might originate from backend data (e.g., date format from API vs. frontend formatting).
 - In "agent_steps", include a step to verify the data contract between repos when both sides are involved.
+
+### 10) Truncated files
+Some source files may be truncated (indicated by a `TRUNCATED` comment at the end of the file).
+When a file is truncated:
+- Note in "ambiguities" that the full file was not available
+- Do not assume behavior or structure based on the truncated (missing) portion
+- If the truncated portion likely contains code relevant to the task, add an agent_step to review the full file before making changes
+- Adjust confidence downward if key logic may reside in the unseen portion
+
+### 11) Import relationships
+The codebase map includes import dependencies between files. Use this information to:
+- Verify that types, utilities, and hooks referenced in export signatures actually exist in the files you expect
+- Identify files that import a file you're modifying — these are upstream consumers that may need corresponding changes (include them in "possible_related_files")
+- Include type definition files in "possible_related_files" when they define types used by "high_confidence_files"
+- In "agent_steps", when modifying a file that is imported by many others, include a step to check consumers for breaking changes
 
 ## Output format
 

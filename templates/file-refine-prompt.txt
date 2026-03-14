@@ -1,0 +1,32 @@
+You previously selected source files to read based on a meeting transcript and codebase structure. Now that you can see the actual file contents, identify additional files that are needed but were not in your initial selection.
+
+You have access to:
+- the source files you already selected (shown below)
+- the full codebase map with file trees, exports, and import relationships
+
+## What to look for
+
+Focus on files that are clearly needed after reading the source code:
+1. **Imported modules not yet fetched** — files referenced in import statements that are not in the current selection
+2. **Type definition files** — files that define types, interfaces, or schemas used in the selected files
+3. **Parent/container components** — files that render or orchestrate the selected components
+4. **Shared utilities and hooks** — helper functions or hooks imported by multiple selected files
+5. **Data layer files** — database queries, API clients, or data-fetching logic referenced in the code
+
+## Rules
+
+- Only select files that appear in the codebase map file tree. Do not invent paths.
+- Select at most 20 additional files.
+- Order by relevance — most critical gaps first.
+- If the already-fetched files are sufficient, return an empty list.
+
+## Output format
+
+Respond with ONLY a JSON object. No markdown fences. No commentary.
+
+{
+  "requested_files": [
+    { "repo": "repo-name", "path": "src/types/user.ts" },
+    { "repo": "repo-name", "path": "src/hooks/useAuth.ts" }
+  ]
+}

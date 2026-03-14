@@ -1,5 +1,6 @@
 import ts from 'typescript';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
+import { dirname, join, relative, normalize } from 'node:path';
 import type { ExportInfo } from './types.js';
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mts', '.mjs']);
@@ -111,4 +112,110 @@ function getFunctionSignature(node: ts.FunctionDeclaration): string {
   });
   const returnType = node.type ? `: ${node.type.getText()}` : '';
   return `(${params.join(', ')})${returnType}`;
+}
+
+// --- Import graph extraction ---
+
+const RESOLVE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.mjs'];
+
+/**
+ * Resolve a relative import specifier to a repo-relative file path.
+ * Tries common extensions and /index.* patterns. Returns null if unresolvable.
+ */
+function resolveImportPath(specifier: string, importerDir: string, repoRoot: string): string | null {
+  if (!specifier.startsWith('.')) return null; // skip bare/package imports
+
+  const base = join(importerDir, specifier);
+
+  // Try exact match first (already has extension)
+  if (existsSync(base) && !statSync(base).isDirectory()) {
+    return normalize(relative(repoRoot, base));
+  }
+
+  // Try each extension
+  for (const ext of RESOLVE_EXTENSIONS) {
+    const candidate = base + ext;
+    if (existsSync(candidate)) {
+      return normalize(relative(repoRoot, candidate));
+    }
+  }
+
+  // Try /index.*
+  for (const ext of RESOLVE_EXTENSIONS) {
+    const candidate = join(base, `index${ext}`);
+    if (existsSync(candidate)) {
+      return normalize(relative(repoRoot, candidate));
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extract relative import paths from a source file on disk.
+ * Returns repo-relative resolved paths of imported files.
+ */
+export function extractImports(filePath: string, repoRoot: string): string[] {
+  let content: string;
+  try {
+    content = readFileSync(filePath, 'utf-8');
+  } catch {
+    return [];
+  }
+
+  const specifiers = extractImportSpecifiers(content, filePath);
+  const importerDir = dirname(filePath);
+  const resolved: string[] = [];
+
+  for (const spec of specifiers) {
+    const resolved_path = resolveImportPath(spec, importerDir, repoRoot);
+    if (resolved_path) {
+      resolved.push(resolved_path);
+    }
+  }
+
+  return resolved;
+}
+
+/**
+ * Extract import paths from source content (for browser repos without disk access).
+ * Returns raw relative specifiers (unresolved) since we can't check the filesystem.
+ */
+export function extractImportsFromContent(content: string, filePath: string): string[] {
+  return extractImportSpecifiers(content, filePath).filter(s => s.startsWith('.'));
+}
+
+/**
+ * Parse import/require specifiers from source code using the TypeScript AST.
+ */
+function extractImportSpecifiers(content: string, filePath: string): string[] {
+  const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+  const specifiers: string[] = [];
+
+  ts.forEachChild(sourceFile, (node) => {
+    // import ... from '...'
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+      specifiers.push(node.moduleSpecifier.text);
+    }
+    // export ... from '...' (re-exports)
+    if (ts.isExportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+      specifiers.push(node.moduleSpecifier.text);
+    }
+    // const x = require('...')
+    if (ts.isVariableStatement(node)) {
+      for (const decl of node.declarationList.declarations) {
+        if (decl.initializer && ts.isCallExpression(decl.initializer)) {
+          const expr = decl.initializer.expression;
+          if (ts.isIdentifier(expr) && expr.text === 'require' && decl.initializer.arguments.length === 1) {
+            const arg = decl.initializer.arguments[0];
+            if (ts.isStringLiteral(arg)) {
+              specifiers.push(arg.text);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return specifiers;
 }

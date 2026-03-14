@@ -7,6 +7,7 @@ export interface ExportInfo {
 export interface FileEntry {
   path: string;
   exports: ExportInfo[];
+  imports?: string[];
 }
 
 export interface SourceFile {

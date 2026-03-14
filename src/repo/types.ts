@@ -9,10 +9,16 @@ export interface FileEntry {
   exports: ExportInfo[];
 }
 
+export interface SourceFile {
+  path: string;
+  content: string;
+}
+
 export interface RepoMap {
   name: string;
   rootPath: string;
   fileTree: string;
   files: FileEntry[];
   readme: string | null;
+  sourceFiles?: SourceFile[];
 }

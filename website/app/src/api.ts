@@ -75,6 +75,11 @@ export const addRepo = (path: string) => request<{ id: number; path: string; nam
   method: 'POST',
   body: JSON.stringify({ path }),
 });
+export const registerBrowserRepo = (name: string) =>
+  request<{ id: number; path: string; name: string }>('/repos/register', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  });
 export const removeRepo = (id: number) => request<{ ok: true }>(`/repos/${id}`, { method: 'DELETE' });
 export const connectRepoGithub = (id: number, owner?: string, repo?: string) =>
   request<{ ok: true; github_owner: string; github_repo: string }>(`/repos/${id}/github`, {
@@ -94,29 +99,90 @@ export interface BrowseResult {
 export const browseFolders = (path?: string) =>
   request<BrowseResult>(`/repos/browse${path ? `?path=${encodeURIComponent(path)}` : ''}`);
 
-// Upload repo (for deployed use — files read client-side via File System Access API)
-export interface UploadFile {
-  path: string;
-  content: string;
-}
+// --- File System Access API (client-side scanning, no files sent to server) ---
 
-export async function uploadRepo(name: string, files: UploadFile[]) {
-  return request<{ id: number; path: string; name: string }>('/repos/upload', {
-    method: 'POST',
-    body: JSON.stringify({ name, files }),
-  });
-}
-
-// Check if File System Access API is available
 export function supportsFileSystemAccess(): boolean {
   return 'showDirectoryPicker' in window;
 }
 
-// Read a directory recursively using File System Access API
+// RepoMap types (matches server-side src/repo/types.ts)
+export interface ExportInfo {
+  name: string;
+  kind: 'function' | 'class' | 'interface' | 'type' | 'const' | 'enum';
+  signature?: string;
+}
+
+export interface FileEntry {
+  path: string;
+  exports: ExportInfo[];
+}
+
+export interface SourceFile {
+  path: string;
+  content: string;
+}
+
+export interface ClientRepoMap {
+  name: string;
+  rootPath: string;
+  fileTree: string;
+  files: FileEntry[];
+  readme: string | null;
+  sourceFiles: SourceFile[];
+}
+
+// --- IndexedDB for storing DirectoryHandles across sessions ---
+
+const DB_NAME = 'contextprompt';
+const STORE_NAME = 'directory_handles';
+
+function openHandleDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore(STORE_NAME, { keyPath: 'repoId' });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function saveDirectoryHandle(repoId: number, handle: FileSystemDirectoryHandle): Promise<void> {
+  const db = await openHandleDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).put({ repoId, handle, name: handle.name });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+export async function getDirectoryHandle(repoId: number): Promise<FileSystemDirectoryHandle | null> {
+  const db = await openHandleDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const req = tx.objectStore(STORE_NAME).get(repoId);
+    req.onsuccess = () => resolve(req.result?.handle ?? null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function removeDirectoryHandle(repoId: number): Promise<void> {
+  const db = await openHandleDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).delete(repoId);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+// --- Client-side repo scanner ---
+
 const SKIP_DIRS = new Set([
   'node_modules', 'dist', 'build', '.git', '.next', '.nuxt',
   'coverage', '.cache', '.turbo', 'vendor', '__pycache__',
-  '.venv', 'venv', 'target', '.DS_Store',
+  '.venv', 'venv', 'target',
 ]);
 
 const SKIP_EXT = new Set([
@@ -129,49 +195,192 @@ const SKIP_EXT = new Set([
   '.exe', '.dll', '.so', '.dylib',
 ]);
 
-const MAX_FILE_SIZE = 100_000; // 100KB per file
-const MAX_TOTAL_FILES = 2000;
+const SOURCE_EXT = new Set(['.ts', '.tsx', '.js', '.jsx', '.mts', '.mjs', '.py', '.go', '.rs', '.java', '.rb', '.swift']);
 
-export async function readDirectoryHandle(
+const MAX_FILE_SIZE = 200_000; // Skip individual files larger than 200KB
+const MAX_TOTAL_FILES = 5000;
+const README_MAX_LINES = 100;
+
+// Regex-based export extraction (lightweight, runs in browser)
+function extractExportsFromSource(content: string, ext: string): ExportInfo[] {
+  const exports: ExportInfo[] = [];
+  if (!['.ts', '.tsx', '.js', '.jsx', '.mts', '.mjs'].includes(ext)) return exports;
+
+  const lines = content.split('\n');
+  for (const line of lines) {
+    // export function name(...)
+    const funcMatch = line.match(/export\s+(?:async\s+)?function\s+(\w+)/);
+    if (funcMatch) { exports.push({ name: funcMatch[1], kind: 'function' }); continue; }
+
+    // export class Name
+    const classMatch = line.match(/export\s+class\s+(\w+)/);
+    if (classMatch) { exports.push({ name: classMatch[1], kind: 'class' }); continue; }
+
+    // export interface Name
+    const ifaceMatch = line.match(/export\s+interface\s+(\w+)/);
+    if (ifaceMatch) { exports.push({ name: ifaceMatch[1], kind: 'interface' }); continue; }
+
+    // export type Name
+    const typeMatch = line.match(/export\s+type\s+(\w+)/);
+    if (typeMatch) { exports.push({ name: typeMatch[1], kind: 'type' }); continue; }
+
+    // export const name
+    const constMatch = line.match(/export\s+const\s+(\w+)/);
+    if (constMatch) { exports.push({ name: constMatch[1], kind: 'const' }); continue; }
+
+    // export enum Name
+    const enumMatch = line.match(/export\s+enum\s+(\w+)/);
+    if (enumMatch) { exports.push({ name: enumMatch[1], kind: 'enum' }); continue; }
+
+    // export default function/class
+    const defaultMatch = line.match(/export\s+default\s+(?:(?:async\s+)?function|class)\s+(\w+)/);
+    if (defaultMatch) { exports.push({ name: defaultMatch[1], kind: 'function' }); continue; }
+  }
+
+  return exports;
+}
+
+function isTestFile(path: string): boolean {
+  return /\.(test|spec)\.|__tests__|__mocks__/.test(path);
+}
+
+/**
+ * Scan a local directory via File System Access API and build a RepoMap.
+ * No files are sent to the server — only the resulting RepoMap metadata.
+ */
+export async function scanDirectoryHandle(
   dirHandle: FileSystemDirectoryHandle,
-  onProgress?: (count: number) => void,
-): Promise<{ name: string; files: UploadFile[] }> {
-  const files: UploadFile[] = [];
+  onProgress?: (msg: string) => void,
+): Promise<ClientRepoMap> {
+  const allPaths: string[] = [];
+  const fileContents = new Map<string, string>();
+  let readme: string | null = null;
+  let fileCount = 0;
 
   async function walk(handle: FileSystemDirectoryHandle, prefix: string) {
-    if (files.length >= MAX_TOTAL_FILES) return;
+    if (fileCount >= MAX_TOTAL_FILES) return;
 
     for await (const entry of handle.values()) {
-      if (files.length >= MAX_TOTAL_FILES) break;
+      if (fileCount >= MAX_TOTAL_FILES) break;
 
       if (entry.kind === 'directory') {
         if (SKIP_DIRS.has(entry.name)) continue;
-        if (entry.name.startsWith('.') && entry.name !== '.gitignore') continue;
-        await walk(entry as FileSystemDirectoryHandle, `${prefix}${entry.name}/`);
+        if (entry.name.startsWith('.')) continue;
+        const dirPath = `${prefix}${entry.name}/`;
+        allPaths.push(dirPath);
+        await walk(entry as FileSystemDirectoryHandle, dirPath);
       } else {
+        const filePath = `${prefix}${entry.name}`;
         const ext = entry.name.includes('.') ? '.' + entry.name.split('.').pop()!.toLowerCase() : '';
         if (SKIP_EXT.has(ext)) continue;
 
-        try {
-          const file = await (entry as FileSystemFileHandle).getFile();
-          if (file.size > MAX_FILE_SIZE) continue;
+        allPaths.push(filePath);
+        fileCount++;
+        onProgress?.(`Scanning... (${fileCount} files)`);
 
-          const content = await file.text();
-          // Skip binary-looking files
-          if (content.includes('\0')) continue;
+        // Read README
+        if (!readme && /^readme\.md$/i.test(entry.name) && !prefix) {
+          try {
+            const file = await (entry as FileSystemFileHandle).getFile();
+            const text = await file.text();
+            readme = text.split('\n').slice(0, README_MAX_LINES).join('\n');
+          } catch { /* skip */ }
+        }
 
-          files.push({ path: `${prefix}${entry.name}`, content });
-          onProgress?.(files.length);
-        } catch {
-          // Skip files we can't read
+        // Read all text files for source content
+        if (!isTestFile(filePath)) {
+          try {
+            const file = await (entry as FileSystemFileHandle).getFile();
+            if (file.size <= MAX_FILE_SIZE) {
+              const content = await file.text();
+              // Skip binary-looking files
+              if (!content.includes('\0')) {
+                fileContents.set(filePath, content);
+              }
+            }
+          } catch { /* skip */ }
         }
       }
     }
   }
 
+  onProgress?.('Scanning...');
   await walk(dirHandle, '');
-  return { name: dirHandle.name, files };
+
+  // Build file tree
+  const fileTree = buildFileTree(allPaths);
+
+  // Extract exports from source files
+  const files: FileEntry[] = [];
+  for (const [path, content] of fileContents) {
+    const ext = '.' + path.split('.').pop()!.toLowerCase();
+    const exports = extractExportsFromSource(content, ext);
+    if (exports.length > 0) {
+      files.push({ path, exports });
+    }
+  }
+
+  // Include all source file contents
+  const sourceFiles: SourceFile[] = [...fileContents.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([path, content]) => ({ path, content }));
+
+  onProgress?.(`Scanned ${fileCount} files, ${sourceFiles.length} source files`);
+
+  return {
+    name: dirHandle.name,
+    rootPath: `browser://${dirHandle.name}`,
+    fileTree,
+    files,
+    readme,
+    sourceFiles,
+  };
 }
+
+function buildFileTree(paths: string[]): string {
+  // Simple indented tree
+  const sorted = [...paths].sort();
+  const lines: string[] = [];
+  for (const p of sorted) {
+    const depth = p.split('/').filter(Boolean).length - 1;
+    const name = p.endsWith('/') ? p.split('/').filter(Boolean).pop()! + '/' : p.split('/').pop()!;
+    lines.push('  '.repeat(depth) + name);
+  }
+  return lines.join('\n');
+}
+
+// Build repo maps for all browser-connected repos (called before analysis)
+export async function buildRepoMaps(
+  repoIds: number[],
+  onProgress?: (msg: string) => void,
+): Promise<ClientRepoMap[]> {
+  const maps: ClientRepoMap[] = [];
+
+  for (const repoId of repoIds) {
+    const handle = await getDirectoryHandle(repoId);
+    if (!handle) continue;
+
+    // Verify we still have permission
+    const permission = await (handle as any).queryPermission({ mode: 'read' });
+    if (permission !== 'granted') {
+      const requested = await (handle as any).requestPermission({ mode: 'read' });
+      if (requested !== 'granted') continue;
+    }
+
+    onProgress?.(`Scanning ${handle.name}...`);
+    const map = await scanDirectoryHandle(handle, onProgress);
+    maps.push(map);
+  }
+
+  return maps;
+}
+
+// Send repo maps with bot request
+export const sendBot = (meetingUrl: string, repoIds?: number[], botName?: string, repoMaps?: ClientRepoMap[]) =>
+  request<{ bot_id: string; meeting_id: number; status: string }>('/bots', {
+    method: 'POST',
+    body: JSON.stringify({ meeting_url: meetingUrl, repo_ids: repoIds, bot_name: botName, repo_maps: repoMaps }),
+  });
 
 // Recording
 export interface RecordingStatus {
@@ -288,11 +497,6 @@ export interface BotStatus {
 }
 
 export const getRecallStatus = () => request<{ configured: boolean }>('/bots/status');
-export const sendBot = (meetingUrl: string, repoIds?: number[], botName?: string) =>
-  request<{ bot_id: string; meeting_id: number; status: string }>('/bots', {
-    method: 'POST',
-    body: JSON.stringify({ meeting_url: meetingUrl, repo_ids: repoIds, bot_name: botName }),
-  });
 export const getBotStatus = (botId: string) => request<BotStatus>(`/bots/${botId}`);
 export const leaveBotCall = (botId: string) =>
   request<{ ok: true }>(`/bots/${botId}/leave`, { method: 'POST' });

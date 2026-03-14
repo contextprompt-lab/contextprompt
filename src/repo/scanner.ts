@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { join, relative, basename, extname } from 'node:path';
 import ignore from 'ignore';
-import type { RepoMap, FileEntry } from './types.js';
+import type { RepoMap, FileEntry, SourceFile } from './types.js';
 import { extractExports, isSourceFile } from './indexer.js';
 import { logger } from '../utils/logger.js';
 

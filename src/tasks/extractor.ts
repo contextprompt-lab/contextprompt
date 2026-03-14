@@ -205,6 +205,14 @@ function formatRepoContext(repos: RepoMap[]): string {
         ctx += '\n';
       }
 
+      if (repo.sourceFiles && repo.sourceFiles.length > 0) {
+        ctx += `#### Source Files\n`;
+        for (const sf of repo.sourceFiles) {
+          ctx += `\n##### \`${sf.path}\`\n\`\`\`\n${sf.content}\n\`\`\`\n`;
+        }
+        ctx += '\n';
+      }
+
       if (repo.readme) {
         ctx += `#### README\n${repo.readme}\n\n`;
       }
@@ -319,6 +327,10 @@ async function callClaude(
       // Don't retry on auth/billing errors
       if (msg.includes('credit') || msg.includes('api_key') || msg.includes('authentication')) {
         throw lastError;
+      }
+      // Context window exceeded — give a clear error
+      if (msg.includes('too long') || msg.includes('context length') || msg.includes('token') || msg.includes('maximum')) {
+        throw new Error('Codebase too large for analysis — try connecting fewer repos or a larger model.');
       }
       logger.debug(`Claude API error: ${msg}`);
     }

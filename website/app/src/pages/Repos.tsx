@@ -34,7 +34,7 @@ import LinkOffIcon from '@mui/icons-material/LinkOff';
 import SourceIcon from '@mui/icons-material/Source';
 import {
   getRepos, addRepo, removeRepo, browseFolders, connectRepoGithub, disconnectRepoGithub,
-  uploadRepo, supportsFileSystemAccess, readDirectoryHandle,
+  registerBrowserRepo, supportsFileSystemAccess, scanDirectoryHandle, saveDirectoryHandle, removeDirectoryHandle,
   type Repo, type BrowseResult,
 } from '../api';
 
@@ -43,11 +43,14 @@ export function Repos() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Browse dialog state
+  // Browse dialog state (fallback for local dev)
   const [browseOpen, setBrowseOpen] = useState(false);
   const [browseData, setBrowseData] = useState<BrowseResult | null>(null);
   const [browseLoading, setBrowseLoading] = useState(false);
   const [browseError, setBrowseError] = useState<string | null>(null);
+
+  // Upload progress state (File System Access API)
+  const [scanProgress, setScanProgress] = useState<string | null>(null);
 
   const loadRepos = () => {
     getRepos()
@@ -62,6 +65,7 @@ export function Repos() {
 
   const handleRemove = async (id: number) => {
     try {
+      await removeDirectoryHandle(id).catch(() => {}); // Clean up IndexedDB handle
       await removeRepo(id);
       loadRepos();
     } catch (err) {
@@ -91,9 +95,6 @@ export function Repos() {
     }
   };
 
-  // --- Upload state (for File System Access API) ---
-  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
-
   // --- Folder browser ---
   const openBrowser = async () => {
     // Use File System Access API when available (deployed / Chrome)
@@ -101,18 +102,23 @@ export function Repos() {
       setError(null);
       try {
         const dirHandle = await (window as any).showDirectoryPicker({ mode: 'read' });
-        setUploadProgress('Reading files...');
-        const { name, files } = await readDirectoryHandle(dirHandle, (count) => {
-          setUploadProgress(`Reading files... (${count} files)`);
-        });
-        setUploadProgress(`Uploading ${files.length} files...`);
-        await uploadRepo(name, files);
-        setUploadProgress(null);
+        setScanProgress('Scanning folder...');
+
+        // Scan locally to verify it works
+        await scanDirectoryHandle(dirHandle, setScanProgress);
+
+        // Register on server (just the name, no files)
+        setScanProgress('Registering...');
+        const result = await registerBrowserRepo(dirHandle.name);
+
+        // Store the handle in IndexedDB for future re-reads
+        await saveDirectoryHandle(result.id, dirHandle);
+
+        setScanProgress(null);
         loadRepos();
       } catch (err: any) {
-        setUploadProgress(null);
-        // User cancelled the picker
-        if (err.name === 'AbortError') return;
+        setScanProgress(null);
+        if (err.name === 'AbortError') return; // User cancelled
         setError(err.message);
       }
       return;
@@ -163,12 +169,14 @@ export function Repos() {
   // Build breadcrumb segments from current path
   const breadcrumbs = browseData ? buildBreadcrumbs(browseData.current) : [];
 
+  const isBrowserRepo = (repo: Repo) => repo.path.startsWith('browser://');
+
   return (
     <Box>
       <Typography variant="h4" sx={{ mb: 3 }}>Repos</Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {uploadProgress && <Alert severity="info" sx={{ mb: 2 }}>{uploadProgress}</Alert>}
+      {scanProgress && <Alert severity="info" sx={{ mb: 2 }}>{scanProgress}</Alert>}
 
       {/* Add repo */}
       <Card sx={{ mb: 3 }}>
@@ -179,10 +187,16 @@ export function Repos() {
               variant="contained"
               startIcon={<FolderOpenIcon />}
               onClick={openBrowser}
+              disabled={!!scanProgress}
             >
               Browse folders
             </Button>
           </Stack>
+          {supportsFileSystemAccess() && (
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+              Your files stay on your machine. Only a structural summary is used during analysis.
+            </Typography>
+          )}
         </CardContent>
       </Card>
 
@@ -207,7 +221,7 @@ export function Repos() {
                   }}
                 >
                   <ListItemIcon>
-                    {repo.exists ? (
+                    {repo.exists || isBrowserRepo(repo) ? (
                       <FolderIcon color="primary" />
                     ) : (
                       <ErrorOutlineIcon color="error" />
@@ -217,7 +231,10 @@ export function Repos() {
                     primary={
                       <Stack direction="row" spacing={1} alignItems="center">
                         <span>{repo.name}</span>
-                        {!repo.exists && (
+                        {isBrowserRepo(repo) && (
+                          <Chip label="local" size="small" color="info" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                        )}
+                        {!repo.exists && !isBrowserRepo(repo) && (
                           <Chip label="not found" size="small" color="error" variant="outlined" />
                         )}
                         {repo.github_owner && repo.github_repo && (
@@ -233,12 +250,12 @@ export function Repos() {
                         )}
                       </Stack>
                     }
-                    secondary={repo.path}
+                    secondary={isBrowserRepo(repo) ? 'Connected from your browser' : repo.path}
                     secondaryTypographyProps={{ sx: { fontFamily: 'monospace', fontSize: '0.8rem' } }}
                   />
                   <ListItemSecondaryAction>
                     <Stack direction="row" spacing={0.5}>
-                      {!repo.github_owner && repo.exists && (
+                      {!repo.github_owner && !isBrowserRepo(repo) && repo.exists && (
                         <Button
                           size="small"
                           startIcon={<GitHubIcon />}
@@ -261,7 +278,7 @@ export function Repos() {
         </CardContent>
       </Card>
 
-      {/* Folder browser dialog */}
+      {/* Folder browser dialog (local dev fallback) */}
       <Dialog
         open={browseOpen}
         onClose={() => setBrowseOpen(false)}

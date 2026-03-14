@@ -36,6 +36,7 @@ import {
   getBotStatus,
   leaveBotCall,
   deleteMeeting,
+  buildRepoMaps,
   type Repo,
   type Meeting,
 } from '../api';
@@ -151,7 +152,16 @@ export function Recording() {
     setSending(true);
 
     try {
-      const result = await sendBot(meetingUrl.trim(), [...selectedRepos]);
+      // Build fresh repo maps from browser-connected repos before sending
+      const selectedIds = [...selectedRepos];
+      const browserRepoIds = repos
+        .filter(r => r.path.startsWith('browser://') && selectedIds.includes(r.id))
+        .map(r => r.id);
+      const repoMaps = browserRepoIds.length > 0
+        ? await buildRepoMaps(browserRepoIds)
+        : undefined;
+
+      const result = await sendBot(meetingUrl.trim(), selectedIds, undefined, repoMaps);
       setActiveBotId(result.bot_id);
       setActiveMeetingId(result.meeting_id);
       setBotStatus('joining');

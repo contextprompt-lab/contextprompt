@@ -34,8 +34,10 @@ import { resolve } from 'node:path';
 
 export const botsRouter = Router();
 
+import type { RepoMap } from '../../repo/types.js';
+
 // Track active bot sessions: botId -> { meetingDbId, repoIds }
-const activeBots = new Map<string, { meetingId: number; repoPaths: string[] }>();
+const activeBots = new Map<string, { meetingId: number; repoPaths: string[]; clientRepoMaps?: RepoMap[] }>();
 // Track bots already being processed (to avoid duplicate processing)
 const processingBots = new Set<string>();
 
@@ -46,7 +48,7 @@ botsRouter.get('/status', (_req, res) => {
 
 // Send a bot to a meeting
 botsRouter.post('/', async (req, res) => {
-  const { meeting_url, repo_ids, bot_name } = req.body;
+  const { meeting_url, repo_ids, bot_name, repo_maps } = req.body;
 
   if (!meeting_url) {
     res.status(400).json({ error: 'meeting_url is required' });
@@ -93,7 +95,9 @@ botsRouter.post('/', async (req, res) => {
       status: 'recording',
     });
 
-    activeBots.set(bot.id, { meetingId, repoPaths });
+    // Store client-provided repo maps (from browser-connected repos)
+    const clientRepoMaps = Array.isArray(repo_maps) ? repo_maps as RepoMap[] : undefined;
+    activeBots.set(bot.id, { meetingId, repoPaths, clientRepoMaps });
 
     res.json({
       bot_id: bot.id,
@@ -193,7 +197,7 @@ async function processCompletedBot(botId: string): Promise<void> {
     return;
   }
 
-  const { meetingId, repoPaths } = session;
+  const { meetingId, repoPaths, clientRepoMaps } = session;
 
   try {
     // 1. Wait for recording + transcript to be ready (may take a few seconds after 'done')
@@ -250,12 +254,23 @@ async function processCompletedBot(botId: string): Promise<void> {
     const db = getDb();
     db.prepare('UPDATE meetings SET status = ? WHERE id = ?').run('processing', meetingId);
 
-    // 3. Scan repos
-    logger.info(`Scanning ${repoPaths.length} repo(s)...`);
-    const repoMaps = [];
-    for (const repoPath of repoPaths) {
-      const map = await scanRepo(repoPath);
-      repoMaps.push(map);
+    // 3. Scan repos (use client-provided maps for browser repos, scan disk for local repos)
+    const repoMaps: RepoMap[] = [];
+
+    // Add any client-provided repo maps (from browser File System Access API)
+    if (clientRepoMaps && clientRepoMaps.length > 0) {
+      repoMaps.push(...clientRepoMaps);
+      logger.info(`Using ${clientRepoMaps.length} client-provided repo map(s)`);
+    }
+
+    // Scan any local (non-browser) repos from disk
+    const localPaths = repoPaths.filter(p => !p.startsWith('browser://'));
+    if (localPaths.length > 0) {
+      logger.info(`Scanning ${localPaths.length} local repo(s)...`);
+      for (const repoPath of localPaths) {
+        const map = await scanRepo(repoPath);
+        repoMaps.push(map);
+      }
     }
 
     // 4. Extract tasks with Claude

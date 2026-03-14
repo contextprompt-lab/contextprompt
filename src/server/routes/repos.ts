@@ -1,27 +1,23 @@
 import { Router } from 'express';
-import { existsSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
-import { resolve, basename, join, dirname } from 'node:path';
+import { existsSync, readdirSync, statSync } from 'node:fs';
+import { resolve, basename, join } from 'node:path';
 import { homedir } from 'node:os';
 import { getRepos, getRepo, addRepo, removeRepo, updateRepoGithub } from '../db.js';
 import { detectGithubRemote } from '../../github/client.js';
 
 export const reposRouter = Router();
 
-// Base directory for uploaded repos (works in Docker with /data, falls back to local .data)
-const UPLOAD_DIR = process.env.CONTEXTPROMPT_UPLOAD_DIR
-  || (existsSync('/data') ? '/data/repos' : resolve(process.cwd(), '.data', 'repos'));
-
 // List all repos
 reposRouter.get('/', (_req, res) => {
   const repos = getRepos();
-  // Check which repos still exist on disk
   res.json(repos.map(r => ({
     ...r,
-    exists: existsSync(r.path),
+    // Browser repos are always "exists" — they live on the user's machine
+    exists: r.path.startsWith('browser://') || existsSync(r.path),
   })));
 });
 
-// Add a repo
+// Add a repo (local disk path — used when running locally)
 reposRouter.post('/', (req, res) => {
   const { path: rawPath } = req.body;
 
@@ -41,39 +37,19 @@ reposRouter.post('/', (req, res) => {
   res.json({ id, path: fullPath, name });
 });
 
-// Upload a repo (files sent from browser via File System Access API)
-reposRouter.post('/upload', (req, res) => {
-  const { name, files } = req.body as {
-    name?: string;
-    files?: Array<{ path: string; content: string }>;
-  };
+// Register a browser-connected repo (no files on server — scanned client-side)
+reposRouter.post('/register', (req, res) => {
+  const { name } = req.body as { name?: string };
 
-  if (!name || !files || !Array.isArray(files) || files.length === 0) {
-    res.status(400).json({ error: 'Missing name or files' });
+  if (!name || typeof name !== 'string') {
+    res.status(400).json({ error: 'Missing name' });
     return;
   }
 
-  // Sanitize repo name
   const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const repoDir = join(UPLOAD_DIR, `${safeName}_${Date.now()}`);
-
-  try {
-    mkdirSync(repoDir, { recursive: true });
-
-    for (const file of files) {
-      // Prevent path traversal
-      const sanitizedPath = file.path.replace(/\.\./g, '_');
-      const filePath = join(repoDir, sanitizedPath);
-      const dir = dirname(filePath);
-      mkdirSync(dir, { recursive: true });
-      writeFileSync(filePath, file.content, 'utf-8');
-    }
-
-    const id = addRepo(repoDir, safeName);
-    res.json({ id, path: repoDir, name: safeName });
-  } catch (err) {
-    res.status(500).json({ error: `Upload failed: ${(err as Error).message}` });
-  }
+  const browserPath = `browser://${safeName}`;
+  const id = addRepo(browserPath, safeName);
+  res.json({ id, path: browserPath, name: safeName });
 });
 
 // Browse directories on disk

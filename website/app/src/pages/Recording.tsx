@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardActionArea,
-  Fab,
   Stack,
   Chip,
   Checkbox,
@@ -16,52 +15,62 @@ import {
   ListItemText,
   Alert,
   Button,
+  TextField,
   LinearProgress,
   Divider,
 } from '@mui/material';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import StopIcon from '@mui/icons-material/Stop';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import MicIcon from '@mui/icons-material/Mic';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import GroupIcon from '@mui/icons-material/Group';
 import {
   getRepos,
   getMeetings,
-  getRecordingStatus,
-  getWsUrl,
+  getRecallStatus,
+  sendBot,
+  getBotStatus,
   type Repo,
   type Meeting,
 } from '../api';
 
-interface Utterance {
-  speaker: string;
-  text: string;
-}
+// Friendly labels for Recall.ai bot status codes
+const STATUS_LABELS: Record<string, string> = {
+  joining: 'Joining meeting...',
+  joining_call: 'Joining meeting...',
+  in_waiting_room: 'In waiting room — please admit the bot',
+  in_call_not_recording: 'In meeting, waiting to record...',
+  recording_permission_allowed: 'Recording permission granted',
+  recording_permission_denied: 'Recording permission was denied',
+  in_call_recording: 'Recording meeting...',
+  call_ended: 'Meeting ended, processing...',
+  done: 'Done — processing transcript...',
+  fatal: 'Bot encountered an error',
+};
 
 export function Recording() {
   const navigate = useNavigate();
-  const [recordingStatus, setRecordingStatus] = useState<'idle' | 'recording' | 'processing'>('idle');
-  const [done, setDone] = useState(false);
-  const [doneMetadata, setDoneMetadata] = useState<{ meetingId: number | null; taskCount: number }>({ meetingId: null, taskCount: 0 });
+  const [meetingUrl, setMeetingUrl] = useState('');
   const [repos, setRepos] = useState<Repo[]>([]);
   const [selectedRepos, setSelectedRepos] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string | null>(null);
-  const [elapsed, setElapsed] = useState(0);
-  const [utterances, setUtterances] = useState<Utterance[]>([]);
-  const [logs, setLogs] = useState<string[]>([]);
+  const [recallConfigured, setRecallConfigured] = useState<boolean | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const logRef = useRef<HTMLDivElement>(null);
-  const transcriptRef = useRef<HTMLDivElement>(null);
-  const wsRef = useRef<WebSocket | null>(null);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const startTimeRef = useRef(0);
 
-  // Load repos and meetings
+  // Active bot state
+  const [activeBotId, setActiveBotId] = useState<string | null>(null);
+  const [activeMeetingId, setActiveMeetingId] = useState<number | null>(null);
+  const [botStatus, setBotStatus] = useState<string>('');
+  const [sending, setSending] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const hasRepos = repos.length > 0;
+  const hasSelected = selectedRepos.size > 0;
+  const isActive = !!activeBotId;
+  const isRecording = botStatus === 'in_call_recording';
+  const isDone = botStatus === 'done' || botStatus === 'call_ended';
+
   const loadMeetings = useCallback(() => {
     getMeetings().then(setMeetings).catch(() => {});
   }, []);
@@ -71,211 +80,76 @@ export function Recording() {
       setRepos(repos);
       setSelectedRepos(new Set(repos.map((r) => r.id)));
     }).catch(() => {});
+    getRecallStatus().then((s) => setRecallConfigured(s.configured)).catch(() => setRecallConfigured(false));
     loadMeetings();
   }, [loadMeetings]);
 
-  // Check if already recording (e.g. page refresh)
-  useEffect(() => {
-    getRecordingStatus().then((s) => {
-      if (s.status === 'recording' || s.status === 'processing') {
-        setRecordingStatus(s.status);
-        setLogs(s.logs);
-      }
-    }).catch(() => {});
-  }, []);
-
-  // Elapsed timer
-  useEffect(() => {
-    if (recordingStatus === 'recording') {
-      if (!startTimeRef.current) startTimeRef.current = Date.now();
-      const tick = () => setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
-      tick();
-      timerRef.current = setInterval(tick, 1000);
-      return () => {
-        if (timerRef.current) clearInterval(timerRef.current);
-      };
-    } else {
-      if (recordingStatus === 'idle') {
-        setElapsed(0);
-        startTimeRef.current = 0;
-      }
-    }
-  }, [recordingStatus]);
-
-  // Auto-scroll transcript and logs
-  useEffect(() => {
-    if (transcriptRef.current) {
-      transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
-    }
-  }, [utterances.length]);
-
-  useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
-  }, [logs.length]);
-
-  const addLog = useCallback((line: string) => {
-    setLogs((prev) => {
-      const next = [...prev, line];
-      return next.length > 50 ? next.slice(-50) : next;
-    });
-  }, []);
-
-  const cleanupMedia = useCallback(() => {
-    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-      recorderRef.current.stop();
-    }
-    recorderRef.current = null;
-
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-  }, []);
-
-  const startMediaRecorder = useCallback((stream: MediaStream, ws: WebSocket) => {
-    const recorder = new MediaRecorder(stream, {
-      mimeType: 'audio/webm;codecs=opus',
-    });
-
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
-        ws.send(e.data);
-      }
-    };
-
-    recorder.start(250); // 250ms chunks
-    recorderRef.current = recorder;
-  }, []);
-
-  const handleStart = useCallback(async () => {
-    setError(null);
-    setDone(false);
-    setUtterances([]);
-    setLogs([]);
-
-    // Request mic permission
-    let stream: MediaStream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch {
-      setError('Microphone permission denied. Please allow mic access and try again.');
-      return;
-    }
-    streamRef.current = stream;
-
-    // Open WebSocket
-    const ws = new WebSocket(getWsUrl('/ws/recording'));
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      ws.send(JSON.stringify({
-        type: 'start',
-        repos: [...selectedRepos],
-      }));
-    };
-
-    ws.onmessage = (event) => {
-      let msg;
-      try {
-        msg = JSON.parse(event.data);
-      } catch {
-        return;
-      }
-
-      switch (msg.type) {
-        case 'started':
-          setRecordingStatus('recording');
-          startTimeRef.current = Date.now();
-          startMediaRecorder(stream, ws);
-          break;
-        case 'utterance':
-          setUtterances((prev) => [...prev, { speaker: msg.speaker, text: msg.text }]);
-          break;
-        case 'log':
-          addLog(msg.message);
-          break;
-        case 'processing':
-          setRecordingStatus('processing');
-          break;
-        case 'done':
-          setRecordingStatus('idle');
-          setDone(true);
-          setDoneMetadata({ meetingId: msg.meetingId, taskCount: msg.taskCount });
-          cleanupMedia();
-          loadMeetings();
-          break;
-        case 'error':
-          setError(msg.message);
-          cleanupMedia();
-          break;
-      }
-    };
-
-    ws.onerror = () => {
-      setError('WebSocket connection failed. Is the server running?');
-      cleanupMedia();
-    };
-
-    ws.onclose = (event) => {
-      // Only show error if unexpected close during recording
-      if (!event.wasClean) {
-        setRecordingStatus((prev) => {
-          if (prev === 'recording') {
-            setError('Connection lost during recording');
-            return 'idle';
-          }
-          return prev;
-        });
-        cleanupMedia();
-      }
-    };
-  }, [selectedRepos, addLog, cleanupMedia, startMediaRecorder]);
-
-  const handleStop = useCallback(async () => {
-    setError(null);
-
-    // Stop MediaRecorder
-    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-      recorderRef.current.stop();
-      recorderRef.current = null;
-    }
-
-    // Stop mic tracks
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-
-    // Tell server to stop and process
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'stop' }));
-    }
-  }, []);
-
-  // Cleanup on unmount
+  // Cleanup poll on unmount
   useEffect(() => {
     return () => {
-      cleanupMedia();
+      if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [cleanupMedia]);
-
-  // Send stop on page unload to trigger processing
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ type: 'stop' }));
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
+
+  const startPolling = useCallback((botId: string) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+
+    pollRef.current = setInterval(async () => {
+      try {
+        const status = await getBotStatus(botId);
+        setBotStatus(status.status);
+
+        if (status.status === 'done') {
+          clearInterval(pollRef.current!);
+          pollRef.current = null;
+          // Wait a moment then reload meetings (processing takes a few seconds)
+          setTimeout(() => {
+            loadMeetings();
+            // Keep polling the meeting status until it's completed
+            const checkMeeting = setInterval(() => {
+              getMeetings().then((meetings) => {
+                setMeetings(meetings);
+                const meeting = meetings.find(m => m.id === status.meeting_id);
+                if (meeting && (meeting.status === 'completed' || meeting.status === 'failed')) {
+                  clearInterval(checkMeeting);
+                }
+              }).catch(() => {});
+            }, 3000);
+            // Stop checking after 5 minutes
+            setTimeout(() => clearInterval(checkMeeting), 300000);
+          }, 2000);
+        } else if (status.status === 'fatal' || status.status === 'recording_permission_denied') {
+          clearInterval(pollRef.current!);
+          pollRef.current = null;
+          setError(STATUS_LABELS[status.status] || 'Bot failed');
+          setActiveBotId(null);
+          setActiveMeetingId(null);
+          setBotStatus('');
+        }
+      } catch {
+        // Transient error, keep polling
+      }
+    }, 3000);
+  }, [loadMeetings]);
+
+  const handleSendBot = async () => {
+    if (!meetingUrl.trim()) return;
+    setError(null);
+    setSending(true);
+
+    try {
+      const result = await sendBot(meetingUrl.trim(), [...selectedRepos]);
+      setActiveBotId(result.bot_id);
+      setActiveMeetingId(result.meeting_id);
+      setBotStatus('joining');
+      setMeetingUrl('');
+      startPolling(result.bot_id);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSending(false);
+    }
+  };
 
   const toggleRepo = (id: number) => {
     setSelectedRepos((prev) => {
@@ -286,113 +160,113 @@ export function Recording() {
     });
   };
 
-  const isRecording = recordingStatus === 'recording';
-  const isProcessing = recordingStatus === 'processing';
-  const hasRepos = repos.length > 0;
-  const hasSelected = selectedRepos.size > 0;
+  // Not configured state
+  if (recallConfigured === false) {
+    return (
+      <Box>
+        <Typography variant="h4" sx={{ mb: 3 }}>Meetings</Typography>
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Add your Recall.ai API key in <strong>Settings</strong> to start recording meetings.
+          Get your key at <strong>recall.ai</strong>.
+        </Alert>
+        <Button variant="contained" onClick={() => navigate('/settings')}>
+          Go to Settings
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 3 }}>Record</Typography>
+      <Typography variant="h4" sx={{ mb: 3 }}>Meetings</Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
-      {/* Recording status */}
-      <Card sx={{ mb: 3, textAlign: 'center', py: 4 }}>
-        <CardContent>
-          {done && !isRecording && !isProcessing ? (
-            <Box>
-              <Chip label="DONE" color="success" sx={{ mb: 2 }} />
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                Meeting processed — {doneMetadata.taskCount} task{doneMetadata.taskCount !== 1 ? 's' : ''} extracted
+      {/* Active bot status */}
+      {isActive && (
+        <Card sx={{ mb: 3, textAlign: 'center', py: 3 }}>
+          <CardContent>
+            <SmartToyIcon sx={{ fontSize: 48, color: isRecording ? 'error.main' : 'primary.main', mb: 1 }} />
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              {STATUS_LABELS[botStatus] || botStatus}
+            </Typography>
+            {(botStatus === 'in_call_recording' || botStatus === 'joining_call' || botStatus === 'in_waiting_room' || botStatus === 'in_call_not_recording') && (
+              <LinearProgress
+                sx={{ mx: 'auto', maxWidth: 300, mt: 1 }}
+                variant={isRecording ? 'indeterminate' : 'indeterminate'}
+              />
+            )}
+            {isDone && (
+              <Box sx={{ mt: 2 }}>
+                <LinearProgress sx={{ mx: 'auto', maxWidth: 300, mb: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  Extracting tasks from transcript...
+                </Typography>
+              </Box>
+            )}
+            {botStatus === 'in_waiting_room' && (
+              <Typography variant="body2" color="warning.main" sx={{ mt: 1 }}>
+                The meetcode bot is in the waiting room. Please admit it from your meeting.
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Check the Meetings tab to see your extracted tasks.
-              </Typography>
-              <Stack direction="row" spacing={1} justifyContent="center">
-                {doneMetadata.meetingId && (
-                  <Button variant="contained" onClick={() => navigate(`/meetings/${doneMetadata.meetingId}`)}>
-                    View meeting
-                  </Button>
-                )}
-                <Button variant={doneMetadata.meetingId ? 'outlined' : 'contained'} onClick={() => navigate('/')}>
-                  All meetings
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Send bot form */}
+      {!isActive && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            {!hasRepos ? (
+              <Box sx={{ textAlign: 'center', py: 2 }}>
+                <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                  Add repos before recording
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  meetcode needs to scan your codebase to map meeting conversations to code.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  startIcon={<FolderOpenIcon />}
+                  onClick={() => navigate('/repos')}
+                >
+                  Add repos
                 </Button>
-                <Button variant="outlined" onClick={() => { setDone(false); setUtterances([]); setLogs([]); }}>
-                  Record another
-                </Button>
-              </Stack>
-            </Box>
-          ) : isProcessing ? (
-            <Box>
-              <Typography variant="h6" sx={{ mb: 2 }}>Processing meeting...</Typography>
-              <LinearProgress sx={{ mx: 'auto', maxWidth: 300 }} />
-            </Box>
-          ) : (
-            <>
-              {isRecording && (
-                <Box sx={{ mb: 2 }}>
-                  <Chip
-                    icon={<FiberManualRecordIcon sx={{ fontSize: 12 }} />}
-                    label="RECORDING"
-                    color="error"
-                    sx={{ animation: 'pulse 1.5s infinite', mb: 1 }}
+              </Box>
+            ) : (
+              <>
+                <Typography variant="h6" sx={{ mb: 2 }}>Record a meeting</Typography>
+                <Stack direction="row" spacing={1}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Paste Zoom, Teams, or Google Meet link..."
+                    value={meetingUrl}
+                    onChange={(e) => setMeetingUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendBot()}
+                    disabled={sending}
                   />
-                  <Typography variant="h3" sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
-                    {formatElapsed(elapsed)}
-                  </Typography>
-                </Box>
-              )}
-
-              {!isRecording && !hasRepos && (
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-                    Add repos before recording
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    meetcode needs to scan your codebase to map meeting conversations to files.
-                  </Typography>
                   <Button
-                    variant="outlined"
-                    startIcon={<FolderOpenIcon />}
-                    onClick={() => navigate('/repos')}
+                    variant="contained"
+                    onClick={handleSendBot}
+                    disabled={!meetingUrl.trim() || !hasSelected || sending}
+                    startIcon={<SmartToyIcon />}
+                    sx={{ whiteSpace: 'nowrap' }}
                   >
-                    Add repos
+                    {sending ? 'Sending...' : 'Send bot'}
                   </Button>
-                </Box>
-              )}
+                </Stack>
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                  A bot will join your meeting, record the conversation, and extract coding tasks when it ends.
+                </Typography>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-              {(hasRepos || isRecording) && (
-                <>
-                  <Fab
-                    color={isRecording ? 'error' : 'primary'}
-                    onClick={isRecording ? handleStop : handleStart}
-                    disabled={isProcessing || (!isRecording && !hasSelected)}
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      '& svg': { fontSize: 40 },
-                    }}
-                  >
-                    {isRecording ? <StopIcon /> : <MicIcon />}
-                  </Fab>
-
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                    {isRecording
-                      ? 'Click to stop recording'
-                      : hasSelected
-                        ? `Click to start recording (${selectedRepos.size} repo${selectedRepos.size !== 1 ? 's' : ''})`
-                        : 'Select at least one repo below'}
-                  </Typography>
-                </>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Repo selection (only when not recording) */}
-      {!isRecording && !isProcessing && !done && hasRepos && (
+      {/* Repo selection */}
+      {!isActive && hasRepos && (
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
@@ -424,70 +298,18 @@ export function Recording() {
         </Card>
       )}
 
-      {/* Live transcript */}
-      {utterances.length > 0 && (
-        <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 1 }}>Live Transcript</Typography>
-            <Box
-              ref={transcriptRef}
-              sx={{
-                bgcolor: '#0d1117',
-                borderRadius: 1,
-                p: 1.5,
-                maxHeight: 300,
-                overflow: 'auto',
-                fontFamily: 'monospace',
-                fontSize: '0.8rem',
-                lineHeight: 1.8,
-              }}
-            >
-              {utterances.map((u, i) => (
-                <Box key={i}>
-                  <Box component="span" sx={{ color: '#7ee787', fontWeight: 600 }}>{u.speaker}: </Box>
-                  <Box component="span" sx={{ color: '#e6edf3' }}>{u.text}</Box>
-                </Box>
-              ))}
-            </Box>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Activity log */}
-      {logs.length > 0 && (
-        <Card>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 1 }}>Activity log</Typography>
-            <Box
-              ref={logRef}
-              sx={{
-                bgcolor: '#0d1117',
-                borderRadius: 1,
-                p: 1.5,
-                maxHeight: 200,
-                overflow: 'auto',
-                fontFamily: 'monospace',
-                fontSize: '0.75rem',
-                lineHeight: 1.6,
-              }}
-            >
-              {logs.map((line, i) => (
-                <Box key={i} sx={{ color: getLogColor(line) }}>{line}</Box>
-              ))}
-            </Box>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Past meetings */}
-      {meetings.length > 0 && !isRecording && !isProcessing && (
+      {meetings.length > 0 && (
         <>
           <Divider sx={{ my: 3 }} />
           <Typography variant="h6" sx={{ mb: 2 }}>Past Meetings</Typography>
           <Stack spacing={1}>
             {meetings.map((meeting) => (
               <Card key={meeting.id}>
-                <CardActionArea onClick={() => navigate(`/meetings/${meeting.id}`)}>
+                <CardActionArea
+                  onClick={() => meeting.status === 'completed' && navigate(`/meetings/${meeting.id}`)}
+                  disabled={meeting.status !== 'completed'}
+                >
                   <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Box>
@@ -495,32 +317,41 @@ export function Recording() {
                           {formatDate(meeting.date)}
                         </Typography>
                         <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
-                          <Stack direction="row" spacing={0.5} alignItems="center">
-                            <AccessTimeIcon sx={{ fontSize: 14 }} color="action" />
-                            <Typography variant="caption" color="text.secondary">
-                              {formatDuration(meeting.duration_minutes)}
-                            </Typography>
-                          </Stack>
-                          <Stack direction="row" spacing={0.5} alignItems="center">
-                            <TaskAltIcon sx={{ fontSize: 14 }} color="action" />
-                            <Typography variant="caption" color="text.secondary">
-                              {meeting.task_count} task{meeting.task_count !== 1 ? 's' : ''}
-                            </Typography>
-                          </Stack>
-                          {meeting.speaker_count > 0 && (
-                            <Stack direction="row" spacing={0.5} alignItems="center">
-                              <GroupIcon sx={{ fontSize: 14 }} color="action" />
-                              <Typography variant="caption" color="text.secondary">
-                                {meeting.speaker_count} speaker{meeting.speaker_count !== 1 ? 's' : ''}
-                              </Typography>
-                            </Stack>
+                          {meeting.status === 'completed' && (
+                            <>
+                              <Stack direction="row" spacing={0.5} alignItems="center">
+                                <AccessTimeIcon sx={{ fontSize: 14 }} color="action" />
+                                <Typography variant="caption" color="text.secondary">
+                                  {formatDuration(meeting.duration_minutes)}
+                                </Typography>
+                              </Stack>
+                              <Stack direction="row" spacing={0.5} alignItems="center">
+                                <TaskAltIcon sx={{ fontSize: 14 }} color="action" />
+                                <Typography variant="caption" color="text.secondary">
+                                  {meeting.task_count} task{meeting.task_count !== 1 ? 's' : ''}
+                                </Typography>
+                              </Stack>
+                              {meeting.speaker_count > 0 && (
+                                <Stack direction="row" spacing={0.5} alignItems="center">
+                                  <GroupIcon sx={{ fontSize: 14 }} color="action" />
+                                  <Typography variant="caption" color="text.secondary">
+                                    {meeting.speaker_count} speaker{meeting.speaker_count !== 1 ? 's' : ''}
+                                  </Typography>
+                                </Stack>
+                              )}
+                            </>
                           )}
                         </Stack>
                       </Box>
                       <Chip
                         label={meeting.status}
                         size="small"
-                        color={meeting.status === 'completed' ? 'success' : 'default'}
+                        color={
+                          meeting.status === 'completed' ? 'success'
+                          : meeting.status === 'failed' ? 'error'
+                          : meeting.status === 'recording' ? 'warning'
+                          : 'default'
+                        }
                         variant="outlined"
                       />
                     </Box>
@@ -531,24 +362,8 @@ export function Recording() {
           </Stack>
         </>
       )}
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
     </Box>
   );
-}
-
-function getLogColor(line: string): string {
-  if (line.includes('[error]') || line.includes('Error')) return '#f85149';
-  if (line.includes('[warn]')) return '#d29922';
-  if (line.includes('[info]') || line.includes('Extracted') || line.includes('Output written')) return '#58a6ff';
-  if (line.includes('[transcript]')) return '#7ee787';
-  if (line.includes('[success]')) return '#3fb950';
-  return '#8b949e';
 }
 
 function formatDate(dateStr: string): string {
@@ -565,12 +380,4 @@ function formatDate(dateStr: string): string {
 function formatDuration(minutes: number): string {
   if (minutes >= 60) return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
   return `${minutes}m`;
-}
-
-function formatElapsed(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
 }

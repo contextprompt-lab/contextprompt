@@ -198,3 +198,20 @@ export const analyzeIssue = (repoId: number, issueNumber: number) =>
   });
 export const deleteIssueAnalysis = (id: number) =>
   request<{ ok: true }>(`/issues/analyses/${id}`, { method: 'DELETE' });
+
+// Recall.ai Bots
+export interface BotStatus {
+  bot_id: string;
+  meeting_id: number | null;
+  status: string;
+  status_changes: Array<{ code: string; sub_code: string | null; created_at: string }>;
+  has_recording: boolean;
+}
+
+export const getRecallStatus = () => request<{ configured: boolean }>('/bots/status');
+export const sendBot = (meetingUrl: string, repoIds?: number[], botName?: string) =>
+  request<{ bot_id: string; meeting_id: number; status: string }>('/bots', {
+    method: 'POST',
+    body: JSON.stringify({ meeting_url: meetingUrl, repo_ids: repoIds, bot_name: botName }),
+  });
+export const getBotStatus = (botId: string) => request<BotStatus>(`/bots/${botId}`);

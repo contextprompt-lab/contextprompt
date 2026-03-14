@@ -7,6 +7,7 @@ import { reposRouter } from './routes/repos.js';
 import { settingsRouter } from './routes/settings.js';
 import { recordingRouter, getRecordingStatus } from './routes/recording.js';
 import { issuesRouter } from './routes/issues.js';
+import { botsRouter } from './routes/bots.js';
 import { closeDb } from './db.js';
 import { attachWebSocket } from './ws.js';
 import { logger } from '../utils/logger.js';
@@ -25,6 +26,7 @@ export function createServer() {
   app.use('/api/settings', settingsRouter);
   app.use('/api/recording', recordingRouter);
   app.use('/api/issues', issuesRouter);
+  app.use('/api/bots', botsRouter);
 
   // Health check
   app.get('/api/health', (_req, res) => {

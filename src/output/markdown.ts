@@ -7,7 +7,7 @@ function escapeTableCell(text: string): string {
 
 export function renderMarkdown(
   plan: ExtractedPlan,
-  transcript: Transcript,
+  transcript: Transcript | null,
   durationMinutes: number
 ): string {
   const now = new Date();
@@ -26,7 +26,7 @@ export function renderMarkdown(
     ? `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}m`
     : `${durationMinutes}m`;
 
-  const speakerCount = transcript.getSpeakerMap().length;
+  const speakerCount = transcript ? transcript.getSpeakerMap().length : 0;
   const speakerStr = speakerCount > 0 ? ` · ${speakerCount} speaker(s)` : '';
 
   let md = `# Execution Plan — ${dateStr} ${timeStr}\n\n`;
@@ -133,14 +133,16 @@ export function renderMarkdown(
   }
 
   // Raw transcript
-  const wordCount = transcript.getWordCount();
-  md += `## Transcript\n\n`;
-  md += `<details>\n`;
-  md += `<summary>Full meeting transcript (${wordCount} words, ${durationStr})</summary>\n\n`;
-  md += '```\n';
-  md += transcript.toFormattedText();
-  md += '\n```\n\n';
-  md += `</details>\n`;
+  if (transcript) {
+    const wordCount = transcript.getWordCount();
+    md += `## Transcript\n\n`;
+    md += `<details>\n`;
+    md += `<summary>Full meeting transcript (${wordCount} words, ${durationStr})</summary>\n\n`;
+    md += '```\n';
+    md += transcript.toFormattedText();
+    md += '\n```\n\n';
+    md += `</details>\n`;
+  }
 
   return md;
 }

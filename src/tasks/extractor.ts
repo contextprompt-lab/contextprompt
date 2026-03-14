@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
-import type { RepoMap, SourceFile } from '../repo/types.js';
+import type { RepoMap } from '../repo/types.js';
 import type { ExtractedPlan, Task } from './types.js';
 import type { GitHubIssue } from '../github/types.js';
 import { shouldChunk, chunkTranscript, deduplicateTasks } from './chunker.js';
@@ -141,11 +141,104 @@ async function callClaudeFileSelection(
   }
 }
 
+// Patterns for project manifest / config files that reveal the tech stack
+const ANCHOR_PATTERNS = [
+  // JS/TS
+  /^package\.json$/,
+  /^app\.json$/,
+  /^tsconfig\.json$/,
+  // Python
+  /^pyproject\.toml$/,
+  /^requirements\.txt$/,
+  /^setup\.py$/,
+  // Go
+  /^go\.mod$/,
+  // Rust
+  /^Cargo\.toml$/,
+  // Ruby
+  /^Gemfile$/,
+  // PHP
+  /^composer\.json$/,
+  // C/C++
+  /^CMakeLists\.txt$/,
+  /^Makefile$/,
+  /^meson\.build$/,
+  /^conanfile\.(txt|py)$/,
+  /^vcpkg\.json$/,
+  // C#/.NET
+  /^\.csproj$/,
+  /^Directory\.Build\.props$/,
+  // Java/Kotlin
+  /^build\.gradle(\.kts)?$/,
+  /^pom\.xml$/,
+  // Swift
+  /^Package\.swift$/,
+  // Dart/Flutter
+  /^pubspec\.yaml$/,
+  // Elixir
+  /^mix\.exs$/,
+];
+
+// Entry point patterns across languages
+const ENTRY_PATTERNS = [
+  // JS/TS
+  /^(src\/)?(index|main|app)\.(ts|tsx|js|jsx|mts|mjs)$/,
+  /^src\/server\/(index|app)\.(ts|js)$/,
+  // Python
+  /^(src\/)?main\.py$/,
+  /^(src\/)?app\.py$/,
+  /^(src\/)?__main__\.py$/,
+  // Go
+  /^(cmd\/\w+\/)?main\.go$/,
+  // Rust
+  /^src\/(main|lib)\.rs$/,
+  // C/C++
+  /^(src\/)?main\.(c|cpp|cc|cxx)$/,
+  // C#
+  /^(src\/)?Program\.cs$/,
+  // Java/Kotlin
+  /^src\/main\/java\/.*\/(Main|App|Application)\.(java|kt)$/,
+  // Swift
+  /^(Sources\/\w+\/)?main\.swift$/,
+  /^(Sources\/\w+\/)?App\.swift$/,
+  // Dart
+  /^lib\/main\.dart$/,
+];
+
+function getAnchorFiles(repos: RepoMap[]): FileSelection['requested_files'] {
+  const anchors: FileSelection['requested_files'] = [];
+
+  for (const repo of repos) {
+    const treeLines = repo.fileTree.split('\n').map(l => l.trim()).filter(Boolean);
+
+    for (const line of treeLines) {
+      // Check anchor patterns (project manifests)
+      for (const pattern of ANCHOR_PATTERNS) {
+        if (pattern.test(line)) {
+          anchors.push({ repo: repo.name, path: line });
+          break;
+        }
+      }
+
+      // Check entry point patterns
+      for (const pattern of ENTRY_PATTERNS) {
+        if (pattern.test(line)) {
+          anchors.push({ repo: repo.name, path: line });
+          break;
+        }
+      }
+    }
+  }
+
+  return anchors;
+}
+
 export function fetchRequestedFiles(
   requested: FileSelection['requested_files'],
   repos: RepoMap[],
 ): FetchedFile[] {
   const fetched: FetchedFile[] = [];
+  const fetchedPaths = new Set<string>();
   let totalTokens = 0;
 
   for (const req of requested) {
@@ -183,6 +276,9 @@ export function fetchRequestedFiles(
 
     if (!content) continue;
 
+    const key = `${req.repo}:${req.path}`;
+    if (fetchedPaths.has(key)) continue;
+
     const fileTokens = Math.ceil(content.length / CHARS_PER_TOKEN);
     if (fileTokens > MAX_SINGLE_FILE_TOKENS) {
       // Truncate large files to budget
@@ -193,6 +289,7 @@ export function fetchRequestedFiles(
     if (totalTokens + actualTokens > MAX_SOURCE_FILE_TOKENS) break;
 
     fetched.push({ repo: req.repo, path: req.path, content });
+    fetchedPaths.add(key);
     totalTokens += actualTokens;
   }
 
@@ -208,17 +305,6 @@ function formatSourceFiles(files: FetchedFile[]): string {
     ctx += `### ${f.repo}/${f.path}\n\`\`\`${ext}\n${f.content}\n\`\`\`\n\n`;
   }
   return ctx;
-}
-
-function buildDeepUserPrompt(
-  transcript: string,
-  repos: RepoMap[],
-  fetchedFiles: FetchedFile[],
-): string {
-  let prompt = `## Meeting Transcript\n\n${transcript}\n\n`;
-  prompt += `## Codebase Map\n\n${formatRepoContext(repos)}\n\n`;
-  prompt += formatSourceFiles(fetchedFiles);
-  return prompt;
 }
 
 function loadSystemPrompt(): string {
@@ -401,18 +487,24 @@ export async function extractTasks(
   }
   const repoContext = formatRepoContext(repos);
 
+  // --- Always include anchor files (package.json, entry points, etc.) ---
+  const anchorFiles = getAnchorFiles(repos);
+
   // --- Pass 1: Ask Claude which files to read ---
   logger.info('Pass 1: Identifying relevant source files...');
   const selectionPrompt = buildUserPrompt(transcript, repos);
   const fileSelection = await callClaudeFileSelection(client, selectionPrompt, model);
 
+  // Combine: anchor files first, then Claude's selections (deduped in fetchRequestedFiles)
+  const allRequested = [...anchorFiles, ...fileSelection.requested_files];
+
   let fetchedFiles: FetchedFile[] = [];
-  if (fileSelection.requested_files.length > 0) {
-    logger.info(`Pass 1 selected ${fileSelection.requested_files.length} files, fetching contents...`);
-    fetchedFiles = fetchRequestedFiles(fileSelection.requested_files, repos);
+  if (allRequested.length > 0) {
+    logger.info(`Pass 1 selected ${fileSelection.requested_files.length} files + ${anchorFiles.length} anchor files, fetching contents...`);
+    fetchedFiles = fetchRequestedFiles(allRequested, repos);
     logger.info(`Fetched ${fetchedFiles.length} files (~${Math.ceil(fetchedFiles.reduce((sum, f) => sum + f.content.length, 0) / CHARS_PER_TOKEN)} tokens)`);
   } else {
-    logger.info('Pass 1 selected no files, proceeding with structure-only analysis');
+    logger.info('No files to fetch, proceeding with structure-only analysis');
   }
 
   // --- Pass 2: Deep analysis with file contents ---

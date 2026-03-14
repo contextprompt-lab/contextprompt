@@ -15,19 +15,27 @@ Prioritize files that are:
 2. **Primary implementation targets** — where the discussed changes would most likely be made
 3. **Data contracts** — API routes, types, schemas, or interfaces that define how data flows between systems
 4. **Shared dependencies** — utility files, hooks, or components that multiple discussed features depend on
+5. **Core application files** — main entry points, app configuration, routing, navigation, and layout files that define the application structure
+
+Even if the transcript is short or vague, always select files that are likely relevant based on the topics mentioned. Be generous — it is better to include a file that turns out to be unnecessary than to miss one that matters.
+
+When a feature, screen, or component is mentioned by name or description, include:
+- The primary file implementing it
+- Any parent/container components that render it
+- Related API routes, hooks, or data-fetching logic
+- Type definitions or interfaces used by the feature
 
 Do NOT select:
 - Test files
-- Config files (tsconfig, eslint, etc.) unless specifically discussed
 - Lock files, build outputs, or generated code
-- Files that are merely in the same directory but unrelated to the discussion
+- Files that are clearly unrelated to any discussed topic
 
 ## Rules
 
 - Only select files that appear in the file tree. Do not invent paths.
 - Select at most 50 files total across all repos.
 - Order files by relevance — most important first.
-- If the meeting has no coding-relevant discussion, return an empty list.
+- If the meeting has absolutely no coding-relevant discussion at all, return an empty list. But if there is even a brief mention of a feature, screen, bug, or change, select relevant files.
 
 ## Output format
 

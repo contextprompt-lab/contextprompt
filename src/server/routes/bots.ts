@@ -249,10 +249,11 @@ async function processCompletedBot(botId: string): Promise<void> {
       durationMinutes = Math.round((new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 60000);
     }
 
-    // Update meeting status to processing
+    // Save transcript and update status to processing (so rerun works if extraction fails)
     const { getDb } = await import('../db.js');
     const db = getDb();
-    db.prepare('UPDATE meetings SET status = ? WHERE id = ?').run('processing', meetingId);
+    db.prepare('UPDATE meetings SET status = ?, transcript = ?, duration_minutes = ?, speaker_count = ? WHERE id = ?')
+      .run('processing', formattedTranscript, durationMinutes, speakerCount, meetingId);
 
     // 3. Scan repos (use client-provided maps for browser repos, scan disk for local repos)
     const repoMaps: RepoMap[] = [];

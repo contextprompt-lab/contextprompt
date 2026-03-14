@@ -489,15 +489,13 @@ async function callClaude(
   userPrompt: string,
   model: string
 ): Promise<ExtractedPlan> {
-  const MAX_RETRIES = 2;
+  const MAX_RETRIES = 3;
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       if (attempt > 0) {
-        const delay = attempt * 2000;
         logger.info(`Retrying Claude API (attempt ${attempt + 1})...`);
-        await new Promise((r) => setTimeout(r, delay));
       }
 
       const response = await client.messages.create({
@@ -524,6 +522,15 @@ async function callClaude(
       if (msg.includes('prompt is too long') || msg.includes('context length exceeded') || msg.includes('exceeds the maximum number of tokens')) {
         throw new Error(`Codebase too large for analysis — try connecting fewer repos or a larger model. (${msg})`);
       }
+      // Rate limit — wait 60s before retrying
+      if (msg.includes('rate_limit') || msg.includes('429')) {
+        logger.warn(`Rate limited, waiting 60s before retry...`);
+        await new Promise((r) => setTimeout(r, 60_000));
+        continue;
+      }
+      // Other errors — short backoff
+      const delay = attempt * 2000;
+      if (delay > 0) await new Promise((r) => setTimeout(r, delay));
       logger.error(`Claude API error (attempt ${attempt + 1}): ${msg}`);
     }
   }

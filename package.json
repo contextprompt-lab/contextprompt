@@ -1,0 +1,67 @@
+{
+  "name": "meetcode",
+  "version": "0.1.0",
+  "description": "CLI that captures meeting conversations, understands your codebase, and outputs structured coding tasks",
+  "type": "module",
+  "bin": {
+    "meetcode": "./dist/bin/meetcode.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "keywords": [
+    "meeting",
+    "transcription",
+    "coding-tasks",
+    "claude",
+    "deepgram",
+    "cli"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx bin/meetcode.ts",
+    "start": "node dist/bin/meetcode.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@deepgram/sdk": "^5.0.0",
+    "better-sqlite3": "^12.6.2",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "ignore": "^7.0.5",
+    "ora": "^9.3.0",
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
+  },
+  "optionalDependencies": {
+    "audiotee": "^0.0.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.4.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "vitest": "^3.2.4"
+  }
+}

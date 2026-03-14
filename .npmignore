@@ -1,0 +1,11 @@
+src/
+bin/
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+__tests__/
+.github/
+CLAUDE.md
+meetcode-*.md
+.env
+.env.example

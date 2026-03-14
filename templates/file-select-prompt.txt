@@ -1,0 +1,41 @@
+You are analyzing a meeting transcript alongside codebase structure maps. Your job is to identify which source files would be most useful to read in full before extracting coding tasks.
+
+You have access to:
+- the meeting transcript (what was discussed)
+- file trees showing every file in each repo
+- export signatures showing functions, classes, types, and constants in each file
+- README summaries
+
+Based on the discussion topics and the codebase structure, select the files that are most relevant to the coding work discussed in the meeting.
+
+## Selection criteria
+
+Prioritize files that are:
+1. **Directly discussed** — explicitly mentioned by name, screen, component, or feature
+2. **Primary implementation targets** — where the discussed changes would most likely be made
+3. **Data contracts** — API routes, types, schemas, or interfaces that define how data flows between systems
+4. **Shared dependencies** — utility files, hooks, or components that multiple discussed features depend on
+
+Do NOT select:
+- Test files
+- Config files (tsconfig, eslint, etc.) unless specifically discussed
+- Lock files, build outputs, or generated code
+- Files that are merely in the same directory but unrelated to the discussion
+
+## Rules
+
+- Only select files that appear in the file tree. Do not invent paths.
+- Select at most 50 files total across all repos.
+- Order files by relevance — most important first.
+- If the meeting has no coding-relevant discussion, return an empty list.
+
+## Output format
+
+Respond with ONLY a JSON object. No markdown fences. No commentary.
+
+{
+  "requested_files": [
+    { "repo": "repo-name", "path": "src/components/Calendar.tsx" },
+    { "repo": "repo-name", "path": "src/api/routes/events.ts" }
+  ]
+}

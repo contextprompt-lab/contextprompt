@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
-import type { RepoMap } from '../repo/types.js';
+import type { RepoMap, SourceFile } from '../repo/types.js';
 import type { ExtractedPlan, Task } from './types.js';
 import type { GitHubIssue } from '../github/types.js';
 import { shouldChunk, chunkTranscript, deduplicateTasks } from './chunker.js';
@@ -52,7 +52,174 @@ const ExtractedPlanSchema = z.object({
   incomplete_items: z.array(IncompleteItemSchema).default([]),
 });
 
+// --- Pass 1: File Selection ---
+
+const FileSelectionSchema = z.object({
+  requested_files: z.array(z.object({
+    repo: z.string(),
+    path: z.string(),
+  })).default([]),
+});
+
+type FileSelection = z.infer<typeof FileSelectionSchema>;
+
+interface FetchedFile {
+  repo: string;
+  path: string;
+  content: string;
+}
+
+const CHARS_PER_TOKEN = 4;
+const MAX_SOURCE_FILE_TOKENS = 80_000;
+const MAX_SINGLE_FILE_TOKENS = 10_000;
+const MAX_REQUESTED_FILES = 50;
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function loadFileSelectPrompt(): string {
+  const paths = [
+    join(__dirname, '..', '..', 'templates', 'file-select-prompt.txt'),
+    join(__dirname, '..', 'templates', 'file-select-prompt.txt'),
+  ];
+
+  for (const p of paths) {
+    try {
+      return readFileSync(p, 'utf-8');
+    } catch {
+      continue;
+    }
+  }
+
+  throw new Error('Could not find file-select-prompt.txt template');
+}
+
+export function parseFileSelectionResponse(text: string): FileSelection {
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^```json?\s*/m, '').replace(/\s*```\s*$/m, '').trim();
+
+  const jsonStart = cleaned.indexOf('{');
+  const jsonEnd = cleaned.lastIndexOf('}');
+  if (jsonStart >= 0 && jsonEnd > jsonStart) {
+    cleaned = cleaned.slice(jsonStart, jsonEnd + 1);
+  }
+
+  try {
+    const parsed = JSON.parse(cleaned);
+    const result = FileSelectionSchema.parse(parsed);
+    // Cap at max
+    result.requested_files = result.requested_files.slice(0, MAX_REQUESTED_FILES);
+    return result;
+  } catch (err) {
+    logger.warn(`Failed to parse file selection response: ${(err as Error).message}`);
+    return { requested_files: [] };
+  }
+}
+
+async function callClaudeFileSelection(
+  client: Anthropic,
+  userPrompt: string,
+  model: string,
+): Promise<FileSelection> {
+  try {
+    const systemPrompt = loadFileSelectPrompt();
+    const response = await client.messages.create({
+      model,
+      max_tokens: 2048,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+
+    const text = response.content
+      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+      .map((block) => block.text)
+      .join('');
+
+    return parseFileSelectionResponse(text);
+  } catch (err) {
+    logger.warn(`Pass 1 file selection failed, falling back to single-pass: ${(err as Error).message}`);
+    return { requested_files: [] };
+  }
+}
+
+export function fetchRequestedFiles(
+  requested: FileSelection['requested_files'],
+  repos: RepoMap[],
+): FetchedFile[] {
+  const fetched: FetchedFile[] = [];
+  let totalTokens = 0;
+
+  for (const req of requested) {
+    if (totalTokens >= MAX_SOURCE_FILE_TOKENS) break;
+
+    // Find the matching repo
+    const repo = repos.find(r => r.name === req.repo);
+    if (!repo) continue;
+
+    // Validate path doesn't escape repo (no .. segments)
+    const normalized = normalize(req.path);
+    if (normalized.startsWith('..') || normalized.startsWith('/')) continue;
+
+    let content: string | null = null;
+
+    if (repo.rootPath.startsWith('browser://')) {
+      // Browser repo — look up in sourceFiles
+      if (repo.sourceFiles) {
+        const sf = repo.sourceFiles.find(f => f.path === req.path);
+        if (sf) content = sf.content;
+      }
+    } else {
+      // Disk repo — read file directly
+      const fullPath = resolve(repo.rootPath, normalized);
+      // Security: ensure resolved path is still within repo root
+      if (!fullPath.startsWith(resolve(repo.rootPath))) continue;
+      try {
+        if (existsSync(fullPath)) {
+          content = readFileSync(fullPath, 'utf-8');
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    if (!content) continue;
+
+    const fileTokens = Math.ceil(content.length / CHARS_PER_TOKEN);
+    if (fileTokens > MAX_SINGLE_FILE_TOKENS) {
+      // Truncate large files to budget
+      content = content.slice(0, MAX_SINGLE_FILE_TOKENS * CHARS_PER_TOKEN);
+    }
+
+    const actualTokens = Math.ceil(content.length / CHARS_PER_TOKEN);
+    if (totalTokens + actualTokens > MAX_SOURCE_FILE_TOKENS) break;
+
+    fetched.push({ repo: req.repo, path: req.path, content });
+    totalTokens += actualTokens;
+  }
+
+  return fetched;
+}
+
+function formatSourceFiles(files: FetchedFile[]): string {
+  if (files.length === 0) return '';
+
+  let ctx = `## Source Files\n\nThe following source files were identified as most relevant to the discussion:\n\n`;
+  for (const f of files) {
+    const ext = f.path.split('.').pop() || '';
+    ctx += `### ${f.repo}/${f.path}\n\`\`\`${ext}\n${f.content}\n\`\`\`\n\n`;
+  }
+  return ctx;
+}
+
+function buildDeepUserPrompt(
+  transcript: string,
+  repos: RepoMap[],
+  fetchedFiles: FetchedFile[],
+): string {
+  let prompt = `## Meeting Transcript\n\n${transcript}\n\n`;
+  prompt += `## Codebase Map\n\n${formatRepoContext(repos)}\n\n`;
+  prompt += formatSourceFiles(fetchedFiles);
+  return prompt;
+}
 
 function loadSystemPrompt(): string {
   // Try multiple paths to find the template
@@ -205,14 +372,6 @@ function formatRepoContext(repos: RepoMap[]): string {
         ctx += '\n';
       }
 
-      if (repo.sourceFiles && repo.sourceFiles.length > 0) {
-        ctx += `#### Source Files\n`;
-        for (const sf of repo.sourceFiles) {
-          ctx += `\n##### \`${sf.path}\`\n\`\`\`\n${sf.content}\n\`\`\`\n`;
-        }
-        ctx += '\n';
-      }
-
       if (repo.readme) {
         ctx += `#### README\n${repo.readme}\n\n`;
       }
@@ -242,8 +401,44 @@ export async function extractTasks(
   }
   const repoContext = formatRepoContext(repos);
 
+  // --- Pass 1: Ask Claude which files to read ---
+  logger.info('Pass 1: Identifying relevant source files...');
+  const selectionPrompt = buildUserPrompt(transcript, repos);
+  const fileSelection = await callClaudeFileSelection(client, selectionPrompt, model);
+
+  let fetchedFiles: FetchedFile[] = [];
+  if (fileSelection.requested_files.length > 0) {
+    logger.info(`Pass 1 selected ${fileSelection.requested_files.length} files, fetching contents...`);
+    fetchedFiles = fetchRequestedFiles(fileSelection.requested_files, repos);
+    logger.info(`Fetched ${fetchedFiles.length} files (~${Math.ceil(fetchedFiles.reduce((sum, f) => sum + f.content.length, 0) / CHARS_PER_TOKEN)} tokens)`);
+  } else {
+    logger.info('Pass 1 selected no files, proceeding with structure-only analysis');
+  }
+
+  // --- Pass 2: Deep analysis with file contents ---
+  const buildPrompt = (transcriptPart: string, chunkLabel?: string) => {
+    const transcriptSection = chunkLabel
+      ? `## Meeting Transcript (${chunkLabel})\n\n${transcriptPart}`
+      : `## Meeting Transcript\n\n${transcriptPart}`;
+
+    if (fetchedFiles.length > 0) {
+      return `${transcriptSection}\n\n## Codebase Map\n\n${repoContext}\n\n${formatSourceFiles(fetchedFiles)}`;
+    }
+    return `${transcriptSection}\n\n## Codebase Map\n\n${repoContext}`;
+  };
+
   if (!shouldChunk(transcript)) {
-    return await callClaude(client, systemPrompt, buildUserPrompt(transcript, repos), model);
+    logger.info(`Pass 2: Extracting tasks${fetchedFiles.length > 0 ? ' with source files' : ''}...`);
+    try {
+      return await callClaude(client, systemPrompt, buildPrompt(transcript), model);
+    } catch (err) {
+      // If Pass 2 fails with source files (too large), retry without them
+      if (fetchedFiles.length > 0 && ((err as Error).message.includes('too large') || (err as Error).message.includes('maximum') || (err as Error).message.includes('413'))) {
+        logger.warn('Pass 2 too large with source files, retrying without...');
+        return await callClaude(client, systemPrompt, buildUserPrompt(transcript, repos), model);
+      }
+      throw err;
+    }
   }
 
   // Chunked extraction for long transcripts
@@ -256,10 +451,9 @@ export async function extractTasks(
 
   for (let i = 0; i < chunks.length; i++) {
     logger.info(`Processing chunk ${i + 1}/${chunks.length}...`);
-    const userPrompt = `## Meeting Transcript (Part ${i + 1}/${chunks.length})\n\n${chunks[i]}\n\n## Codebase Map\n\n${repoContext}`;
+    const userPrompt = buildPrompt(chunks[i], `Part ${i + 1}/${chunks.length}`);
     const result = await callClaude(client, systemPrompt, userPrompt, model);
     allTasks.push(...result.tasks);
-    // Accumulate metadata from all chunks, use last chunk's decisions as primary
     if (i === chunks.length - 1) {
       decisions = result.decisions;
     }
@@ -272,16 +466,14 @@ export async function extractTasks(
   const renumbered = deduplicated.map((task, i) => ({
     ...task,
     id: `T${i + 1}`,
-    dependencies: [], // Clear deps since they may reference old IDs
+    dependencies: [],
   }));
 
-  // Deduplicate assumptions and incomplete items
   const uniqueAssumptions = [...new Set(assumptions)];
   const uniqueIncomplete = incompleteItems.filter((item, i, arr) =>
     arr.findIndex(other => other.text === item.text) === i
   );
 
-  // Rebuild execution buckets from renumbered tasks
   const execution_buckets = {
     ready_now: renumbered.filter(t => t.status === 'ready').map(t => t.id),
     review_before_execution: renumbered.filter(t => t.status === 'review').map(t => t.id),

@@ -383,6 +383,72 @@ function estimateTokens(files: FetchedFile[]): number {
 const MAX_FULL_SOURCE_FILES = 15;
 const ANALYSIS_MODEL = "claude-haiku-4-5-20251001";
 
+// --- Project Understanding ---
+
+async function generateProjectSummary(
+  client: Anthropic,
+  repos: RepoMap[],
+  rateLimiter: TokenRateLimiter,
+): Promise<string> {
+  if (repos.length === 0) return "";
+
+  // Build a compact view: file tree + top exports per repo
+  let context = "";
+  for (const repo of repos) {
+    context += `## ${repo.name}\n`;
+    if (repo.readme) {
+      context += `README: ${repo.readme.slice(0, 500)}\n`;
+    }
+    context += `File tree:\n${repo.fileTree}\n`;
+
+    // Top exports (first 50 files with exports)
+    const filesWithExports = repo.files.filter((f) => f.exports.length > 0).slice(0, 50);
+    if (filesWithExports.length > 0) {
+      context += "Key files:\n";
+      for (const f of filesWithExports) {
+        if (isJunkPath(f.path)) continue;
+        const exports = f.exports.map((e) => e.name).join(", ");
+        context += `  ${f.path}: ${exports}\n`;
+      }
+    }
+    context += "\n";
+  }
+
+  const estimatedTokens = Math.ceil(context.length / CHARS_PER_TOKEN);
+  await rateLimiter.waitIfNeeded(estimatedTokens);
+
+  try {
+    const response = await client.messages.create({
+      model: ANALYSIS_MODEL,
+      max_tokens: 1024,
+      system: `You are analyzing a codebase. Produce a concise project summary that a developer would need to navigate the code. Include:
+- What the project is (framework, language, purpose)
+- Key directories and what they contain
+- Main screens/pages/routes and their file paths
+- How components are organized
+- Key services, utilities, and shared code
+- Authentication approach if visible
+- State management approach if visible
+
+Be specific about file paths. Keep it under 300 words. No markdown headers, just plain text paragraphs.`,
+      messages: [{ role: "user", content: context }],
+    });
+
+    rateLimiter.recordUsage(response.usage.input_tokens);
+
+    const text = response.content
+      .filter((block): block is Anthropic.TextBlock => block.type === "text")
+      .map((block) => block.text)
+      .join("");
+
+    logger.info(`Project summary: ~${Math.ceil(text.length / CHARS_PER_TOKEN)} tokens`);
+    return text;
+  } catch (err) {
+    logger.warn(`Failed to generate project summary: ${(err as Error).message}`);
+    return "";
+  }
+}
+
 // --- Compact File Summaries ---
 
 function summarizeFile(path: string, content: string, exports: string[]): string {
@@ -479,17 +545,25 @@ interface SearchResult {
 // Paths that should never be included in search results or file selection
 const JUNK_PATH_PATTERNS = [
   /\/Pods\//i,
+  /^ios\//i,
+  /\/ios\//i,
+  /^android\//i,
+  /\/android\//i,
   /\/node_modules\//i,
   /\/DerivedData\//i,
   /\/xcuserdata\//i,
-  /\/android\/build\//i,
   /\/\.gradle\//i,
   /\/\.expo\//i,
   /\.pbxproj$/i,
   /\.xcscheme$/i,
   /\.xcworkspacedata$/i,
+  /\.xcassets\//i,
+  /\.colorset\//i,
   /\.plist$/i,
   /\.nanopb\./i,
+  /\.swift$/i,
+  /\.m$/i,
+  /\.mm$/i,
 ];
 
 function isJunkPath(path: string): boolean {
@@ -1216,6 +1290,10 @@ export async function extractTasks(
   const repoContext = formatRepoContext(repos);
   const analysisModel = ANALYSIS_MODEL;
 
+  // --- Step 0: Generate project understanding ---
+  logger.info("Generating project summary...");
+  const projectSummary = await generateProjectSummary(client, repos, rateLimiter);
+
   // --- Step 1: File name search (highest signal) ---
   logger.info("Searching file names...");
   const searchPatterns = extractSearchPatterns(transcript);
@@ -1290,7 +1368,11 @@ export async function extractTasks(
   }
 
   // c) Combine into context
-  const contextBlock = `## File Summaries (all files in the codebase)\n\n${fileSummaries}\n\n${sourceFilesBlock}\n\n${searchResults}`;
+  let contextBlock = "";
+  if (projectSummary) {
+    contextBlock += `## Project Understanding\n\n${projectSummary}\n\n`;
+  }
+  contextBlock += `## File Summaries\n\n${fileSummaries}\n\n${sourceFilesBlock}\n\n${searchResults}`;
 
   // --- Step 4: Single-shot Haiku analysis ---
   if (!shouldChunk(transcript)) {
@@ -1448,7 +1530,10 @@ export async function extractTasksFromIssue(
   const { searchResults, filesToRead } = investigateCodebase(issueKeywords, repos);
   const relevantPaths = new Set(filesToRead.map((f) => `${f.repo}:${f.path}`));
   const fileSummaries = buildFileSummaries(repos, relevantPaths);
-  const contextBlock = `## File Summaries\n\n${fileSummaries}\n\n${searchResults}`;
+  const projectSummary = await generateProjectSummary(client, repos, rateLimiter);
+  let contextBlock = "";
+  if (projectSummary) contextBlock += `## Project Understanding\n\n${projectSummary}\n\n`;
+  contextBlock += `## File Summaries\n\n${fileSummaries}\n\n${searchResults}`;
 
   return await callClaudeAnalysis(
     client,

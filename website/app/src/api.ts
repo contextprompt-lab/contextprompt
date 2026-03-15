@@ -191,8 +191,8 @@ const SKIP_DIRS = new Set([
   'node_modules', 'dist', 'build', '.git', '.next', '.nuxt',
   'coverage', '.cache', '.turbo', 'vendor', '__pycache__',
   '.venv', 'venv', 'target',
-  'Pods', 'ios/Pods', '.expo', 'android/build', 'android/.gradle',
-  'DerivedData', 'xcuserdata', '.gradle',
+  'Pods', '.expo', 'DerivedData', 'xcuserdata', '.gradle',
+  'ios', 'android', // React Native native dirs — app code is in src/
 ]);
 
 const SKIP_EXT = new Set([

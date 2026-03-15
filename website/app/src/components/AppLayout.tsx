@@ -191,9 +191,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
             onClick={async () => {
               try {
                 const { url } = await createCheckoutSession();
-                window.location.href = url;
-              } catch {
-                navigate('/');
+                if (url) window.location.href = url;
+              } catch (err) {
+                alert(`Upgrade failed: ${(err as Error).message}`);
               }
             }}
             sx={{ width: '100%', justifyContent: 'flex-start' }}

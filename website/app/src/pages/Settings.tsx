@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -10,11 +9,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  TextField,
-  Button,
-  CircularProgress,
 } from '@mui/material';
-import { getSettings, setSetting, testAnalysis, getRepos, buildRepoMaps } from '../api';
+import { getSettings, setSetting } from '../api';
 
 const LANGUAGES = [
   'English',
@@ -32,12 +28,9 @@ const LANGUAGES = [
 ];
 
 export function Settings() {
-  const navigate = useNavigate();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [transcript, setTranscript] = useState('');
-  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
     getSettings().then((s) => {
@@ -55,38 +48,6 @@ export function Settings() {
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       setError((err as Error).message);
-    }
-  };
-
-  const [analyzeStatus, setAnalyzeStatus] = useState('');
-
-  const handleTestAnalysis = async () => {
-    if (!transcript.trim()) return;
-    setError(null);
-    setAnalyzing(true);
-    try {
-      // Build repo maps from browser-connected repos
-      setAnalyzeStatus('Fetching repos...');
-      const repos = await getRepos();
-      const browserRepoIds = repos
-        .filter(r => r.path.startsWith('browser://'))
-        .map(r => r.id);
-
-      let repoMaps;
-      if (browserRepoIds.length > 0) {
-        setAnalyzeStatus(`Scanning ${browserRepoIds.length} repos...`);
-        repoMaps = await buildRepoMaps(browserRepoIds, (msg) => setAnalyzeStatus(msg));
-        setAnalyzeStatus(`Scanned ${repoMaps.length} repos, submitting...`);
-      } else {
-        setAnalyzeStatus('No browser repos found, submitting...');
-      }
-
-      const result = await testAnalysis(transcript.trim(), repoMaps);
-      navigate(`/meetings/${result.meeting_id}`);
-    } catch (err) {
-      setError((err as Error).message);
-      setAnalyzing(false);
-      setAnalyzeStatus('');
     }
   };
 
@@ -126,40 +87,6 @@ export function Settings() {
               ))}
             </Select>
           </FormControl>
-        </CardContent>
-      </Card>
-
-      {/* Test Analysis */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ mb: 1 }}>Test Analysis</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Paste a transcript to test the extraction pipeline without recording a meeting.
-          </Typography>
-          <TextField
-            fullWidth
-            multiline
-            minRows={4}
-            maxRows={12}
-            placeholder="Paste meeting transcript here..."
-            value={transcript}
-            onChange={(e) => setTranscript(e.target.value)}
-            disabled={analyzing}
-            size="small"
-            sx={{ mb: 2 }}
-          />
-          <Button
-            variant="contained"
-            onClick={handleTestAnalysis}
-            disabled={analyzing || !transcript.trim()}
-          >
-            {analyzing ? <><CircularProgress size={18} sx={{ mr: 1 }} /> Analyzing...</> : 'Run Analysis'}
-          </Button>
-          {analyzeStatus && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {analyzeStatus}
-            </Typography>
-          )}
         </CardContent>
       </Card>
 

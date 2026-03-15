@@ -26,9 +26,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
-  <script type="module" crossorigin src="/assets/main-Bm0Ovmtt.js"></script>
+  <script type="module" crossorigin src="/assets/main-Bo95aTa-.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-f7yNrXWe.css">
+  <link rel="stylesheet" crossorigin href="/assets/main-DWVjEIT1.css">
   <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
 </head>
 <body>
@@ -76,7 +76,7 @@
                 <span class="hero-task-title">T1: Replace session tokens with JWT</span>
                 <div class="hero-task-badges">
                   <span class="hero-badge hero-badge--green">ready</span>
-                  <span class="hero-badge hero-badge--green">high</span>
+                  <span class="hero-badge hero-badge--green">high confidence</span>
                 </div>
               </div>
               <p class="hero-task-desc">Swap express-session auth for JWT in the middleware layer</p>
@@ -96,7 +96,7 @@
                 <span class="hero-task-title">T2: Add token refresh endpoint</span>
                 <div class="hero-task-badges">
                   <span class="hero-badge hero-badge--amber">review</span>
-                  <span class="hero-badge hero-badge--amber">medium</span>
+                  <span class="hero-badge hero-badge--amber">medium confidence</span>
                 </div>
               </div>
               <p class="hero-task-desc">Create POST /auth/refresh for token renewal</p>
@@ -170,35 +170,24 @@
 
       <div class="how-steps">
         <div class="how-step">
-          <div class="how-step-number">1</div>
+          <div class="how-step-rail">
+            <div class="how-step-number">1</div>
+            <div class="how-step-line"></div>
+          </div>
           <div class="how-step-content">
             <h3>Connect your repos</h3>
-            <div class="step-card">
-              <div class="step-card-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-              </div>
-              <div class="step-card-body">
-                <p class="step-card-label">Dashboard</p>
-                <p class="step-card-desc">Sign in with Google, then add your repos from the dashboard. contextprompt scans file paths, exports, and types.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="how-step">
-          <div class="how-step-number">2</div>
-          <div class="how-step-content">
-            <h3>Paste a meeting link</h3>
-            <div class="step-card">
-              <div class="step-card-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="var(--accent-red)" stroke="var(--accent-red)"/></svg>
-              </div>
-              <div class="step-card-body">
-                <p class="step-card-label">Bot joins your call</p>
-                <div class="step-card-transcript">
-                  <p><span class="step-speaker step-speaker--1">Alice</span> The auth middleware needs JWT...</p>
-                  <p><span class="step-speaker step-speaker--2">Bob</span> Which files are we talking about?</p>
-                  <p><span class="step-speaker step-speaker--1">Alice</span> The main auth.ts and session types.</p>
+            <div class="step-card step-card--blue">
+              <p class="step-card-desc">Sign in with Google, then add your repos. contextprompt scans file paths, exports, and types.</p>
+              <div class="step-repo-list">
+                <div class="step-repo">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  <span class="step-repo-name">~/projects/web-app</span>
+                  <span class="step-repo-stat">142 files &middot; 38 exports</span>
+                </div>
+                <div class="step-repo">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  <span class="step-repo-name">~/projects/auth-service</span>
+                  <span class="step-repo-stat">67 files &middot; 21 exports</span>
                 </div>
               </div>
             </div>
@@ -206,22 +195,51 @@
         </div>
 
         <div class="how-step">
-          <div class="how-step-number">3</div>
+          <div class="how-step-rail">
+            <div class="how-step-number">2</div>
+            <div class="how-step-line"></div>
+          </div>
+          <div class="how-step-content">
+            <h3>Paste a meeting link</h3>
+            <div class="step-card step-card--red">
+              <div class="step-card-recording">
+                <span class="step-recording-dot"></span>
+                <span>contextprompt bot joined</span>
+              </div>
+              <div class="step-card-transcript">
+                <p><span class="step-speaker step-speaker--1">Alice</span> The auth middleware needs JWT...</p>
+                <p><span class="step-speaker step-speaker--2">Bob</span> Which files are we talking about?</p>
+                <p><span class="step-speaker step-speaker--1">Alice</span> Mainly auth.ts and the session types.</p>
+                <p class="step-transcript-fade"><span class="step-speaker step-speaker--2">Bob</span> Got it. What about the refresh flow?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="how-step">
+          <div class="how-step-rail">
+            <div class="how-step-number">3</div>
+            <div class="how-step-line"></div>
+          </div>
           <div class="how-step-content">
             <h3>Get structured tasks</h3>
-            <div class="step-card">
+            <div class="step-card step-card--green">
               <div class="step-card-tasks">
                 <div class="step-task">
                   <div class="step-task-header">
-                    <span class="step-task-title">Replace session tokens with JWT</span>
-                    <span class="badge badge--high">high</span>
+                    <span class="step-task-title">T1: Replace session tokens with JWT</span>
+                    <span class="badge badge--high">high confidence</span>
                   </div>
                   <p class="step-task-meta">src/middleware/auth.ts, src/types/session.ts</p>
+                  <div class="step-task-steps">
+                    <span>1. Remove express-session from middleware</span>
+                    <span>2. Add JWT sign/verify with jsonwebtoken</span>
+                  </div>
                 </div>
                 <div class="step-task">
                   <div class="step-task-header">
-                    <span class="step-task-title">Add token refresh endpoint</span>
-                    <span class="badge badge--med">medium</span>
+                    <span class="step-task-title">T2: Add token refresh endpoint</span>
+                    <span class="badge badge--med">medium confidence</span>
                   </div>
                   <p class="step-task-meta">src/routes/auth.ts</p>
                 </div>
@@ -231,16 +249,26 @@
         </div>
 
         <div class="how-step">
-          <div class="how-step-number">4</div>
+          <div class="how-step-rail">
+            <div class="how-step-number how-step-number--done">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
           <div class="how-step-content">
-            <h3>Hand tasks to Claude Code</h3>
-            <div class="step-card">
-              <div class="step-card-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="step-card-body">
-                <p class="step-card-label" style="color: var(--accent-green)">Ready to execute</p>
-                <p class="step-card-desc">View tasks in the dashboard, or hand the output directly to Claude Code, Cursor, or any AI assistant.</p>
+            <h3>Hand tasks to your AI tool</h3>
+            <div class="step-card step-card--green">
+              <p class="step-card-desc">One-click copy. Paste into Claude Code, Cursor, or any AI coding assistant.</p>
+              <div class="step-terminal">
+                <div class="step-terminal-header">
+                  <span class="step-terminal-dot"></span>
+                  <span class="step-terminal-dot"></span>
+                  <span class="step-terminal-dot"></span>
+                </div>
+                <div class="step-terminal-body">
+                  <span class="step-terminal-prompt">$</span> claude "Implement T1: Replace session tokens<br>
+                  <span class="step-terminal-dim">&nbsp; with JWT in src/middleware/auth.ts and</span><br>
+                  <span class="step-terminal-dim">&nbsp; src/types/session.ts per the plan"</span>
+                </div>
               </div>
             </div>
           </div>

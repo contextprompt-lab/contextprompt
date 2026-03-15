@@ -100,6 +100,7 @@ export function MeetingDetail() {
           color={meeting.status === 'completed' ? 'success' : meeting.status === 'failed' ? 'error' : 'default'}
           variant="outlined"
         />
+        {/* Rerun hidden for now
         {meeting.transcript && meeting.status !== 'processing' && (
           <Button
             size="small"
@@ -111,6 +112,7 @@ export function MeetingDetail() {
             Rerun Analysis
           </Button>
         )}
+        */}
         {meeting.status === 'processing' && (
           <CircularProgress size={20} />
         )}

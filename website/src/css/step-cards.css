@@ -4,30 +4,22 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: var(--space-6);
+  padding: var(--space-5);
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-5);
+  flex-direction: column;
+  gap: var(--space-4);
+  border-top: 2px solid var(--border-subtle);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.step-card-icon {
-  flex-shrink: 0;
-  margin-top: var(--space-1);
+.step-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.step-card-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.step-card-label {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-3);
-}
+.step-card--blue { border-top-color: var(--accent-blue); }
+.step-card--red { border-top-color: var(--accent-red); }
+.step-card--green { border-top-color: var(--accent-green); }
 
 .step-card-desc {
   font-size: var(--text-sm);
@@ -35,17 +27,86 @@
   line-height: 1.6;
 }
 
+/* Repo list mockup */
+.step-repo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.step-repo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.step-repo-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.step-repo-stat {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+/* Recording indicator */
+.step-card-recording {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--accent-green);
+  background: rgba(63, 185, 80, 0.08);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: 1px solid rgba(63, 185, 80, 0.2);
+}
+
+.step-recording-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  animation: pulseGreen 1.5s ease infinite;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
 /* Transcript mockup */
 .step-card-transcript {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
 }
 
 .step-card-transcript p {
   font-size: var(--text-sm);
   color: var(--text-secondary);
   line-height: 1.5;
+  margin: 0;
+}
+
+.step-transcript-fade {
+  opacity: 0.4;
+  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
 }
 
 .step-speaker {
@@ -89,6 +150,60 @@
   font-size: var(--text-xs);
   color: var(--text-dim);
   font-family: var(--font-mono);
+}
+
+.step-task-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--space-2);
+  padding-left: var(--space-2);
+}
+
+.step-task-steps span {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* Terminal copy block */
+.step-terminal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.step-terminal-header {
+  display: flex;
+  gap: 5px;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.step-terminal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-subtle);
+}
+
+.step-terminal-body {
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+.step-terminal-prompt {
+  color: var(--accent-green);
+  font-weight: 600;
+  margin-right: var(--space-1);
+}
+
+.step-terminal-dim {
+  color: var(--text-dim);
 }
 
 /* Badges */

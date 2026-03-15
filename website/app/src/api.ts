@@ -385,11 +385,18 @@ export async function buildRepoMaps(
   return maps;
 }
 
-// Send repo maps with bot request
-export const sendBot = (meetingUrl: string, repoIds?: number[], botName?: string, repoMaps?: ClientRepoMap[]) =>
+// Send bot to a meeting (no repo maps needed — they're sent separately)
+export const sendBot = (meetingUrl: string, repoIds?: number[], botName?: string) =>
   request<{ bot_id: string; meeting_id: number; status: string }>('/bots', {
     method: 'POST',
-    body: JSON.stringify({ meeting_url: meetingUrl, repo_ids: repoIds, bot_name: botName, repo_maps: repoMaps }),
+    body: JSON.stringify({ meeting_url: meetingUrl, repo_ids: repoIds, bot_name: botName }),
+  });
+
+// Attach repo maps to an active bot (called in background after bot is sent)
+export const updateBotRepoMaps = (botId: string, repoMaps: ClientRepoMap[]) =>
+  request<{ ok: boolean }>(`/bots/${botId}/repo-maps`, {
+    method: 'PATCH',
+    body: JSON.stringify({ repo_maps: repoMaps }),
   });
 
 // Recording

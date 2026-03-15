@@ -168,7 +168,6 @@ function extractRetryWait(err: unknown): number {
 }
 
 const MAX_PROGRAMMATIC_FILES = 20;
-const MAX_TOOL_ROUNDS = 5;
 
 const STOP_WORDS = new Set([
   "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
@@ -297,102 +296,199 @@ function estimateTokens(files: FetchedFile[]): number {
   );
 }
 
-// --- Layer 2: Haiku Tool-Use File Selection ---
+// --- Programmatic Investigation ---
 
-const READ_FILES_TOOL: Anthropic.Tool = {
-  name: "read_files",
-  description:
-    "Read source files from the repository. Request files you need to understand the codebase for the discussed coding tasks. You can request multiple files at once.",
-  input_schema: {
-    type: "object" as const,
-    properties: {
-      files: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            repo: { type: "string", description: "Repository name" },
-            path: {
-              type: "string",
-              description: "File path within the repo",
-            },
-          },
-          required: ["repo", "path"],
-        },
-        description: "List of files to read",
-      },
-    },
-    required: ["files"],
-  },
-};
+interface SearchResult {
+  repo: string;
+  path: string;
+  line: number;
+  text: string;
+}
 
-// --- Analysis with Tool Use ---
+function searchSourceFiles(
+  keyword: string,
+  repos: RepoMap[],
+  maxResults: number = 20,
+): SearchResult[] {
+  const results: SearchResult[] = [];
+  const kwLower = keyword.toLowerCase();
 
-async function analyzeWithTools(
+  for (const repo of repos) {
+    if (!repo.sourceFiles) continue;
+    for (const sf of repo.sourceFiles) {
+      const lines = sf.content.split("\n");
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].toLowerCase().includes(kwLower)) {
+          results.push({
+            repo: repo.name,
+            path: sf.path,
+            line: i + 1,
+            text: lines[i].trim(),
+          });
+          if (results.length >= maxResults) return results;
+          break; // one match per file per keyword
+        }
+      }
+    }
+
+    // Also search disk repos via files array (no sourceFiles)
+    if (!repo.sourceFiles && !repo.rootPath.startsWith("browser://")) {
+      for (const file of repo.files) {
+        try {
+          const fullPath = join(repo.rootPath, file.path);
+          if (!existsSync(fullPath)) continue;
+          const content = readFileSync(fullPath, "utf-8");
+          const lines = content.split("\n");
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i].toLowerCase().includes(kwLower)) {
+              results.push({
+                repo: repo.name,
+                path: file.path,
+                line: i + 1,
+                text: lines[i].trim(),
+              });
+              if (results.length >= maxResults) return results;
+              break;
+            }
+          }
+        } catch {
+          continue;
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+function investigateCodebase(
+  keywords: string[],
+  repos: RepoMap[],
+): { searchResults: string; filesToRead: Array<{ repo: string; path: string }> } {
+  const allResults: SearchResult[] = [];
+  const fileSet = new Set<string>();
+
+  // Search for each keyword across all repos
+  for (const kw of keywords) {
+    const results = searchSourceFiles(kw, repos, 10);
+    for (const r of results) {
+      allResults.push(r);
+      fileSet.add(`${r.repo}:${r.path}`);
+    }
+  }
+
+  // Format search results as a research document
+  let searchResults = "";
+  if (allResults.length > 0) {
+    // Group by file
+    const byFile = new Map<string, SearchResult[]>();
+    for (const r of allResults) {
+      const key = `${r.repo}/${r.path}`;
+      const existing = byFile.get(key) || [];
+      existing.push(r);
+      byFile.set(key, existing);
+    }
+
+    searchResults = `## Codebase Search Results\n\nThe following code locations were found by searching for keywords from the transcript:\n\n`;
+    for (const [filePath, matches] of byFile) {
+      searchResults += `### ${filePath}\n`;
+      for (const m of matches) {
+        searchResults += `  Line ${m.line}: ${m.text.slice(0, 200)}\n`;
+      }
+      searchResults += "\n";
+    }
+  }
+
+  // Build list of files to read (deduped)
+  const filesToRead = [...fileSet].map((key) => {
+    const [repo, ...pathParts] = key.split(":");
+    return { repo, path: pathParts.join(":") };
+  });
+
+  return { searchResults, filesToRead };
+}
+
+// --- Single-Shot Analysis ---
+
+async function callClaudeAnalysis(
   client: Anthropic,
   systemPrompt: string,
   repoContext: string,
-  preloadedFiles: string,
+  sourceFilesBlock: string,
+  searchResultsBlock: string,
   transcriptBlock: string,
   model: string,
   rateLimiter: TokenRateLimiter,
-  repos: RepoMap[],
-  fetchedPaths: Set<string>,
 ): Promise<ExtractedPlan> {
-  const userContent = preloadedFiles
-    ? `${preloadedFiles}\n\n## Meeting Transcript\n\n${transcriptBlock}`
-    : `## Meeting Transcript\n\n${transcriptBlock}`;
+  const MAX_RETRIES = 3;
 
-  const messages: Anthropic.MessageParam[] = [
-    {
-      role: "user",
-      content: [
-        {
-          type: "text",
-          text: `## Codebase Map\n\n${repoContext}`,
-          cache_control: { type: "ephemeral" },
-        },
-        {
-          type: "text",
-          text: userContent,
-        },
-      ],
-    },
-  ];
-
-  const systemBlocks: Anthropic.TextBlockParam[] = [
-    {
-      type: "text",
-      text: systemPrompt,
-      cache_control: { type: "ephemeral" },
-    },
-  ];
+  let userContent = "";
+  if (sourceFilesBlock) userContent += `${sourceFilesBlock}\n\n`;
+  if (searchResultsBlock) userContent += `${searchResultsBlock}\n\n`;
+  userContent += `## Meeting Transcript\n\n${transcriptBlock}`;
 
   const estimatedTokens = Math.ceil(
     (systemPrompt.length + repoContext.length + userContent.length) /
       CHARS_PER_TOKEN,
   );
-  await rateLimiter.waitIfNeeded(estimatedTokens);
+  let lastError: Error | null = null;
 
-  // Tool-use conversation loop
-  for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-    let response;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      response = await client.messages.create({
-        model,
-        max_tokens: 16384,
-        system: systemBlocks,
-        messages,
-        tools: [READ_FILES_TOOL],
-      });
+      if (attempt > 0) {
+        logger.info(`Retrying Claude API (attempt ${attempt + 1})...`);
+      }
+
+      await rateLimiter.waitIfNeeded(estimatedTokens);
+
+      const { data: response, response: httpResponse } = await client.messages
+        .create({
+          model,
+          max_tokens: 16384,
+          system: [
+            {
+              type: "text",
+              text: systemPrompt,
+              cache_control: { type: "ephemeral" },
+            },
+          ],
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: `## Codebase Map\n\n${repoContext}`,
+                  cache_control: { type: "ephemeral" },
+                },
+                {
+                  type: "text",
+                  text: userContent,
+                },
+              ],
+            },
+          ],
+        })
+        .withResponse();
+
+      rateLimiter.recordUsage(response.usage.input_tokens);
+      rateLimiter.updateLimitFromHeaders(httpResponse.headers);
+
+      const text = response.content
+        .filter((block): block is Anthropic.TextBlock => block.type === "text")
+        .map((block) => block.text)
+        .join("");
+
+      return parseClaudeResponse(text);
     } catch (err) {
-      const msg = (err as Error).message || "";
+      lastError = err as Error;
+      const msg = lastError.message || "";
       if (
         msg.includes("credit") ||
         msg.includes("api_key") ||
         msg.includes("authentication")
       ) {
-        throw err;
+        throw lastError;
       }
       if (
         msg.includes("prompt is too long") ||
@@ -413,91 +509,15 @@ async function analyzeWithTools(
           `Rate limited, waiting ${Math.ceil(waitMs / 1000)}s before retry...`,
         );
         await new Promise((r) => setTimeout(r, waitMs));
-        // Retry the same round (same messages, same conversation state)
-        round--;
         continue;
       }
-      throw err;
+      const delay = attempt * 2000;
+      if (delay > 0) await new Promise((r) => setTimeout(r, delay));
+      logger.error(`Claude API error (attempt ${attempt + 1}): ${msg}`);
     }
-
-    rateLimiter.recordUsage(response.usage.input_tokens);
-
-    // Check if model wants to read files
-    if (response.stop_reason === "tool_use") {
-      const toolUses = response.content.filter(
-        (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
-      );
-
-      if (toolUses.length === 0) {
-        const text = response.content
-          .filter(
-            (block): block is Anthropic.TextBlock => block.type === "text",
-          )
-          .map((block) => block.text)
-          .join("");
-        if (text.includes("{")) return parseClaudeResponse(text);
-        break;
-      }
-
-      // Process tool calls — fetch requested files
-      const toolResults: Anthropic.ToolResultBlockParam[] = [];
-      let filesRead = 0;
-
-      for (const toolUse of toolUses) {
-        const input = toolUse.input as {
-          files: Array<{ repo: string; path: string }>;
-        };
-        const newRequested = (input.files || []).filter(
-          (f) => !fetchedPaths.has(`${f.repo}:${f.path}`),
-        );
-
-        const newFiles = fetchRequestedFiles(newRequested, repos);
-        newFiles.forEach((f) => fetchedPaths.add(`${f.repo}:${f.path}`));
-        filesRead += newFiles.length;
-
-        const resultText =
-          formatSourceFiles(newFiles) ||
-          "No files found or all requested files were already provided.";
-        toolResults.push({
-          type: "tool_result",
-          tool_use_id: toolUse.id,
-          content: resultText,
-        });
-      }
-
-      logger.info(`Analysis round ${round + 1}: read ${filesRead} files`);
-
-      // Append assistant response + tool results to conversation
-      messages.push({ role: "assistant", content: response.content });
-      messages.push({ role: "user", content: toolResults });
-
-      continue;
-    }
-
-    // stop_reason === 'end_turn' — extract the final JSON
-    const text = response.content
-      .filter(
-        (block): block is Anthropic.TextBlock => block.type === "text",
-      )
-      .map((block) => block.text)
-      .join("");
-
-    // Check if the response contains JSON
-    if (text.includes("{") && text.includes("tasks")) {
-      return parseClaudeResponse(text);
-    }
-
-    // Model responded with text instead of JSON — nudge it
-    logger.warn("Model responded with text instead of JSON, requesting JSON output...");
-    messages.push({ role: "assistant", content: response.content });
-    messages.push({
-      role: "user",
-      content: "Please provide your analysis as the JSON object specified in the output format. No commentary, just the JSON.",
-    });
-    continue;
   }
 
-  throw new Error("Analysis did not complete within maximum tool-use rounds");
+  throw lastError || new Error("Claude API failed after retries");
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -1003,7 +1023,7 @@ export async function extractTasks(
   }
   const repoContext = formatRepoContext(repos);
 
-  // --- Layer 1: Programmatic file selection (zero API cost) ---
+  // --- Step 1: Programmatic file selection (zero API cost) ---
   logger.info("Programmatic file selection...");
   const { files: programmaticFiles, keywords } = selectFilesProgrammatically(
     transcript,
@@ -1012,49 +1032,60 @@ export async function extractTasks(
   const anchorFiles = getAnchorFiles(repos);
   const allInitialRequests = [...anchorFiles, ...programmaticFiles];
   const fetchedFiles = fetchRequestedFiles(allInitialRequests, repos);
-  const fetchedPaths = new Set(
-    fetchedFiles.map((f) => `${f.repo}:${f.path}`),
-  );
   logger.info(
     `Pre-loaded ${fetchedFiles.length} files (~${estimateTokens(fetchedFiles)} tokens) from ${keywords.length} keywords`,
   );
 
-  // --- Layer 2: Sonnet analysis with tool use ---
-  const preloadedFiles = formatSourceFiles(fetchedFiles);
+  // --- Step 2: Programmatic investigation (grep keywords across all source files) ---
+  logger.info("Investigating codebase...");
+  const { searchResults, filesToRead } = investigateCodebase(keywords, repos);
+
+  // Fetch investigation files that weren't already pre-loaded
+  const alreadyFetched = new Set(fetchedFiles.map((f) => `${f.repo}:${f.path}`));
+  const newFiles = filesToRead.filter((f) => !alreadyFetched.has(`${f.repo}:${f.path}`));
+  const investigationFiles = fetchRequestedFiles(newFiles, repos);
+  const allFiles = [...fetchedFiles, ...investigationFiles];
+  logger.info(
+    `Investigation found ${investigationFiles.length} additional files (~${estimateTokens(investigationFiles)} tokens) from search`,
+  );
+  logger.info(
+    `Total: ${allFiles.length} files (~${estimateTokens(allFiles)} tokens)`,
+  );
+
+  // --- Step 3: Single-shot Sonnet analysis with all context ---
+  const sourceFilesBlock = formatSourceFiles(allFiles);
 
   if (!shouldChunk(transcript)) {
     logger.info(`Extracting tasks with ${model}...`);
     try {
-      return await analyzeWithTools(
+      return await callClaudeAnalysis(
         client,
         systemPrompt,
         repoContext,
-        preloadedFiles,
+        sourceFilesBlock,
+        searchResults,
         transcript,
         model,
         rateLimiter,
-        repos,
-        fetchedPaths,
       );
     } catch (err) {
-      // If too large with pre-loaded files, retry without them
+      // If too large, retry without source files
       if (
-        fetchedFiles.length > 0 &&
+        allFiles.length > 0 &&
         ((err as Error).message.includes("too large") ||
           (err as Error).message.includes("maximum") ||
           (err as Error).message.includes("413"))
       ) {
-        logger.warn("Too large with pre-loaded files, retrying without...");
-        return await analyzeWithTools(
+        logger.warn("Too large with source files, retrying without...");
+        return await callClaudeAnalysis(
           client,
           systemPrompt,
           repoContext,
           "",
+          searchResults,
           transcript,
           model,
           rateLimiter,
-          repos,
-          new Set(),
         );
       }
       throw err;
@@ -1076,16 +1107,15 @@ export async function extractTasks(
   for (let i = 0; i < chunks.length; i++) {
     logger.info(`Processing chunk ${i + 1}/${chunks.length}...`);
     const chunkText = `## Meeting Transcript (Part ${i + 1}/${chunks.length})\n\n${chunks[i]}`;
-    const result = await analyzeWithTools(
+    const result = await callClaudeAnalysis(
       client,
       systemPrompt,
       repoContext,
-      preloadedFiles,
+      sourceFilesBlock,
+      searchResults,
       chunkText,
       model,
       rateLimiter,
-      repos,
-      new Set(fetchedPaths),
     );
     allTasks.push(...result.tasks);
     if (i === chunks.length - 1) {
@@ -1197,16 +1227,20 @@ export async function extractTasksFromIssue(
     }
   }
 
-  return await analyzeWithTools(
+  // Investigate codebase for issue-related keywords
+  const issueText = `${issue.title} ${issue.body || ""}`;
+  const issueKeywords = extractKeywords(issueText);
+  const { searchResults } = investigateCodebase(issueKeywords, repos);
+
+  return await callClaudeAnalysis(
     client,
     systemPrompt,
     repoContext,
     "",
+    searchResults,
     issueContent,
     model,
     rateLimiter,
-    repos,
-    new Set(),
   );
 }
 

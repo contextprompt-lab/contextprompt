@@ -39,6 +39,7 @@ import {
   deleteMeeting,
   rerunMeeting,
   buildRepoMaps,
+  updateBotRepoMaps,
   type Repo,
   type Meeting,
 } from '../api';
@@ -154,21 +155,25 @@ export function Recording() {
     setSending(true);
 
     try {
-      // Build fresh repo maps from browser-connected repos before sending
       const selectedIds = [...selectedRepos];
-      const browserRepoIds = repos
-        .filter(r => r.path.startsWith('browser://') && selectedIds.includes(r.id))
-        .map(r => r.id);
-      const repoMaps = browserRepoIds.length > 0
-        ? await buildRepoMaps(browserRepoIds)
-        : undefined;
 
-      const result = await sendBot(meetingUrl.trim(), selectedIds, undefined, repoMaps);
+      // Send bot immediately — no waiting for repo scans
+      const result = await sendBot(meetingUrl.trim(), selectedIds);
       setActiveBotId(result.bot_id);
       setActiveMeetingId(result.meeting_id);
       setBotStatus('joining');
       setMeetingUrl('');
       startPolling(result.bot_id);
+
+      // Scan browser repos in background and send maps when ready
+      const browserRepoIds = repos
+        .filter(r => r.path.startsWith('browser://') && selectedIds.includes(r.id))
+        .map(r => r.id);
+      if (browserRepoIds.length > 0) {
+        buildRepoMaps(browserRepoIds)
+          .then(repoMaps => updateBotRepoMaps(result.bot_id, repoMaps))
+          .catch(err => console.warn(`Background repo scan failed: ${(err as Error).message}`));
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {

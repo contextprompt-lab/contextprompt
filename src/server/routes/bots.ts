@@ -51,7 +51,7 @@ botsRouter.get('/status', (_req, res) => {
 
 // Send a bot to a meeting
 botsRouter.post('/', async (req, res) => {
-  const { meeting_url, repo_ids, bot_name, repo_maps } = req.body;
+  const { meeting_url, repo_ids, bot_name } = req.body;
 
   if (!meeting_url) {
     res.status(400).json({ error: 'meeting_url is required' });
@@ -112,9 +112,7 @@ botsRouter.post('/', async (req, res) => {
       user_id: req.userId,
     });
 
-    // Store client-provided repo maps (from browser-connected repos)
-    const clientRepoMaps = Array.isArray(repo_maps) ? repo_maps as RepoMap[] : undefined;
-    activeBots.set(bot.id, { meetingId, repoPaths, clientRepoMaps, userId: req.userId });
+    activeBots.set(bot.id, { meetingId, repoPaths, userId: req.userId });
 
     res.json({
       bot_id: bot.id,
@@ -125,6 +123,25 @@ botsRouter.post('/', async (req, res) => {
     logger.error(`Failed to create bot: ${(err as Error).message}`);
     res.status(500).json({ error: (err as Error).message });
   }
+});
+
+// Attach repo maps to an active bot (sent in background after bot creation)
+botsRouter.patch('/:id/repo-maps', (req, res) => {
+  const session = activeBots.get(req.params.id);
+  if (!session) {
+    res.status(404).json({ error: 'Bot session not found' });
+    return;
+  }
+
+  const { repo_maps } = req.body;
+  if (!Array.isArray(repo_maps)) {
+    res.status(400).json({ error: 'repo_maps must be an array' });
+    return;
+  }
+
+  session.clientRepoMaps = repo_maps as RepoMap[];
+  logger.info(`Attached ${repo_maps.length} repo map(s) to bot ${req.params.id}`);
+  res.json({ ok: true });
 });
 
 // Tell bot to leave the meeting early

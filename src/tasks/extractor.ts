@@ -168,9 +168,7 @@ function extractRetryWait(err: unknown): number {
 }
 
 const MAX_PROGRAMMATIC_FILES = 20;
-const MAX_HAIKU_ROUNDS = 3;
-const HAIKU_MODEL = "claude-haiku-4-5-20251001";
-const MAX_FILES_PER_ROUND = 15;
+const MAX_TOOL_ROUNDS = 5;
 
 const STOP_WORDS = new Set([
   "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
@@ -328,149 +326,24 @@ const READ_FILES_TOOL: Anthropic.Tool = {
   },
 };
 
-function loadHaikuFileSelectPrompt(): string {
-  const paths = [
-    join(__dirname, "..", "..", "templates", "haiku-file-select-prompt.txt"),
-    join(__dirname, "..", "templates", "haiku-file-select-prompt.txt"),
-  ];
+// --- Analysis with Tool Use ---
 
-  for (const p of paths) {
-    try {
-      return readFileSync(p, "utf-8");
-    } catch {
-      continue;
-    }
-  }
-
-  throw new Error("Could not find haiku-file-select-prompt.txt template");
-}
-
-async function selectFilesWithHaiku(
-  client: Anthropic,
-  transcript: string,
-  repos: RepoMap[],
-  alreadyFetched: FetchedFile[],
-  rateLimiter: TokenRateLimiter,
-): Promise<FetchedFile[]> {
-  const systemPrompt = loadHaikuFileSelectPrompt();
-  const repoContext = formatRepoContext(repos);
-
-  const messages: Anthropic.MessageParam[] = [
-    {
-      role: "user",
-      content: [
-        {
-          type: "text",
-          text: `## Codebase Map\n\n${repoContext}`,
-          cache_control: { type: "ephemeral" },
-        },
-        {
-          type: "text",
-          text: `## Meeting Transcript\n\n${transcript}\n\n## Already Fetched Files (do not re-request these)\n\n${alreadyFetched.length > 0 ? alreadyFetched.map((f) => `- ${f.repo}/${f.path}`).join("\n") : "(none)"}`,
-        },
-      ],
-    },
-  ];
-
-  const allFetched = [...alreadyFetched];
-  const fetchedPaths = new Set(
-    alreadyFetched.map((f) => `${f.repo}:${f.path}`),
-  );
-
-  for (let round = 0; round < MAX_HAIKU_ROUNDS; round++) {
-    const estimatedInputTokens = Math.ceil(
-      (systemPrompt.length +
-        messages.reduce((sum, m) => {
-          if (typeof m.content === "string") return sum + m.content.length;
-          return sum + m.content.reduce((s, b) => s + ("text" in b ? b.text.length : 0), 0);
-        }, 0)) /
-        CHARS_PER_TOKEN,
-    );
-
-    await rateLimiter.waitIfNeeded(estimatedInputTokens);
-
-    const response = await client.messages.create({
-      model: HAIKU_MODEL,
-      max_tokens: 2048,
-      system: [
-        {
-          type: "text",
-          text: systemPrompt,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
-      messages,
-      tools: [READ_FILES_TOOL],
-    });
-
-    rateLimiter.recordUsage(response.usage.input_tokens);
-
-    if (response.stop_reason === "end_turn") break;
-
-    const toolUses = response.content.filter(
-      (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
-    );
-    if (toolUses.length === 0) break;
-
-    // Process all tool calls in this response
-    const assistantContent = response.content;
-    const toolResults: Anthropic.ToolResultBlockParam[] = [];
-
-    for (const toolUse of toolUses) {
-      const input = toolUse.input as {
-        files: Array<{ repo: string; path: string }>;
-      };
-      const newRequested = (input.files || [])
-        .slice(0, MAX_FILES_PER_ROUND)
-        .filter((f) => !fetchedPaths.has(`${f.repo}:${f.path}`));
-
-      const newFiles = fetchRequestedFiles(newRequested, repos);
-      allFetched.push(...newFiles);
-      newFiles.forEach((f) => fetchedPaths.add(`${f.repo}:${f.path}`));
-
-      const resultText =
-        formatSourceFiles(newFiles) ||
-        "No files found or all files already fetched.";
-      toolResults.push({
-        type: "tool_result",
-        tool_use_id: toolUse.id,
-        content: resultText,
-      });
-    }
-
-    // Append assistant message and all tool results
-    messages.push({ role: "assistant", content: assistantContent });
-    messages.push({ role: "user", content: toolResults });
-
-    // Check budget
-    if (estimateTokens(allFetched) >= MAX_SOURCE_FILE_TOKENS - 5000) {
-      logger.info("Layer 2: File token budget nearly exhausted, stopping");
-      break;
-    }
-  }
-
-  return allFetched;
-}
-
-// --- Layer 3: Extraction with Prompt Caching ---
-
-async function callClaudeWithCache(
+async function analyzeWithTools(
   client: Anthropic,
   systemPrompt: string,
   repoContext: string,
-  sourceFilesBlock: string,
+  preloadedFiles: string,
   transcriptBlock: string,
   model: string,
   rateLimiter: TokenRateLimiter,
+  repos: RepoMap[],
+  fetchedPaths: Set<string>,
 ): Promise<ExtractedPlan> {
   const MAX_RETRIES = 3;
-  const userContent = sourceFilesBlock
-    ? `${sourceFilesBlock}\n\n## Meeting Transcript\n\n${transcriptBlock}`
+  const userContent = preloadedFiles
+    ? `${preloadedFiles}\n\n## Meeting Transcript\n\n${transcriptBlock}`
     : `## Meeting Transcript\n\n${transcriptBlock}`;
-  const estimatedTokens = Math.ceil(
-    (systemPrompt.length + repoContext.length + userContent.length) /
-      CHARS_PER_TOKEN,
-  );
+
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -479,10 +352,32 @@ async function callClaudeWithCache(
         logger.info(`Retrying Claude API (attempt ${attempt + 1})...`);
       }
 
+      const messages: Anthropic.MessageParam[] = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `## Codebase Map\n\n${repoContext}`,
+              cache_control: { type: "ephemeral" },
+            },
+            {
+              type: "text",
+              text: userContent,
+            },
+          ],
+        },
+      ];
+
+      const estimatedTokens = Math.ceil(
+        (systemPrompt.length + repoContext.length + userContent.length) /
+          CHARS_PER_TOKEN,
+      );
       await rateLimiter.waitIfNeeded(estimatedTokens);
 
-      const { data: response, response: httpResponse } = await client.messages
-        .create({
+      // Tool-use conversation loop
+      for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+        const response = await client.messages.create({
           model,
           max_tokens: 16384,
           system: [
@@ -492,34 +387,88 @@ async function callClaudeWithCache(
               cache_control: { type: "ephemeral" },
             },
           ],
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: `## Codebase Map\n\n${repoContext}`,
-                  cache_control: { type: "ephemeral" },
-                },
-                {
-                  type: "text",
-                  text: userContent,
-                },
-              ],
-            },
-          ],
-        })
-        .withResponse();
+          messages,
+          tools: [READ_FILES_TOOL],
+        });
 
-      rateLimiter.recordUsage(response.usage.input_tokens);
-      rateLimiter.updateLimitFromHeaders(httpResponse.headers);
+        rateLimiter.recordUsage(response.usage.input_tokens);
 
-      const text = response.content
-        .filter((block): block is Anthropic.TextBlock => block.type === "text")
-        .map((block) => block.text)
-        .join("");
+        // Check if model wants to read files
+        if (response.stop_reason === "tool_use") {
+          const toolUses = response.content.filter(
+            (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+          );
 
-      return parseClaudeResponse(text);
+          if (toolUses.length === 0) {
+            // Shouldn't happen, but extract text and return
+            const text = response.content
+              .filter(
+                (block): block is Anthropic.TextBlock =>
+                  block.type === "text",
+              )
+              .map((block) => block.text)
+              .join("");
+            if (text.includes("{")) return parseClaudeResponse(text);
+            break;
+          }
+
+          // Process tool calls — fetch requested files
+          const toolResults: Anthropic.ToolResultBlockParam[] = [];
+          let filesRead = 0;
+
+          for (const toolUse of toolUses) {
+            const input = toolUse.input as {
+              files: Array<{ repo: string; path: string }>;
+            };
+            const newRequested = (input.files || []).filter(
+              (f) => !fetchedPaths.has(`${f.repo}:${f.path}`),
+            );
+
+            const newFiles = fetchRequestedFiles(newRequested, repos);
+            newFiles.forEach((f) =>
+              fetchedPaths.add(`${f.repo}:${f.path}`),
+            );
+            filesRead += newFiles.length;
+
+            const resultText =
+              formatSourceFiles(newFiles) ||
+              "No files found or all requested files were already provided.";
+            toolResults.push({
+              type: "tool_result",
+              tool_use_id: toolUse.id,
+              content: resultText,
+            });
+          }
+
+          logger.info(
+            `Analysis round ${round + 1}: read ${filesRead} files`,
+          );
+
+          // Append assistant response + tool results to conversation
+          messages.push({
+            role: "assistant",
+            content: response.content,
+          });
+          messages.push({ role: "user", content: toolResults });
+
+          continue;
+        }
+
+        // stop_reason === 'end_turn' — extract the final JSON
+        const text = response.content
+          .filter(
+            (block): block is Anthropic.TextBlock => block.type === "text",
+          )
+          .map((block) => block.text)
+          .join("");
+
+        return parseClaudeResponse(text);
+      }
+
+      // If we exhausted tool rounds without getting a final answer, error
+      throw new Error(
+        "Analysis did not complete within maximum tool-use rounds",
+      );
     } catch (err) {
       lastError = err as Error;
       const msg = lastError.message || "";
@@ -1056,8 +1005,7 @@ export async function extractTasks(
   language?: string,
 ): Promise<ExtractedPlan> {
   const client = new Anthropic({ apiKey });
-  const haikuRateLimiter = new TokenRateLimiter();
-  const sonnetRateLimiter = new TokenRateLimiter();
+  const rateLimiter = new TokenRateLimiter();
   let systemPrompt = loadSystemPrompt();
   if (language && language !== "English") {
     systemPrompt += `\n\nIMPORTANT: Write your entire response in ${language}. All task titles, descriptions, steps, assumptions, decisions, and other text fields must be in ${language}. Keep file paths, code identifiers, and JSON keys in English.`;
@@ -1065,83 +1013,57 @@ export async function extractTasks(
   const repoContext = formatRepoContext(repos);
 
   // --- Layer 1: Programmatic file selection (zero API cost) ---
-  logger.info("Layer 1: Programmatic file selection...");
+  logger.info("Programmatic file selection...");
   const { files: programmaticFiles, keywords } = selectFilesProgrammatically(
     transcript,
     repos,
   );
   const anchorFiles = getAnchorFiles(repos);
   const allInitialRequests = [...anchorFiles, ...programmaticFiles];
-  let fetchedFiles = fetchRequestedFiles(allInitialRequests, repos);
+  const fetchedFiles = fetchRequestedFiles(allInitialRequests, repos);
+  const fetchedPaths = new Set(
+    fetchedFiles.map((f) => `${f.repo}:${f.path}`),
+  );
   logger.info(
-    `Layer 1 selected ${fetchedFiles.length} files (~${estimateTokens(fetchedFiles)} tokens) from ${keywords.length} keywords`,
+    `Pre-loaded ${fetchedFiles.length} files (~${estimateTokens(fetchedFiles)} tokens) from ${keywords.length} keywords`,
   );
 
-  // --- Layer 2: Haiku tool-use file discovery (cheap, iterative) ---
-  const currentTokens = estimateTokens(fetchedFiles);
-  const hasBudget = MAX_SOURCE_FILE_TOKENS - currentTokens > 10_000;
-  const hasRepos = repos.length > 0 && repos.some((r) => r.files.length > 0);
-
-  if (hasBudget && hasRepos) {
-    logger.info("Layer 2: Haiku file discovery...");
-    try {
-      fetchedFiles = await selectFilesWithHaiku(
-        client,
-        transcript,
-        repos,
-        fetchedFiles,
-        haikuRateLimiter,
-      );
-      logger.info(
-        `Layer 2 total: ${fetchedFiles.length} files (~${estimateTokens(fetchedFiles)} tokens)`,
-      );
-    } catch (err) {
-      logger.warn(
-        `Layer 2 failed, continuing with Layer 1 selection: ${(err as Error).message}`,
-      );
-    }
-  } else if (!hasRepos) {
-    logger.info("Layer 2: Skipped (no repos with source files)");
-  } else {
-    logger.info("Layer 2: Skipped (file token budget exhausted)");
-  }
-
-  // --- Layer 3: Sonnet extraction with prompt caching ---
-  const sourceFilesBlock = formatSourceFiles(fetchedFiles);
+  // --- Layer 2: Sonnet analysis with tool use ---
+  const preloadedFiles = formatSourceFiles(fetchedFiles);
 
   if (!shouldChunk(transcript)) {
-    logger.info(
-      `Layer 3: Extracting tasks with ${fetchedFiles.length} source files...`,
-    );
+    logger.info(`Extracting tasks with ${model}...`);
     try {
-      return await callClaudeWithCache(
+      return await analyzeWithTools(
         client,
         systemPrompt,
         repoContext,
-        sourceFilesBlock,
+        preloadedFiles,
         transcript,
         model,
-        sonnetRateLimiter,
+        rateLimiter,
+        repos,
+        fetchedPaths,
       );
     } catch (err) {
-      // If too large with source files, retry without them
+      // If too large with pre-loaded files, retry without them
       if (
         fetchedFiles.length > 0 &&
         ((err as Error).message.includes("too large") ||
           (err as Error).message.includes("maximum") ||
           (err as Error).message.includes("413"))
       ) {
-        logger.warn(
-          "Layer 3 too large with source files, retrying without...",
-        );
-        return await callClaudeWithCache(
+        logger.warn("Too large with pre-loaded files, retrying without...");
+        return await analyzeWithTools(
           client,
           systemPrompt,
           repoContext,
           "",
           transcript,
           model,
-          sonnetRateLimiter,
+          rateLimiter,
+          repos,
+          new Set(),
         );
       }
       throw err;
@@ -1149,7 +1071,7 @@ export async function extractTasks(
   }
 
   // Chunked extraction for long transcripts
-  logger.info("Layer 3: Chunked extraction...");
+  logger.info("Chunked extraction...");
   const chunks = chunkTranscript(transcript);
   const allTasks: Task[] = [];
   let decisions: string[] = [];
@@ -1162,15 +1084,17 @@ export async function extractTasks(
 
   for (let i = 0; i < chunks.length; i++) {
     logger.info(`Processing chunk ${i + 1}/${chunks.length}...`);
-    const chunkTranscript = `## Meeting Transcript (Part ${i + 1}/${chunks.length})\n\n${chunks[i]}`;
-    const result = await callClaudeWithCache(
+    const chunkText = `## Meeting Transcript (Part ${i + 1}/${chunks.length})\n\n${chunks[i]}`;
+    const result = await analyzeWithTools(
       client,
       systemPrompt,
       repoContext,
-      sourceFilesBlock,
-      chunkTranscript,
+      preloadedFiles,
+      chunkText,
       model,
-      sonnetRateLimiter,
+      rateLimiter,
+      repos,
+      new Set(fetchedPaths),
     );
     allTasks.push(...result.tasks);
     if (i === chunks.length - 1) {
@@ -1268,7 +1192,7 @@ export async function extractTasksFromIssue(
   }
   const repoContext = formatRepoContext(repos);
 
-  // Build issue content (replaces transcript in the normal flow)
+  // Build issue content
   let issueContent = `## GitHub Issue #${issue.number}: ${issue.title}\n\n`;
   issueContent += `**Author:** ${issue.author}\n`;
   if (issue.labels.length > 0) {
@@ -1282,7 +1206,7 @@ export async function extractTasksFromIssue(
     }
   }
 
-  return await callClaudeWithCache(
+  return await analyzeWithTools(
     client,
     systemPrompt,
     repoContext,
@@ -1290,6 +1214,8 @@ export async function extractTasksFromIssue(
     issueContent,
     model,
     rateLimiter,
+    repos,
+    new Set(),
   );
 }
 

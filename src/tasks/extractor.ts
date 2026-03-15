@@ -339,145 +339,60 @@ async function analyzeWithTools(
   repos: RepoMap[],
   fetchedPaths: Set<string>,
 ): Promise<ExtractedPlan> {
-  const MAX_RETRIES = 3;
   const userContent = preloadedFiles
     ? `${preloadedFiles}\n\n## Meeting Transcript\n\n${transcriptBlock}`
     : `## Meeting Transcript\n\n${transcriptBlock}`;
 
-  let lastError: Error | null = null;
-
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      if (attempt > 0) {
-        logger.info(`Retrying Claude API (attempt ${attempt + 1})...`);
-      }
-
-      const messages: Anthropic.MessageParam[] = [
+  const messages: Anthropic.MessageParam[] = [
+    {
+      role: "user",
+      content: [
         {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `## Codebase Map\n\n${repoContext}`,
-              cache_control: { type: "ephemeral" },
-            },
-            {
-              type: "text",
-              text: userContent,
-            },
-          ],
+          type: "text",
+          text: `## Codebase Map\n\n${repoContext}`,
+          cache_control: { type: "ephemeral" },
         },
-      ];
+        {
+          type: "text",
+          text: userContent,
+        },
+      ],
+    },
+  ];
 
-      const estimatedTokens = Math.ceil(
-        (systemPrompt.length + repoContext.length + userContent.length) /
-          CHARS_PER_TOKEN,
-      );
-      await rateLimiter.waitIfNeeded(estimatedTokens);
+  const systemBlocks: Anthropic.TextBlockParam[] = [
+    {
+      type: "text",
+      text: systemPrompt,
+      cache_control: { type: "ephemeral" },
+    },
+  ];
 
-      // Tool-use conversation loop
-      for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-        const response = await client.messages.create({
-          model,
-          max_tokens: 16384,
-          system: [
-            {
-              type: "text",
-              text: systemPrompt,
-              cache_control: { type: "ephemeral" },
-            },
-          ],
-          messages,
-          tools: [READ_FILES_TOOL],
-        });
+  const estimatedTokens = Math.ceil(
+    (systemPrompt.length + repoContext.length + userContent.length) /
+      CHARS_PER_TOKEN,
+  );
+  await rateLimiter.waitIfNeeded(estimatedTokens);
 
-        rateLimiter.recordUsage(response.usage.input_tokens);
-
-        // Check if model wants to read files
-        if (response.stop_reason === "tool_use") {
-          const toolUses = response.content.filter(
-            (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
-          );
-
-          if (toolUses.length === 0) {
-            // Shouldn't happen, but extract text and return
-            const text = response.content
-              .filter(
-                (block): block is Anthropic.TextBlock =>
-                  block.type === "text",
-              )
-              .map((block) => block.text)
-              .join("");
-            if (text.includes("{")) return parseClaudeResponse(text);
-            break;
-          }
-
-          // Process tool calls — fetch requested files
-          const toolResults: Anthropic.ToolResultBlockParam[] = [];
-          let filesRead = 0;
-
-          for (const toolUse of toolUses) {
-            const input = toolUse.input as {
-              files: Array<{ repo: string; path: string }>;
-            };
-            const newRequested = (input.files || []).filter(
-              (f) => !fetchedPaths.has(`${f.repo}:${f.path}`),
-            );
-
-            const newFiles = fetchRequestedFiles(newRequested, repos);
-            newFiles.forEach((f) =>
-              fetchedPaths.add(`${f.repo}:${f.path}`),
-            );
-            filesRead += newFiles.length;
-
-            const resultText =
-              formatSourceFiles(newFiles) ||
-              "No files found or all requested files were already provided.";
-            toolResults.push({
-              type: "tool_result",
-              tool_use_id: toolUse.id,
-              content: resultText,
-            });
-          }
-
-          logger.info(
-            `Analysis round ${round + 1}: read ${filesRead} files`,
-          );
-
-          // Append assistant response + tool results to conversation
-          messages.push({
-            role: "assistant",
-            content: response.content,
-          });
-          messages.push({ role: "user", content: toolResults });
-
-          continue;
-        }
-
-        // stop_reason === 'end_turn' — extract the final JSON
-        const text = response.content
-          .filter(
-            (block): block is Anthropic.TextBlock => block.type === "text",
-          )
-          .map((block) => block.text)
-          .join("");
-
-        return parseClaudeResponse(text);
-      }
-
-      // If we exhausted tool rounds without getting a final answer, error
-      throw new Error(
-        "Analysis did not complete within maximum tool-use rounds",
-      );
+  // Tool-use conversation loop
+  for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+    let response;
+    try {
+      response = await client.messages.create({
+        model,
+        max_tokens: 16384,
+        system: systemBlocks,
+        messages,
+        tools: [READ_FILES_TOOL],
+      });
     } catch (err) {
-      lastError = err as Error;
-      const msg = lastError.message || "";
+      const msg = (err as Error).message || "";
       if (
         msg.includes("credit") ||
         msg.includes("api_key") ||
         msg.includes("authentication")
       ) {
-        throw lastError;
+        throw err;
       }
       if (
         msg.includes("prompt is too long") ||
@@ -498,15 +413,79 @@ async function analyzeWithTools(
           `Rate limited, waiting ${Math.ceil(waitMs / 1000)}s before retry...`,
         );
         await new Promise((r) => setTimeout(r, waitMs));
+        // Retry the same round (same messages, same conversation state)
+        round--;
         continue;
       }
-      const delay = attempt * 2000;
-      if (delay > 0) await new Promise((r) => setTimeout(r, delay));
-      logger.error(`Claude API error (attempt ${attempt + 1}): ${msg}`);
+      throw err;
     }
+
+    rateLimiter.recordUsage(response.usage.input_tokens);
+
+    // Check if model wants to read files
+    if (response.stop_reason === "tool_use") {
+      const toolUses = response.content.filter(
+        (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+      );
+
+      if (toolUses.length === 0) {
+        const text = response.content
+          .filter(
+            (block): block is Anthropic.TextBlock => block.type === "text",
+          )
+          .map((block) => block.text)
+          .join("");
+        if (text.includes("{")) return parseClaudeResponse(text);
+        break;
+      }
+
+      // Process tool calls — fetch requested files
+      const toolResults: Anthropic.ToolResultBlockParam[] = [];
+      let filesRead = 0;
+
+      for (const toolUse of toolUses) {
+        const input = toolUse.input as {
+          files: Array<{ repo: string; path: string }>;
+        };
+        const newRequested = (input.files || []).filter(
+          (f) => !fetchedPaths.has(`${f.repo}:${f.path}`),
+        );
+
+        const newFiles = fetchRequestedFiles(newRequested, repos);
+        newFiles.forEach((f) => fetchedPaths.add(`${f.repo}:${f.path}`));
+        filesRead += newFiles.length;
+
+        const resultText =
+          formatSourceFiles(newFiles) ||
+          "No files found or all requested files were already provided.";
+        toolResults.push({
+          type: "tool_result",
+          tool_use_id: toolUse.id,
+          content: resultText,
+        });
+      }
+
+      logger.info(`Analysis round ${round + 1}: read ${filesRead} files`);
+
+      // Append assistant response + tool results to conversation
+      messages.push({ role: "assistant", content: response.content });
+      messages.push({ role: "user", content: toolResults });
+
+      continue;
+    }
+
+    // stop_reason === 'end_turn' — extract the final JSON
+    const text = response.content
+      .filter(
+        (block): block is Anthropic.TextBlock => block.type === "text",
+      )
+      .map((block) => block.text)
+      .join("");
+
+    return parseClaudeResponse(text);
   }
 
-  throw lastError || new Error("Claude API failed after retries");
+  throw new Error("Analysis did not complete within maximum tool-use rounds");
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

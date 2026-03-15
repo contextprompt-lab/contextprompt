@@ -58,25 +58,35 @@ export function Settings() {
     }
   };
 
+  const [analyzeStatus, setAnalyzeStatus] = useState('');
+
   const handleTestAnalysis = async () => {
     if (!transcript.trim()) return;
     setError(null);
     setAnalyzing(true);
     try {
       // Build repo maps from browser-connected repos
+      setAnalyzeStatus('Fetching repos...');
       const repos = await getRepos();
       const browserRepoIds = repos
         .filter(r => r.path.startsWith('browser://'))
         .map(r => r.id);
-      const repoMaps = browserRepoIds.length > 0
-        ? await buildRepoMaps(browserRepoIds)
-        : undefined;
+
+      let repoMaps;
+      if (browserRepoIds.length > 0) {
+        setAnalyzeStatus(`Scanning ${browserRepoIds.length} repos...`);
+        repoMaps = await buildRepoMaps(browserRepoIds, (msg) => setAnalyzeStatus(msg));
+        setAnalyzeStatus(`Scanned ${repoMaps.length} repos, submitting...`);
+      } else {
+        setAnalyzeStatus('No browser repos found, submitting...');
+      }
 
       const result = await testAnalysis(transcript.trim(), repoMaps);
       navigate(`/meetings/${result.meeting_id}`);
     } catch (err) {
       setError((err as Error).message);
       setAnalyzing(false);
+      setAnalyzeStatus('');
     }
   };
 
@@ -145,6 +155,11 @@ export function Settings() {
           >
             {analyzing ? <><CircularProgress size={18} sx={{ mr: 1 }} /> Analyzing...</> : 'Run Analysis'}
           </Button>
+          {analyzeStatus && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {analyzeStatus}
+            </Typography>
+          )}
         </CardContent>
       </Card>
 

@@ -81,7 +81,7 @@ const CHARS_PER_TOKEN = 4;
 const MAX_SOURCE_FILE_TOKENS = 120_000;
 const MAX_SINGLE_FILE_TOKENS = 15_000;
 const MAX_REQUESTED_FILES = 60;
-const DEFAULT_TOKENS_PER_MINUTE = 30_000;
+const DEFAULT_TOKENS_PER_MINUTE = 50_000;
 const WINDOW_MS = 60_000;
 
 // --- Rate Limiter ---
@@ -1033,7 +1033,8 @@ export async function extractTasks(
   language?: string,
 ): Promise<ExtractedPlan> {
   const client = new Anthropic({ apiKey });
-  const rateLimiter = new TokenRateLimiter();
+  const haikuRateLimiter = new TokenRateLimiter();
+  const sonnetRateLimiter = new TokenRateLimiter();
   let systemPrompt = loadSystemPrompt();
   if (language && language !== "English") {
     systemPrompt += `\n\nIMPORTANT: Write your entire response in ${language}. All task titles, descriptions, steps, assumptions, decisions, and other text fields must be in ${language}. Keep file paths, code identifiers, and JSON keys in English.`;
@@ -1066,7 +1067,7 @@ export async function extractTasks(
         transcript,
         repos,
         fetchedFiles,
-        rateLimiter,
+        haikuRateLimiter,
       );
       logger.info(
         `Layer 2 total: ${fetchedFiles.length} files (~${estimateTokens(fetchedFiles)} tokens)`,
@@ -1097,7 +1098,7 @@ export async function extractTasks(
         sourceFilesBlock,
         transcript,
         model,
-        rateLimiter,
+        sonnetRateLimiter,
       );
     } catch (err) {
       // If too large with source files, retry without them
@@ -1117,7 +1118,7 @@ export async function extractTasks(
           "",
           transcript,
           model,
-          rateLimiter,
+          sonnetRateLimiter,
         );
       }
       throw err;
@@ -1146,7 +1147,7 @@ export async function extractTasks(
       sourceFilesBlock,
       chunkTranscript,
       model,
-      rateLimiter,
+      sonnetRateLimiter,
     );
     allTasks.push(...result.tasks);
     if (i === chunks.length - 1) {

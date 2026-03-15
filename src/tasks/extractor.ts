@@ -296,6 +296,80 @@ function estimateTokens(files: FetchedFile[]): number {
   );
 }
 
+const MAX_FULL_SOURCE_FILES = 5;
+const ANALYSIS_MODEL = "claude-haiku-4-5-20251001";
+
+// --- Compact File Summaries ---
+
+function summarizeFile(path: string, content: string, exports: string[]): string {
+  const lines = content.split("\n");
+  const lineCount = lines.length;
+
+  // Extract first meaningful comment or docstring
+  let description = "";
+  for (const line of lines.slice(0, 20)) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("#")) {
+      const cleaned = trimmed.replace(/^[/*#\s]+/, "").trim();
+      if (cleaned.length > 10 && !cleaned.startsWith("eslint") && !cleaned.startsWith("@")) {
+        description = cleaned;
+        break;
+      }
+    }
+  }
+
+  // Extract import sources (what this file depends on)
+  const importSources: string[] = [];
+  for (const line of lines) {
+    const match = line.match(/(?:import|require)\s*(?:\(?\s*['"]([^'"]+)['"]\)?|.*from\s+['"]([^'"]+)['"])/);
+    if (match) {
+      const source = match[1] || match[2];
+      if (source && !source.startsWith(".")) continue; // skip node_modules
+      if (source) importSources.push(source);
+    }
+    if (importSources.length >= 8) break;
+  }
+
+  let summary = `${path} (${lineCount} lines)`;
+  if (description) summary += ` — ${description}`;
+  if (exports.length > 0) summary += `\n  exports: ${exports.join(", ")}`;
+  if (importSources.length > 0) summary += `\n  imports: ${importSources.join(", ")}`;
+
+  return summary;
+}
+
+function buildFileSummaries(repos: RepoMap[]): string {
+  const summaries: string[] = [];
+
+  for (const repo of repos) {
+    summaries.push(`### ${repo.name}`);
+
+    if (repo.sourceFiles) {
+      // Browser repos — have full source content
+      const exportsByPath = new Map<string, string[]>();
+      for (const file of repo.files) {
+        exportsByPath.set(file.path, file.exports.map((e) => e.name));
+      }
+
+      for (const sf of repo.sourceFiles) {
+        const exports = exportsByPath.get(sf.path) || [];
+        summaries.push(summarizeFile(sf.path, sf.content, exports));
+      }
+    } else {
+      // Disk repos — use FileEntry data (no full content at this stage)
+      for (const file of repo.files) {
+        const exports = file.exports.map((e) => e.name);
+        let summary = `${file.path}`;
+        if (exports.length > 0) summary += `\n  exports: ${exports.join(", ")}`;
+        if (file.imports && file.imports.length > 0) summary += `\n  imports: ${file.imports.join(", ")}`;
+        summaries.push(summary);
+      }
+    }
+  }
+
+  return summaries.join("\n");
+}
+
 // --- Programmatic Investigation ---
 
 interface SearchResult {
@@ -467,6 +541,10 @@ async function callClaudeAnalysis(
                 },
               ],
             },
+            {
+              role: "assistant",
+              content: "{",
+            },
           ],
         })
         .withResponse();
@@ -479,7 +557,8 @@ async function callClaudeAnalysis(
         .map((block) => block.text)
         .join("");
 
-      return parseClaudeResponse(text);
+      // Prepend the '{' we used as assistant prefill
+      return parseClaudeResponse("{" + text);
     } catch (err) {
       lastError = err as Error;
       const msg = lastError.message || "";
@@ -1022,74 +1101,61 @@ export async function extractTasks(
     systemPrompt += `\n\nIMPORTANT: Write your entire response in ${language}. All task titles, descriptions, steps, assumptions, decisions, and other text fields must be in ${language}. Keep file paths, code identifiers, and JSON keys in English.`;
   }
   const repoContext = formatRepoContext(repos);
+  const analysisModel = ANALYSIS_MODEL;
 
-  // --- Step 1: Programmatic file selection (zero API cost) ---
-  logger.info("Programmatic file selection...");
-  const { files: programmaticFiles, keywords } = selectFilesProgrammatically(
+  // --- Step 1: Keyword extraction + file scoring ---
+  logger.info("Analyzing transcript keywords...");
+  const { files: scoredFiles, keywords } = selectFilesProgrammatically(
     transcript,
     repos,
   );
-  const anchorFiles = getAnchorFiles(repos);
-  const allInitialRequests = [...anchorFiles, ...programmaticFiles];
-  const fetchedFiles = fetchRequestedFiles(allInitialRequests, repos);
-  logger.info(
-    `Pre-loaded ${fetchedFiles.length} files (~${estimateTokens(fetchedFiles)} tokens) from ${keywords.length} keywords`,
-  );
+  logger.info(`Found ${keywords.length} keywords, ${scoredFiles.length} matching files`);
 
-  // --- Step 2: Programmatic investigation (grep keywords across all source files) ---
+  // --- Step 2: Programmatic investigation (grep keywords across source files) ---
   logger.info("Investigating codebase...");
   const { searchResults, filesToRead } = investigateCodebase(keywords, repos);
+  logger.info(`Search found matches in ${filesToRead.length} files`);
 
-  // Fetch investigation files that weren't already pre-loaded
-  const alreadyFetched = new Set(fetchedFiles.map((f) => `${f.repo}:${f.path}`));
-  const newFiles = filesToRead.filter((f) => !alreadyFetched.has(`${f.repo}:${f.path}`));
-  const investigationFiles = fetchRequestedFiles(newFiles, repos);
-  const allFiles = [...fetchedFiles, ...investigationFiles];
-  logger.info(
-    `Investigation found ${investigationFiles.length} additional files (~${estimateTokens(investigationFiles)} tokens) from search`,
-  );
-  logger.info(
-    `Total: ${allFiles.length} files (~${estimateTokens(allFiles)} tokens)`,
-  );
+  // --- Step 3: Build compact context ---
+  // a) File summaries for ALL files (cheap, ~100 tokens each)
+  const fileSummaries = buildFileSummaries(repos);
+  const summaryTokens = Math.ceil(fileSummaries.length / CHARS_PER_TOKEN);
+  logger.info(`File summaries: ~${summaryTokens} tokens`);
 
-  // --- Step 3: Single-shot Sonnet analysis with all context ---
-  const sourceFilesBlock = formatSourceFiles(allFiles);
-
-  if (!shouldChunk(transcript)) {
-    logger.info(`Extracting tasks with ${model}...`);
-    try {
-      return await callClaudeAnalysis(
-        client,
-        systemPrompt,
-        repoContext,
-        sourceFilesBlock,
-        searchResults,
-        transcript,
-        model,
-        rateLimiter,
-      );
-    } catch (err) {
-      // If too large, retry without source files
-      if (
-        allFiles.length > 0 &&
-        ((err as Error).message.includes("too large") ||
-          (err as Error).message.includes("maximum") ||
-          (err as Error).message.includes("413"))
-      ) {
-        logger.warn("Too large with source files, retrying without...");
-        return await callClaudeAnalysis(
-          client,
-          systemPrompt,
-          repoContext,
-          "",
-          searchResults,
-          transcript,
-          model,
-          rateLimiter,
-        );
-      }
-      throw err;
+  // b) Full source only for top N most relevant files (by keyword score)
+  const anchorFiles = getAnchorFiles(repos);
+  const topFiles = [...anchorFiles, ...scoredFiles.slice(0, MAX_FULL_SOURCE_FILES)];
+  // Also add top investigation files not in topFiles
+  const topPaths = new Set(topFiles.map((f) => `${f.repo}:${f.path}`));
+  for (const f of filesToRead) {
+    if (topPaths.size >= MAX_FULL_SOURCE_FILES + anchorFiles.length + 3) break;
+    if (!topPaths.has(`${f.repo}:${f.path}`)) {
+      topFiles.push(f);
+      topPaths.add(`${f.repo}:${f.path}`);
     }
+  }
+  const fullSourceFiles = fetchRequestedFiles(topFiles, repos);
+  const sourceFilesBlock = formatSourceFiles(fullSourceFiles);
+  logger.info(
+    `Full source: ${fullSourceFiles.length} files (~${estimateTokens(fullSourceFiles)} tokens)`,
+  );
+
+  // c) Combine into context
+  const contextBlock = `## File Summaries (all files in the codebase)\n\n${fileSummaries}\n\n${sourceFilesBlock}\n\n${searchResults}`;
+
+  // --- Step 4: Single-shot Haiku analysis ---
+  if (!shouldChunk(transcript)) {
+    logger.info(`Extracting tasks with ${analysisModel}...`);
+    return await callClaudeAnalysis(
+      client,
+      systemPrompt,
+      repoContext,
+      contextBlock,
+      "",
+      transcript,
+      analysisModel,
+      rateLimiter,
+    );
   }
 
   // Chunked extraction for long transcripts
@@ -1111,10 +1177,10 @@ export async function extractTasks(
       client,
       systemPrompt,
       repoContext,
-      sourceFilesBlock,
-      searchResults,
+      contextBlock,
+      "",
       chunkText,
-      model,
+      analysisModel,
       rateLimiter,
     );
     allTasks.push(...result.tasks);
@@ -1231,15 +1297,17 @@ export async function extractTasksFromIssue(
   const issueText = `${issue.title} ${issue.body || ""}`;
   const issueKeywords = extractKeywords(issueText);
   const { searchResults } = investigateCodebase(issueKeywords, repos);
+  const fileSummaries = buildFileSummaries(repos);
+  const contextBlock = `## File Summaries\n\n${fileSummaries}\n\n${searchResults}`;
 
   return await callClaudeAnalysis(
     client,
     systemPrompt,
     repoContext,
+    contextBlock,
     "",
-    searchResults,
     issueContent,
-    model,
+    ANALYSIS_MODEL,
     rateLimiter,
   );
 }

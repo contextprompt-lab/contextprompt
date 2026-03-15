@@ -167,7 +167,6 @@ function extractRetryWait(err: unknown): number {
   return DEFAULT_WAIT;
 }
 
-const SHORT_TRANSCRIPT_CHARS = 2000;
 const MAX_PROGRAMMATIC_FILES = 20;
 const MAX_HAIKU_ROUNDS = 3;
 const HAIKU_MODEL = "claude-haiku-3-5";
@@ -1057,10 +1056,9 @@ export async function extractTasks(
   // --- Layer 2: Haiku tool-use file discovery (cheap, iterative) ---
   const currentTokens = estimateTokens(fetchedFiles);
   const hasBudget = MAX_SOURCE_FILE_TOKENS - currentTokens > 10_000;
-  const isSubstantial =
-    transcript.length > SHORT_TRANSCRIPT_CHARS || fetchedFiles.length >= 3;
+  const hasRepos = repos.length > 0 && repos.some((r) => r.files.length > 0);
 
-  if (hasBudget && isSubstantial) {
+  if (hasBudget && hasRepos) {
     logger.info("Layer 2: Haiku file discovery...");
     try {
       fetchedFiles = await selectFilesWithHaiku(
@@ -1078,10 +1076,10 @@ export async function extractTasks(
         `Layer 2 failed, continuing with Layer 1 selection: ${(err as Error).message}`,
       );
     }
+  } else if (!hasRepos) {
+    logger.info("Layer 2: Skipped (no repos with source files)");
   } else {
-    logger.info(
-      "Layer 2: Skipped (short transcript or budget exhausted)",
-    );
+    logger.info("Layer 2: Skipped (file token budget exhausted)");
   }
 
   // --- Layer 3: Sonnet extraction with prompt caching ---

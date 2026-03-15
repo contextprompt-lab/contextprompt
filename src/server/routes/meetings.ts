@@ -167,20 +167,25 @@ meetingsRouter.post('/test-analysis', async (req, res) => {
 
     const repos = getRepos(req.userId);
     const repoMaps: RepoMap[] = [];
+    logger.info(`Test analysis: scanning ${repos.length} repos for user...`);
     for (const repo of repos) {
-      if (repo.path.startsWith('browser://')) continue;
+      if (repo.path.startsWith('browser://')) {
+        logger.info(`  Skipping browser repo: ${repo.path}`);
+        continue;
+      }
       try {
         const map = await scanRepo(repo.path);
         repoMaps.push(map);
+        logger.info(`  Scanned ${repo.name}: ${map.files.length} files`);
       } catch (err) {
-        logger.warn(`Skipping repo ${repo.path}: ${(err as Error).message}`);
+        logger.warn(`  Skipping repo ${repo.path}: ${(err as Error).message}`);
       }
     }
 
     const config = loadConfig();
     const model = getSetting('default_model', req.userId) || 'claude-sonnet-4-6';
     const language = getSetting('response_language', req.userId) || undefined;
-    logger.info(`Test analysis for meeting ${meetingId} with ${model}...`);
+    logger.info(`Test analysis for meeting ${meetingId} with ${model} (${repoMaps.length} repos)...`);
 
     const plan = await extractTasks(
       transcript.trim(),

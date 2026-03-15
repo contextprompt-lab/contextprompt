@@ -239,9 +239,9 @@ export function resetUsageIfNeeded(userId: number): void {
       db.prepare("UPDATE users SET recording_seconds_used = 0, usage_reset_at = datetime('now') WHERE id = ?").run(userId);
     }
   } else {
-    // Weekly reset for free plan
-    const msSinceReset = now.getTime() - resetAt.getTime();
-    if (msSinceReset >= 7 * 24 * 60 * 60 * 1000) {
+    // Monthly reset for free plan
+    const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + (now.getMonth() - resetAt.getMonth());
+    if (monthsSinceReset >= 1) {
       db.prepare("UPDATE users SET recording_seconds_used = 0, usage_reset_at = datetime('now') WHERE id = ?").run(userId);
     }
   }

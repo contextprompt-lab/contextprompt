@@ -519,7 +519,7 @@ export interface AuthUser {
   usage: {
     recording_seconds_used: number;
     recording_seconds_limit: number;
-    period: 'week' | 'month';
+    period: 'month';
     reset_at: string;
   };
 }

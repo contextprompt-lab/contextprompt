@@ -12,12 +12,6 @@ import {
 } from '@mui/material';
 import { getSettings, setSetting } from '../api';
 
-const MODELS = [
-  'claude-sonnet-4-6',
-  'claude-opus-4-6',
-  'claude-haiku-4-5-20251001',
-];
-
 const LANGUAGES = [
   'English',
   'French',
@@ -64,22 +58,13 @@ export function Settings() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {saved && <Alert severity="success" sx={{ mb: 2 }}>Settings saved</Alert>}
 
-      {/* Model */}
+      {/* AI Model */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="h6" sx={{ mb: 2 }}>Default Model</Typography>
-          <FormControl fullWidth size="small">
-            <InputLabel>Claude Model</InputLabel>
-            <Select
-              value={settings.default_model || 'claude-sonnet-4-6'}
-              label="Claude Model"
-              onChange={(e) => handleSave('default_model', e.target.value)}
-            >
-              {MODELS.map((m) => (
-                <MenuItem key={m} value={m}>{m}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Typography variant="h6" sx={{ mb: 1 }}>AI Model</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Powered by Claude from Anthropic.
+          </Typography>
         </CardContent>
       </Card>
 

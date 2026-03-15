@@ -12,7 +12,7 @@ const PLANS = [
     period: '',
     description: 'Get started with no commitment.',
     features: [
-      '1 hour/week of meeting recording',
+      '1 hour/month of meeting recording',
       'Repo-aware task extraction',
       'All meeting platforms',
       'All Claude models',

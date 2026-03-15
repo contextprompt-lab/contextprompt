@@ -178,7 +178,7 @@ authRouter.get('/me', (req, res) => {
 
   // Calculate usage limits
   const limitSeconds = fresh.plan === 'pro' ? 54000 : 3600; // 15h or 1h
-  const periodLabel = fresh.plan === 'pro' ? 'month' : 'week';
+  const periodLabel = 'month';
 
   res.json({
     id: fresh.id,

@@ -38,8 +38,7 @@ recordingRouter.post('/start', (req, res) => {
     if (user) {
       const limitSeconds = user.plan === 'pro' ? 54000 : 3600;
       if (user.recording_seconds_used >= limitSeconds) {
-        const period = user.plan === 'pro' ? 'month' : 'week';
-        res.status(403).json({ error: `Recording limit reached (${Math.round(limitSeconds / 3600)} hours/${period}). ${user.plan === 'free' ? 'Upgrade to Pro for more.' : 'Resets next ' + period + '.'}` });
+        res.status(403).json({ error: `Recording limit reached (${Math.round(limitSeconds / 3600)} hours/month). ${user.plan === 'free' ? 'Upgrade to Pro for more.' : 'Resets next month.'}` });
         return;
       }
     }

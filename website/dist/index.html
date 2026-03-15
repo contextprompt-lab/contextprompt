@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>contextprompt — Turn meetings into repo-aware coding tasks</title>
-  <meta name="description" content="contextprompt joins your Zoom, Google Meet, or Teams call, records and transcribes, then scans your repos and extracts structured coding tasks with real file paths.">
+  <meta name="description" content="contextprompt joins your Zoom, Google Meet, Slack, or Teams call, records and transcribes, then scans your repos and extracts structured coding tasks with real file paths.">
 
   <!-- Open Graph -->
   <meta property="og:title" content="contextprompt — Turn meetings into repo-aware coding tasks">
@@ -26,9 +26,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
-  <script type="module" crossorigin src="/assets/main-DU2KNUaL.js"></script>
+  <script type="module" crossorigin src="/assets/main-Bm0Ovmtt.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-Da185l7C.css">
+  <link rel="stylesheet" crossorigin href="/assets/main-f7yNrXWe.css">
   <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
 </head>
 <body>
@@ -41,7 +41,6 @@
         <a href="#how-it-works">How it works</a>
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
-        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
         <a href="/app/" class="nav-link--cta">Get Started Free</a>
       </div>
     </div>
@@ -52,49 +51,59 @@
     <div class="container">
       <div class="hero-text">
         <h1>Your meeting decides what to build.<br>contextprompt tells Claude Code how.</h1>
-        <p class="hero-sub">Paste a Zoom, Google Meet, or Teams link. The contextprompt bot joins your call, records and transcribes, then scans your repos and extracts structured coding tasks. Hand the output to Claude Code and ship.</p>
+        <p class="hero-sub">Paste a Zoom, Google Meet, Slack, or Teams link. The contextprompt bot joins your call, records and transcribes, then scans your repos and extracts structured coding tasks. Hand the output to Claude Code and ship.</p>
         <div class="hero-actions">
           <a href="/app/" class="hero-cta">Get started free</a>
           <p class="hero-cta-note">No API keys needed. Free plan includes 1 hour/month.</p>
         </div>
       </div>
 
-      <!-- Hero visual: terminal mockup -->
+      <!-- Hero visual: dashboard mockup -->
       <div class="hero-visual" data-reveal>
-        <div class="hero-terminal">
-          <div class="hero-terminal-header">
-            <span class="hero-terminal-dot"></span>
-            <span class="hero-terminal-dot"></span>
-            <span class="hero-terminal-dot"></span>
-            <span class="hero-terminal-title">contextprompt-2026-03-14-143045.md</span>
+        <div class="hero-dashboard">
+          <div class="hero-dash-header">
+            <div class="hero-dash-date">Monday, March 14, 2026</div>
+            <div class="hero-dash-chips">
+              <span class="hero-chip hero-chip--dim"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 23m</span>
+              <span class="hero-chip hero-chip--purple">3 tasks</span>
+              <span class="hero-chip hero-chip--dim">2 speakers</span>
+              <span class="hero-chip hero-chip--green">completed</span>
+            </div>
           </div>
-          <div class="hero-terminal-body">
-            <div class="hero-output-line hero-output-heading">## Extracted Tasks</div>
-            <div class="hero-output-line">&nbsp;</div>
-            <div class="hero-output-table">
-              <div class="hero-output-row hero-output-row--header">
-                <span>ID</span><span>Task</span><span>Priority</span><span>Files</span><span>Depends</span>
+          <div class="hero-dash-tasks">
+            <div class="hero-task-card">
+              <div class="hero-task-top">
+                <span class="hero-task-title">T1: Replace session tokens with JWT</span>
+                <div class="hero-task-badges">
+                  <span class="hero-badge hero-badge--green">ready</span>
+                  <span class="hero-badge hero-badge--green">high</span>
+                </div>
               </div>
-              <div class="hero-output-row">
-                <span class="hero-col-id">T1</span>
-                <span class="hero-col-task">Replace session tokens with JWT</span>
-                <span class="hero-col-conf hero-col-conf--high">high</span>
-                <span class="hero-col-files">2</span>
-                <span class="hero-col-id">&mdash;</span>
+              <p class="hero-task-desc">Swap express-session auth for JWT in the middleware layer</p>
+              <div class="hero-task-files">
+                <span class="hero-file-tag">src/middleware/auth.ts</span>
+                <span class="hero-file-tag">src/types/session.ts</span>
               </div>
-              <div class="hero-output-row">
-                <span class="hero-col-id">T2</span>
-                <span class="hero-col-task">Add token refresh endpoint</span>
-                <span class="hero-col-conf hero-col-conf--med">medium</span>
-                <span class="hero-col-files">1</span>
-                <span class="hero-col-id">T1</span>
+              <div class="hero-task-steps">
+                <span class="hero-steps-label">Steps:</span>
+                <div class="hero-step">1. Remove express-session dependency from auth middleware</div>
+                <div class="hero-step">2. Add JWT sign/verify with jsonwebtoken</div>
+                <div class="hero-step">3. Update session.ts types to JWTPayload interface</div>
               </div>
             </div>
-            <div class="hero-output-line">&nbsp;</div>
-            <div class="hero-output-line hero-output-dim">### T1: Replace session tokens with JWT in auth middleware</div>
-            <div class="hero-output-line hero-output-dim">**Priority:** high</div>
-            <div class="hero-output-line hero-output-quote">&gt; "We need to swap out the session store before the compliance deadline" &mdash; Alice</div>
-            <div class="hero-output-line hero-output-dim">**Files:** src/middleware/auth.ts, src/types/session.ts</div>
+            <div class="hero-task-card">
+              <div class="hero-task-top">
+                <span class="hero-task-title">T2: Add token refresh endpoint</span>
+                <div class="hero-task-badges">
+                  <span class="hero-badge hero-badge--amber">review</span>
+                  <span class="hero-badge hero-badge--amber">medium</span>
+                </div>
+              </div>
+              <p class="hero-task-desc">Create POST /auth/refresh for token renewal</p>
+              <div class="hero-task-files">
+                <span class="hero-file-tag">src/routes/auth.ts</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -104,7 +113,7 @@
   <!-- ====== PROOF BAR ====== -->
   <div class="proof-bar">
     <div class="container proof-bar-inner">
-      <span>Zoom, Google Meet &amp; Teams</span>
+      <span>Zoom, Google Meet, Slack &amp; Teams</span>
       <span class="proof-dot">&middot;</span>
       <span>No API keys needed</span>
       <span class="proof-dot">&middot;</span>
@@ -250,8 +259,8 @@
           <div class="feature-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.6 11.6L22 7v10l-6.4-4.5v-1zM4 5h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7c0-1.1.9-2 2-2z"/></svg>
           </div>
-          <h3>Zoom, Meet &amp; Teams</h3>
-          <p>The contextprompt bot joins your call like any other participant. Works with Zoom, Google Meet, and Microsoft Teams.</p>
+          <h3>Zoom, Meet, Slack &amp; Teams</h3>
+          <p>The contextprompt bot joins your call like any other participant. Works with Zoom, Google Meet, Slack, and Microsoft Teams.</p>
         </div>
 
         <div class="feature-card">
@@ -354,7 +363,7 @@
             <li>1 hour/month of meeting recording</li>
             <li>Repo-aware task extraction</li>
             <li>All meeting platforms</li>
-            <li>All Claude models</li>
+            <li>AI-powered extraction</li>
             <li>Dashboard access</li>
           </ul>
           <a href="/app/" class="pricing-cta">Get started free</a>
@@ -385,10 +394,6 @@
       <h2>Stop replaying meetings.<br>Start shipping.</h2>
       <a href="/app/" class="cta-button">Get started free</a>
       <p class="cta-note">Free plan includes 1 hour/month. No credit card required.</p>
-      <div class="cta-links">
-        <a href="https://github.com" target="_blank" rel="noopener" class="cta-link">GitHub</a>
-        <a href="https://github.com" target="_blank" rel="noopener" class="cta-link">Documentation</a>
-      </div>
     </div>
   </section>
 
@@ -396,10 +401,6 @@
   <footer class="footer">
     <div class="container footer-inner">
       <span class="footer-logo">contextprompt</span>
-      <span class="footer-sep">&middot;</span>
-      <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
-      <span class="footer-sep">&middot;</span>
-      <a href="https://github.com" target="_blank" rel="noopener">Documentation</a>
     </div>
   </footer>
 

@@ -33,6 +33,8 @@ let rightCurrentPhase = null;
 let isVisible = false;
 let tickTimeout = null;
 let scanInterval = null;
+let leftBubbleInterval = null;
+let rightBubbleInterval = null;
 
 // --- SVG Icons ---
 
@@ -126,10 +128,9 @@ function tick() {
 // --- Reset and loop ---
 
 function resetAndLoop() {
-  if (scanInterval) {
-    clearInterval(scanInterval);
-    scanInterval = null;
-  }
+  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+  if (leftBubbleInterval) { clearInterval(leftBubbleInterval); leftBubbleInterval = null; }
+  if (rightBubbleInterval) { clearInterval(rightBubbleInterval); rightBubbleInterval = null; }
   currentTick = 0;
   leftCurrentPhase = null;
   rightCurrentPhase = null;
@@ -147,6 +148,62 @@ function resetAndLoop() {
 
 // --- Render functions: LEFT ---
 
+const MEETING_CONVERSATIONS = [
+  { speaker: 1, text: 'The auth middleware needs to move to JWT...' },
+  { speaker: 2, text: 'Which files are we talking about?' },
+  { speaker: 1, text: 'Mainly auth.ts and the session types' },
+  { speaker: 3, text: 'Also add a refresh endpoint' },
+  { speaker: 2, text: 'Should we deprecate the old sessions first?' },
+  { speaker: 1, text: 'No, swap them in place. Less risk.' },
+  { speaker: 3, text: 'What about the mobile clients?' },
+  { speaker: 2, text: 'They already use bearer tokens' },
+  { speaker: 1, text: 'Perfect, so just the web side' },
+  { speaker: 3, text: 'I can handle the token refresh logic' },
+  { speaker: 2, text: 'Let\'s set a deadline for Friday' },
+  { speaker: 1, text: 'Agreed. I\'ll take the middleware changes' },
+];
+
+function startBubbleCycle(el, intervalRef, showRecording) {
+  const bubblesContainer = el.querySelector('.demo-bubbles');
+  const avatars = el.querySelectorAll('.demo-avatar');
+  if (!bubblesContainer) return;
+
+  let msgIndex = 0;
+  const maxVisible = 3;
+
+  function addBubble() {
+    const msg = MEETING_CONVERSATIONS[msgIndex % MEETING_CONVERSATIONS.length];
+    msgIndex++;
+
+    // Set speaking avatar
+    avatars.forEach(a => a.classList.remove('demo-avatar--speaking'));
+    const speakingAvatar = el.querySelector(`.demo-avatar--${msg.speaker}`);
+    if (speakingAvatar) speakingAvatar.classList.add('demo-avatar--speaking');
+
+    const bubble = document.createElement('div');
+    bubble.className = `demo-bubble demo-bubble--${msg.speaker}`;
+    bubble.textContent = msg.text;
+    bubblesContainer.appendChild(bubble);
+
+    // Force reflow then animate in
+    bubble.offsetHeight;
+    bubble.classList.add('demo-bubble--visible');
+
+    // Remove old bubbles
+    const bubbles = bubblesContainer.querySelectorAll('.demo-bubble');
+    if (bubbles.length > maxVisible) {
+      const old = bubbles[0];
+      old.classList.add('demo-bubble--exiting');
+      setTimeout(() => old.remove(), 300);
+    }
+  }
+
+  // Show first bubble immediately
+  addBubble();
+
+  return setInterval(addBubble, 2200);
+}
+
 function renderLeftMeeting(el) {
   el.innerHTML = `
     <div class="demo-meeting">
@@ -155,17 +212,15 @@ function renderLeftMeeting(el) {
         <div class="demo-avatar demo-avatar--2">BO</div>
         <div class="demo-avatar demo-avatar--3">JL</div>
       </div>
-      <div class="demo-bubbles">
-        <div class="demo-bubble demo-bubble--1" style="animation-delay: 0.1s">The auth middleware needs to move to JWT...</div>
-        <div class="demo-bubble demo-bubble--2" style="animation-delay: 0.3s">Which files are we talking about?</div>
-        <div class="demo-bubble demo-bubble--3" style="animation-delay: 0.5s">Also add a refresh endpoint</div>
-      </div>
+      <div class="demo-bubbles"></div>
       <div class="demo-recording-pill demo-recording-pill--off">
         <span class="demo-recording-dot demo-recording-dot--off"></span>
         No recording
       </div>
     </div>
   `;
+  if (leftBubbleInterval) clearInterval(leftBubbleInterval);
+  leftBubbleInterval = startBubbleCycle(el, 'left');
 }
 
 function renderLeftNotes(el) {
@@ -290,17 +345,15 @@ function renderRightMeeting(el) {
         <div class="demo-avatar demo-avatar--2">BO</div>
         <div class="demo-avatar demo-avatar--3">JL</div>
       </div>
-      <div class="demo-bubbles">
-        <div class="demo-bubble demo-bubble--1" style="animation-delay: 0.1s">The auth middleware needs to move to JWT...</div>
-        <div class="demo-bubble demo-bubble--2" style="animation-delay: 0.3s">Which files are we talking about?</div>
-        <div class="demo-bubble demo-bubble--3" style="animation-delay: 0.5s">Also add a refresh endpoint</div>
-      </div>
+      <div class="demo-bubbles"></div>
       <div class="demo-recording-pill demo-recording-pill--on">
         <span class="demo-recording-dot demo-recording-dot--on"></span>
         contextprompt recording
       </div>
     </div>
   `;
+  if (rightBubbleInterval) clearInterval(rightBubbleInterval);
+  rightBubbleInterval = startBubbleCycle(el, 'right');
 }
 
 function renderRightNotes(el) {

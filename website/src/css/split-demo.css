@@ -208,6 +208,16 @@
 .demo-avatar--2 { background: var(--accent-purple); }
 .demo-avatar--3 { background: var(--accent-amber); }
 
+.demo-avatar--speaking {
+  box-shadow: 0 0 0 3px var(--bg-surface), 0 0 0 5px currentColor;
+  transform: scale(1.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.demo-avatar--1.demo-avatar--speaking { box-shadow: 0 0 0 3px var(--bg-surface), 0 0 0 5px var(--accent-blue); }
+.demo-avatar--2.demo-avatar--speaking { box-shadow: 0 0 0 3px var(--bg-surface), 0 0 0 5px var(--accent-purple); }
+.demo-avatar--3.demo-avatar--speaking { box-shadow: 0 0 0 3px var(--bg-surface), 0 0 0 5px var(--accent-amber); }
+
 .demo-bubbles {
   display: flex;
   flex-direction: column;
@@ -222,7 +232,19 @@
   line-height: 1.4;
   max-width: 85%;
   opacity: 0;
-  animation: fadeSlideUp 0.3s ease forwards;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.demo-bubble--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.demo-bubble--exiting {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .demo-bubble--1 {

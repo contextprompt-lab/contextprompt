@@ -167,7 +167,7 @@ meetingsRouter.post('/test-analysis', async (req, res) => {
 
     const repos = getRepos(req.userId);
     const repoMaps: RepoMap[] = [];
-    logger.info(`Test analysis: scanning ${repos.length} repos for user...`);
+    logger.info(`Test analysis: found ${repos.length} repos for userId=${req.userId}${repos.length > 0 ? ` (${repos.map(r => r.name).join(', ')})` : ''}`);
     for (const repo of repos) {
       if (repo.path.startsWith('browser://')) {
         logger.info(`  Skipping browser repo: ${repo.path}`);

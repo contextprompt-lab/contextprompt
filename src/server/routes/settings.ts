@@ -6,10 +6,10 @@ export const settingsRouter = Router();
 const ALLOWED_KEYS = ['auth_token', 'default_model', 'default_speakers', 'verbose', 'response_language'];
 
 // Get all settings
-settingsRouter.get('/', (_req, res) => {
+settingsRouter.get('/', (req, res) => {
   const settings: Record<string, string> = {};
   for (const key of ALLOWED_KEYS) {
-    const value = getSetting(key);
+    const value = getSetting(key, req.userId);
     if (value !== undefined) {
       settings[key] = value;
     }
@@ -20,7 +20,7 @@ settingsRouter.get('/', (_req, res) => {
 // Get a single setting
 settingsRouter.get('/:key', (req, res) => {
   const { key } = req.params;
-  const value = getSetting(key);
+  const value = getSetting(key, req.userId);
   if (value === undefined) {
     res.status(404).json({ error: 'Setting not found' });
     return;
@@ -43,13 +43,13 @@ settingsRouter.put('/:key', (req, res) => {
     return;
   }
 
-  setSetting(key, value);
+  setSetting(key, value, req.userId);
   res.json({ ok: true });
 });
 
 // Delete a setting
 settingsRouter.delete('/:key', (req, res) => {
   const { key } = req.params;
-  deleteSetting(key);
+  deleteSetting(key, req.userId);
   res.json({ ok: true });
 });

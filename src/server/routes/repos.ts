@@ -8,8 +8,8 @@ import { detectGithubRemote } from '../../github/client.js';
 export const reposRouter = Router();
 
 // List all repos
-reposRouter.get('/', (_req, res) => {
-  const repos = getRepos();
+reposRouter.get('/', (req, res) => {
+  const repos = getRepos(req.userId);
   res.json(repos.map(r => ({
     ...r,
     // Browser repos are always "exists" — they live on the user's machine
@@ -33,7 +33,7 @@ reposRouter.post('/', (req, res) => {
   }
 
   const name = basename(fullPath);
-  const id = addRepo(fullPath, name);
+  const id = addRepo(fullPath, name, req.userId);
   res.json({ id, path: fullPath, name });
 });
 
@@ -48,7 +48,7 @@ reposRouter.post('/register', (req, res) => {
 
   const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const browserPath = `browser://${safeName}`;
-  const id = addRepo(browserPath, safeName);
+  const id = addRepo(browserPath, safeName, req.userId);
   res.json({ id, path: browserPath, name: safeName });
 });
 
@@ -108,7 +108,7 @@ reposRouter.patch('/:id/github', async (req, res) => {
     return;
   }
 
-  const repo = getRepo(id);
+  const repo = getRepo(id, req.userId);
   if (!repo) {
     res.status(404).json({ error: 'Repo not found' });
     return;

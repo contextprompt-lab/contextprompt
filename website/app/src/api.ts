@@ -8,8 +8,14 @@ export function getWsUrl(path: string): string {
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     ...options,
   });
+  if (res.status === 401 && !path.startsWith('/auth/')) {
+    // Session expired — reload to show login
+    window.location.reload();
+    throw new Error('Session expired');
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error || `Request failed: ${res.status}`);
@@ -501,3 +507,29 @@ export const getRecallStatus = () => request<{ configured: boolean }>('/bots/sta
 export const getBotStatus = (botId: string) => request<BotStatus>(`/bots/${botId}`);
 export const leaveBotCall = (botId: string) =>
   request<{ ok: true }>(`/bots/${botId}/leave`, { method: 'POST' });
+
+// Auth
+export interface AuthUser {
+  id: number;
+  email: string;
+  name: string;
+  picture: string | null;
+  plan: 'none' | 'free' | 'pro';
+  usage: {
+    recording_seconds_used: number;
+    recording_seconds_limit: number;
+    period: 'week' | 'month';
+    reset_at: string;
+  };
+}
+
+export const getMe = () => request<AuthUser>('/auth/me');
+export const logout = () => request<{ ok: true }>('/auth/logout', { method: 'POST' });
+export const selectPlan = (plan: string) => request<{ ok: true; plan: string }>('/auth/plan', {
+  method: 'POST',
+  body: JSON.stringify({ plan }),
+});
+
+// Stripe
+export const createCheckoutSession = () => request<{ url: string }>('/stripe/checkout', { method: 'POST' });
+export const createPortalSession = () => request<{ url: string }>('/stripe/portal', { method: 'POST' });

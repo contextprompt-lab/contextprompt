@@ -7,7 +7,10 @@ import { reposRouter } from './routes/repos.js';
 import { settingsRouter } from './routes/settings.js';
 import { recordingRouter, getRecordingStatus } from './routes/recording.js';
 import { issuesRouter } from './routes/issues.js';
-import { botsRouter } from './routes/bots.js';
+import { botsRouter, botsWebhookRouter } from './routes/bots.js';
+import { authRouter } from './routes/auth.js';
+import { stripeRouter, stripeWebhookRouter } from './routes/stripe.js';
+import { requireAuth, requirePro } from './middleware/auth.js';
 import { closeDb } from './db.js';
 import { attachWebSocket } from './ws.js';
 import { logger } from '../utils/logger.js';
@@ -17,21 +20,29 @@ export const DEFAULT_PORT = 3847;
 export function createServer() {
   const app = express();
 
-  app.use(cors());
+  app.use(cors({ origin: true, credentials: true }));
   app.use(express.json({ limit: '100mb' }));
 
-  // API routes
+  // --- Public routes (no auth required) ---
+  app.use('/api/auth', authRouter);
+  app.use('/api/stripe/webhook', stripeWebhookRouter);
+  app.use('/api/bots/webhook', botsWebhookRouter);
+
+  // Health check (public)
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok', recording: getRecordingStatus() });
+  });
+
+  // --- Protected routes (auth required) ---
+  app.use('/api', requireAuth);
+
   app.use('/api/meetings', meetingsRouter);
   app.use('/api/repos', reposRouter);
   app.use('/api/settings', settingsRouter);
   app.use('/api/recording', recordingRouter);
-  app.use('/api/issues', issuesRouter);
+  app.use('/api/issues', requirePro, issuesRouter);
   app.use('/api/bots', botsRouter);
-
-  // Health check
-  app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', recording: getRecordingStatus() });
-  });
+  app.use('/api/stripe', stripeRouter);
 
   // Serve website + dashboard static files (built output)
   // Try website/dist first (contains both marketing site and /app dashboard)

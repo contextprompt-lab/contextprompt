@@ -95,12 +95,22 @@ function loadFileSelectPrompt(): string {
 
 export function parseFileSelectionResponse(text: string): FileSelection {
   let cleaned = text.trim();
-  cleaned = cleaned.replace(/^```json?\s*/m, '').replace(/\s*```\s*$/m, '').trim();
 
+  // Strip markdown code fences (```json ... ```)
+  cleaned = cleaned.replace(/^```json?\s*/gm, '').replace(/\s*```\s*/gm, '').trim();
+
+  // Extract the JSON object from any surrounding text
   const jsonStart = cleaned.indexOf('{');
   const jsonEnd = cleaned.lastIndexOf('}');
   if (jsonStart >= 0 && jsonEnd > jsonStart) {
     cleaned = cleaned.slice(jsonStart, jsonEnd + 1);
+  } else {
+    // No JSON object found — check for a JSON array (bare requested_files)
+    const arrStart = cleaned.indexOf('[');
+    const arrEnd = cleaned.lastIndexOf(']');
+    if (arrStart >= 0 && arrEnd > arrStart) {
+      cleaned = `{"requested_files":${cleaned.slice(arrStart, arrEnd + 1)}}`;
+    }
   }
 
   try {
@@ -111,6 +121,7 @@ export function parseFileSelectionResponse(text: string): FileSelection {
     return result;
   } catch (err) {
     logger.warn(`Failed to parse file selection response: ${(err as Error).message}`);
+    logger.warn(`Raw response (first 300 chars): ${text.slice(0, 300)}`);
     return { requested_files: [] };
   }
 }

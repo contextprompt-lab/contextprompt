@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import { join } from 'node:path';
 import { mkdirSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import { getConfigDir } from '../config.js';
 
 let db: Database.Database | null = null;
@@ -94,6 +95,150 @@ function runMigrations(db: Database.Database): void {
   // Add github columns to repos table (idempotent)
   try { db.exec('ALTER TABLE repos ADD COLUMN github_owner TEXT'); } catch { /* already exists */ }
   try { db.exec('ALTER TABLE repos ADD COLUMN github_repo TEXT'); } catch { /* already exists */ }
+
+  // --- Auth tables ---
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      google_id TEXT NOT NULL UNIQUE,
+      email TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      picture TEXT,
+      plan TEXT NOT NULL DEFAULT 'none',
+      stripe_customer_id TEXT,
+      stripe_subscription_id TEXT,
+      recording_seconds_used INTEGER NOT NULL DEFAULT 0,
+      usage_reset_at TEXT NOT NULL DEFAULT (datetime('now')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      id TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      expires_at TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `);
+
+  // Add user_id to existing tables (idempotent)
+  try { db.exec('ALTER TABLE meetings ADD COLUMN user_id INTEGER REFERENCES users(id)'); } catch { /* already exists */ }
+  try { db.exec('ALTER TABLE repos ADD COLUMN user_id INTEGER REFERENCES users(id)'); } catch { /* already exists */ }
+  try { db.exec('ALTER TABLE settings ADD COLUMN user_id INTEGER REFERENCES users(id)'); } catch { /* already exists */ }
+  try { db.exec('ALTER TABLE issue_analyses ADD COLUMN user_id INTEGER REFERENCES users(id)'); } catch { /* already exists */ }
+}
+
+// --- Users ---
+
+export interface UserRow {
+  id: number;
+  google_id: string;
+  email: string;
+  name: string;
+  picture: string | null;
+  plan: string;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  recording_seconds_used: number;
+  usage_reset_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export function findUserByGoogleId(googleId: string): UserRow | undefined {
+  const db = getDb();
+  return db.prepare('SELECT * FROM users WHERE google_id = ?').get(googleId) as UserRow | undefined;
+}
+
+export function getUserById(id: number): UserRow | undefined {
+  const db = getDb();
+  return db.prepare('SELECT * FROM users WHERE id = ?').get(id) as UserRow | undefined;
+}
+
+export function findUserByStripeCustomerId(customerId: string): UserRow | undefined {
+  const db = getDb();
+  return db.prepare('SELECT * FROM users WHERE stripe_customer_id = ?').get(customerId) as UserRow | undefined;
+}
+
+export function createUser(googleId: string, email: string, name: string, picture: string | null): number {
+  const db = getDb();
+  const result = db.prepare(
+    'INSERT INTO users (google_id, email, name, picture) VALUES (?, ?, ?, ?)'
+  ).run(googleId, email, name, picture);
+  return result.lastInsertRowid as number;
+}
+
+export function updateUserPlan(id: number, plan: string): void {
+  const db = getDb();
+  db.prepare("UPDATE users SET plan = ?, updated_at = datetime('now') WHERE id = ?").run(plan, id);
+}
+
+export function updateUserStripe(id: number, customerId: string, subscriptionId: string): void {
+  const db = getDb();
+  db.prepare("UPDATE users SET stripe_customer_id = ?, stripe_subscription_id = ?, updated_at = datetime('now') WHERE id = ?")
+    .run(customerId, subscriptionId, id);
+}
+
+export function incrementRecordingUsage(userId: number, seconds: number): void {
+  const db = getDb();
+  db.prepare("UPDATE users SET recording_seconds_used = recording_seconds_used + ?, updated_at = datetime('now') WHERE id = ?")
+    .run(seconds, userId);
+}
+
+export function resetUsageIfNeeded(userId: number): void {
+  const db = getDb();
+  const user = getUserById(userId);
+  if (!user) return;
+
+  const resetAt = new Date(user.usage_reset_at);
+  const now = new Date();
+
+  if (user.plan === 'pro') {
+    // Monthly reset
+    const monthsSinceReset = (now.getFullYear() - resetAt.getFullYear()) * 12 + (now.getMonth() - resetAt.getMonth());
+    if (monthsSinceReset >= 1) {
+      db.prepare("UPDATE users SET recording_seconds_used = 0, usage_reset_at = datetime('now') WHERE id = ?").run(userId);
+    }
+  } else {
+    // Weekly reset for free plan
+    const msSinceReset = now.getTime() - resetAt.getTime();
+    if (msSinceReset >= 7 * 24 * 60 * 60 * 1000) {
+      db.prepare("UPDATE users SET recording_seconds_used = 0, usage_reset_at = datetime('now') WHERE id = ?").run(userId);
+    }
+  }
+}
+
+// --- Sessions ---
+
+const SESSION_DURATION_DAYS = 30;
+
+export function createSession(userId: number): string {
+  const db = getDb();
+  const id = randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  db.prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)').run(id, userId, expiresAt);
+  return id;
+}
+
+export function getSession(sessionId: string): { user: UserRow } | undefined {
+  const db = getDb();
+  const row = db.prepare(`
+    SELECT u.* FROM sessions s JOIN users u ON s.user_id = u.id
+    WHERE s.id = ? AND s.expires_at > datetime('now')
+  `).get(sessionId) as UserRow | undefined;
+  if (!row) return undefined;
+  return { user: row };
+}
+
+export function deleteSession(sessionId: string): void {
+  const db = getDb();
+  db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
+}
+
+export function deleteExpiredSessions(): void {
+  const db = getDb();
+  db.prepare("DELETE FROM sessions WHERE expires_at <= datetime('now')").run();
 }
 
 // --- Meetings ---
@@ -109,6 +254,7 @@ export interface MeetingRow {
   output_path: string | null;
   status: string;
   created_at: string;
+  user_id: number | null;
 }
 
 export function insertMeeting(data: {
@@ -120,11 +266,12 @@ export function insertMeeting(data: {
   plan_json: string;
   output_path: string;
   status?: string;
+  user_id?: number;
 }): number {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO meetings (date, duration_minutes, speaker_count, task_count, transcript, plan_json, output_path, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO meetings (date, duration_minutes, speaker_count, task_count, transcript, plan_json, output_path, status, user_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const result = stmt.run(
     data.date,
@@ -134,18 +281,25 @@ export function insertMeeting(data: {
     data.transcript,
     data.plan_json,
     data.output_path,
-    data.status ?? 'completed'
+    data.status ?? 'completed',
+    data.user_id ?? null,
   );
   return result.lastInsertRowid as number;
 }
 
-export function getMeetings(): MeetingRow[] {
+export function getMeetings(userId?: number): MeetingRow[] {
   const db = getDb();
+  if (userId !== undefined) {
+    return db.prepare('SELECT * FROM meetings WHERE user_id = ? ORDER BY created_at DESC').all(userId) as MeetingRow[];
+  }
   return db.prepare('SELECT * FROM meetings ORDER BY created_at DESC').all() as MeetingRow[];
 }
 
-export function getMeeting(id: number): MeetingRow | undefined {
+export function getMeeting(id: number, userId?: number): MeetingRow | undefined {
   const db = getDb();
+  if (userId !== undefined) {
+    return db.prepare('SELECT * FROM meetings WHERE id = ? AND user_id = ?').get(id, userId) as MeetingRow | undefined;
+  }
   return db.prepare('SELECT * FROM meetings WHERE id = ?').get(id) as MeetingRow | undefined;
 }
 
@@ -242,13 +396,24 @@ export interface RepoRow {
   created_at: string;
 }
 
-export function getRepos(): RepoRow[] {
+export function getRepos(userId?: number): RepoRow[] {
   const db = getDb();
+  if (userId !== undefined) {
+    return db.prepare('SELECT * FROM repos WHERE user_id = ? ORDER BY last_used DESC NULLS LAST, created_at DESC').all(userId) as RepoRow[];
+  }
   return db.prepare('SELECT * FROM repos ORDER BY last_used DESC NULLS LAST, created_at DESC').all() as RepoRow[];
 }
 
-export function addRepo(path: string, name: string): number {
+export function addRepo(path: string, name: string, userId?: number): number {
   const db = getDb();
+  if (userId !== undefined) {
+    const stmt = db.prepare(`
+      INSERT INTO repos (path, name, user_id) VALUES (?, ?, ?)
+      ON CONFLICT(path) DO UPDATE SET name = excluded.name
+    `);
+    const result = stmt.run(path, name, userId);
+    return result.lastInsertRowid as number;
+  }
   const stmt = db.prepare(`
     INSERT INTO repos (path, name) VALUES (?, ?)
     ON CONFLICT(path) DO UPDATE SET name = excluded.name
@@ -267,8 +432,11 @@ export function touchRepo(path: string): void {
   db.prepare("UPDATE repos SET last_used = datetime('now') WHERE path = ?").run(path);
 }
 
-export function getRepo(id: number): RepoRow | undefined {
+export function getRepo(id: number, userId?: number): RepoRow | undefined {
   const db = getDb();
+  if (userId !== undefined) {
+    return db.prepare('SELECT * FROM repos WHERE id = ? AND user_id = ?').get(id, userId) as RepoRow | undefined;
+  }
   return db.prepare('SELECT * FROM repos WHERE id = ?').get(id) as RepoRow | undefined;
 }
 
@@ -304,11 +472,12 @@ export function insertIssueAnalysis(data: {
   issue_author?: string;
   issue_labels_json?: string;
   status?: string;
+  user_id?: number;
 }): number {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO issue_analyses (repo_id, issue_number, issue_url, issue_title, issue_body, issue_author, issue_labels_json, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO issue_analyses (repo_id, issue_number, issue_url, issue_title, issue_body, issue_author, issue_labels_json, status, user_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const result = stmt.run(
     data.repo_id,
@@ -319,20 +488,24 @@ export function insertIssueAnalysis(data: {
     data.issue_author ?? null,
     data.issue_labels_json ?? null,
     data.status ?? 'pending',
+    data.user_id ?? null,
   );
   return result.lastInsertRowid as number;
 }
 
-export function getIssueAnalyses(repoId?: number): IssueAnalysisRow[] {
+export function getIssueAnalyses(repoId?: number, userId?: number): IssueAnalysisRow[] {
   const db = getDb();
-  if (repoId) {
-    return db.prepare(
-      'SELECT id, repo_id, issue_number, issue_url, issue_title, issue_author, issue_labels_json, task_count, status, error, created_at FROM issue_analyses WHERE repo_id = ? ORDER BY created_at DESC'
-    ).all(repoId) as IssueAnalysisRow[];
+  const cols = 'id, repo_id, issue_number, issue_url, issue_title, issue_author, issue_labels_json, task_count, status, error, created_at';
+  if (repoId && userId !== undefined) {
+    return db.prepare(`SELECT ${cols} FROM issue_analyses WHERE repo_id = ? AND user_id = ? ORDER BY created_at DESC`).all(repoId, userId) as IssueAnalysisRow[];
   }
-  return db.prepare(
-    'SELECT id, repo_id, issue_number, issue_url, issue_title, issue_author, issue_labels_json, task_count, status, error, created_at FROM issue_analyses ORDER BY created_at DESC'
-  ).all() as IssueAnalysisRow[];
+  if (repoId) {
+    return db.prepare(`SELECT ${cols} FROM issue_analyses WHERE repo_id = ? ORDER BY created_at DESC`).all(repoId) as IssueAnalysisRow[];
+  }
+  if (userId !== undefined) {
+    return db.prepare(`SELECT ${cols} FROM issue_analyses WHERE user_id = ? ORDER BY created_at DESC`).all(userId) as IssueAnalysisRow[];
+  }
+  return db.prepare(`SELECT ${cols} FROM issue_analyses ORDER BY created_at DESC`).all() as IssueAnalysisRow[];
 }
 
 export function getIssueAnalysis(id: number): IssueAnalysisRow | undefined {
@@ -360,19 +533,37 @@ export function deleteIssueAnalysis(id: number): void {
 
 // --- Settings ---
 
-export function getSetting(key: string): string | undefined {
+export function getSetting(key: string, userId?: number): string | undefined {
   const db = getDb();
+  if (userId !== undefined) {
+    const row = db.prepare('SELECT value FROM settings WHERE key = ? AND user_id = ?').get(key, userId) as { value: string } | undefined;
+    return row?.value;
+  }
   const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as { value: string } | undefined;
   return row?.value;
 }
 
-export function setSetting(key: string, value: string): void {
+export function setSetting(key: string, value: string, userId?: number): void {
   const db = getDb();
+  if (userId !== undefined) {
+    // Use key + user_id as composite uniqueness
+    const existing = db.prepare('SELECT 1 FROM settings WHERE key = ? AND user_id = ?').get(key, userId);
+    if (existing) {
+      db.prepare('UPDATE settings SET value = ? WHERE key = ? AND user_id = ?').run(value, key, userId);
+    } else {
+      db.prepare('INSERT INTO settings (key, value, user_id) VALUES (?, ?, ?)').run(key, value, userId);
+    }
+    return;
+  }
   db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, value);
 }
 
-export function deleteSetting(key: string): void {
+export function deleteSetting(key: string, userId?: number): void {
   const db = getDb();
+  if (userId !== undefined) {
+    db.prepare('DELETE FROM settings WHERE key = ? AND user_id = ?').run(key, userId);
+    return;
+  }
   db.prepare('DELETE FROM settings WHERE key = ?').run(key);
 }
 

@@ -30,7 +30,7 @@ issuesRouter.get('/', async (req, res) => {
   }
 
   try {
-    const repos = repoId ? [getRepo(repoId)].filter(Boolean) : getRepos();
+    const repos = repoId ? [getRepo(repoId, req.userId)].filter(Boolean) : getRepos(req.userId);
     const connectedRepos = repos.filter((r) => r!.github_owner && r!.github_repo);
 
     if (connectedRepos.length === 0) {
@@ -65,10 +65,10 @@ issuesRouter.get('/', async (req, res) => {
 // List stored analyses
 issuesRouter.get('/analyses', (req, res) => {
   const repoId = req.query.repo_id ? parseInt(req.query.repo_id as string, 10) : undefined;
-  const analyses = getIssueAnalyses(repoId);
+  const analyses = getIssueAnalyses(repoId, req.userId);
 
   // Enrich with repo name
-  const repos = new Map(getRepos().map((r) => [r.id, r]));
+  const repos = new Map(getRepos(req.userId).map((r) => [r.id, r]));
   const enriched = analyses.map((a) => ({
     ...a,
     repo_name: repos.get(a.repo_id)?.name ?? 'Unknown',
@@ -144,7 +144,7 @@ issuesRouter.post('/analyze', async (req, res) => {
     return;
   }
 
-  const repo = getRepo(repo_id);
+  const repo = getRepo(repo_id, req.userId);
   if (!repo) {
     res.status(404).json({ error: 'Repo not found' });
     return;
@@ -156,7 +156,7 @@ issuesRouter.post('/analyze', async (req, res) => {
   }
 
   // Get API key
-  let apiKey = getSetting('auth_token');
+  let apiKey = getSetting('auth_token', req.userId);
   if (!apiKey) {
     try {
       const config = loadConfig();
@@ -174,10 +174,11 @@ issuesRouter.post('/analyze', async (req, res) => {
     issue_url: `https://github.com/${repo.github_owner}/${repo.github_repo}/issues/${issue_number}`,
     issue_title: `Issue #${issue_number}`,
     status: 'analyzing',
+    user_id: req.userId,
   });
 
   // Gather all dashboard repos for cross-referencing
-  const allRepos = getRepos();
+  const allRepos = getRepos(req.userId);
   const repoPaths = allRepos
     .filter((r) => existsSync(r.path))
     .map((r) => r.path);
@@ -186,8 +187,8 @@ issuesRouter.post('/analyze', async (req, res) => {
   res.json({ id: analysisId, status: 'analyzing' });
 
   // Fire-and-forget analysis
-  const model = getSetting('default_model') || 'claude-sonnet-4-6';
-  const language = getSetting('response_language') || undefined;
+  const model = getSetting('default_model', req.userId) || 'claude-sonnet-4-6';
+  const language = getSetting('response_language', req.userId) || undefined;
   runAnalysis(analysisId, repo.github_owner, repo.github_repo, issue_number, repoPaths, apiKey, model, language);
 });
 

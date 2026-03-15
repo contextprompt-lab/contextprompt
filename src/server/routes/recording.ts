@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { join } from 'node:path';
-import { getRepos, touchRepo } from '../db.js';
+import { getRepos, touchRepo, getUserById, resetUsageIfNeeded } from '../db.js';
 import { logger } from '../../utils/logger.js';
 import {
   getRecordingState,
@@ -31,12 +31,26 @@ recordingRouter.post('/start', (req, res) => {
     return;
   }
 
+  // Check usage limits
+  if (req.userId) {
+    resetUsageIfNeeded(req.userId);
+    const user = getUserById(req.userId);
+    if (user) {
+      const limitSeconds = user.plan === 'pro' ? 54000 : 3600;
+      if (user.recording_seconds_used >= limitSeconds) {
+        const period = user.plan === 'pro' ? 'month' : 'week';
+        res.status(403).json({ error: `Recording limit reached (${Math.round(limitSeconds / 3600)} hours/${period}). ${user.plan === 'free' ? 'Upgrade to Pro for more.' : 'Resets next ' + period + '.'}` });
+        return;
+      }
+    }
+  }
+
   const { repos: repoIds, mic, micOnly, model, speakers } = req.body;
 
   // Resolve repo paths from IDs or use provided paths
   let repoPaths: string[] = [];
   if (repoIds && Array.isArray(repoIds)) {
-    const allRepos = getRepos();
+    const allRepos = getRepos(req.userId);
     for (const id of repoIds) {
       const repo = allRepos.find(r => r.id === id);
       if (repo) {
@@ -47,7 +61,7 @@ recordingRouter.post('/start', (req, res) => {
   }
 
   if (repoPaths.length === 0) {
-    const allRepos = getRepos();
+    const allRepos = getRepos(req.userId);
     repoPaths = allRepos.map(r => r.path);
   }
 

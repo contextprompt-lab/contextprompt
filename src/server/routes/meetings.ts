@@ -9,8 +9,8 @@ import type { RepoMap } from '../../repo/types.js';
 export const meetingsRouter = Router();
 
 // List all meetings
-meetingsRouter.get('/', (_req, res) => {
-  const meetings = getMeetings();
+meetingsRouter.get('/', (req, res) => {
+  const meetings = getMeetings(req.userId);
   res.json(meetings.map(m => ({
     ...m,
     // Don't send full transcript/plan in list view
@@ -27,7 +27,7 @@ meetingsRouter.get('/:id', (req, res) => {
     return;
   }
 
-  const meeting = getMeeting(id);
+  const meeting = getMeeting(id, req.userId);
   if (!meeting) {
     res.status(404).json({ error: 'Meeting not found' });
     return;
@@ -57,7 +57,7 @@ meetingsRouter.post('/:id/rerun', async (req, res) => {
     return;
   }
 
-  const meeting = getMeeting(id);
+  const meeting = getMeeting(id, req.userId);
   if (!meeting) {
     res.status(404).json({ error: 'Meeting not found' });
     return;
@@ -77,7 +77,7 @@ meetingsRouter.post('/:id/rerun', async (req, res) => {
     db.prepare('UPDATE meetings SET status = ? WHERE id = ?').run('processing', id);
 
     // Scan all repos
-    const repos = getRepos();
+    const repos = getRepos(req.userId);
     const repoMaps: RepoMap[] = [];
     for (const repo of repos) {
       if (repo.path.startsWith('browser://')) continue;
@@ -91,8 +91,8 @@ meetingsRouter.post('/:id/rerun', async (req, res) => {
 
     // Extract tasks
     const config = loadConfig();
-    const model = getSetting('default_model') || 'claude-sonnet-4-6';
-    const language = getSetting('response_language') || undefined;
+    const model = getSetting('default_model', req.userId) || 'claude-sonnet-4-6';
+    const language = getSetting('response_language', req.userId) || undefined;
     logger.info(`Rerunning analysis for meeting ${id} with ${model}...`);
 
     const plan = await extractTasks(

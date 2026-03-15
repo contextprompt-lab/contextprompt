@@ -23,6 +23,8 @@ import {
   insertMeeting,
   insertTasksForMeeting,
   getSetting,
+  getUserById,
+  resetUsageIfNeeded,
 } from '../db.js';
 import { scanRepo } from '../../repo/scanner.js';
 import { extractTasks } from '../../tasks/extractor.js';
@@ -33,11 +35,12 @@ import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 export const botsRouter = Router();
+export const botsWebhookRouter = Router();
 
 import type { RepoMap } from '../../repo/types.js';
 
-// Track active bot sessions: botId -> { meetingDbId, repoIds }
-const activeBots = new Map<string, { meetingId: number; repoPaths: string[]; clientRepoMaps?: RepoMap[] }>();
+// Track active bot sessions: botId -> { meetingDbId, repoIds, userId }
+const activeBots = new Map<string, { meetingId: number; repoPaths: string[]; clientRepoMaps?: RepoMap[]; userId?: number }>();
 // Track bots already being processed (to avoid duplicate processing)
 const processingBots = new Set<string>();
 
@@ -60,9 +63,23 @@ botsRouter.post('/', async (req, res) => {
     return;
   }
 
+  // Check usage limits
+  if (req.userId) {
+    resetUsageIfNeeded(req.userId);
+    const user = getUserById(req.userId);
+    if (user) {
+      const limitSeconds = user.plan === 'pro' ? 54000 : 3600;
+      if (user.recording_seconds_used >= limitSeconds) {
+        const period = user.plan === 'pro' ? 'month' : 'week';
+        res.status(403).json({ error: `Recording limit reached (${Math.round(limitSeconds / 3600)} hours/${period}). ${user.plan === 'free' ? 'Upgrade to Pro for more.' : 'Resets next ' + period + '.'}` });
+        return;
+      }
+    }
+  }
+
   // Resolve repos
   let repoPaths: string[] = [];
-  const allRepos = getRepos();
+  const allRepos = getRepos(req.userId);
   if (repo_ids && Array.isArray(repo_ids) && repo_ids.length > 0) {
     for (const id of repo_ids) {
       const repo = allRepos.find(r => r.id === id);
@@ -93,11 +110,12 @@ botsRouter.post('/', async (req, res) => {
       plan_json: '{}',
       output_path: '',
       status: 'recording',
+      user_id: req.userId,
     });
 
     // Store client-provided repo maps (from browser-connected repos)
     const clientRepoMaps = Array.isArray(repo_maps) ? repo_maps as RepoMap[] : undefined;
-    activeBots.set(bot.id, { meetingId, repoPaths, clientRepoMaps });
+    activeBots.set(bot.id, { meetingId, repoPaths, clientRepoMaps, userId: req.userId });
 
     res.json({
       bot_id: bot.id,
@@ -149,8 +167,8 @@ botsRouter.get('/:id', async (req, res) => {
   }
 });
 
-// Recall.ai webhook handler
-botsRouter.post('/webhook', async (req, res) => {
+// Recall.ai webhook handler (public, no auth)
+botsWebhookRouter.post('/', async (req, res) => {
   // Acknowledge immediately (Recall has 15s timeout)
   res.json({ ok: true });
 
@@ -197,7 +215,7 @@ async function processCompletedBot(botId: string): Promise<void> {
     return;
   }
 
-  const { meetingId, repoPaths, clientRepoMaps } = session;
+  const { meetingId, repoPaths, clientRepoMaps, userId } = session;
 
   try {
     // 1. Wait for recording + transcript to be ready (may take a few seconds after 'done')
@@ -276,8 +294,8 @@ async function processCompletedBot(botId: string): Promise<void> {
 
     // 4. Extract tasks with Claude
     const config = loadConfig();
-    const model = getSetting('default_model') || 'claude-sonnet-4-6';
-    const language = getSetting('response_language') || undefined;
+    const model = getSetting('default_model', userId) || 'claude-sonnet-4-6';
+    const language = getSetting('response_language', userId) || undefined;
     logger.info(`Extracting tasks with ${model}...`);
 
     const plan = await extractTasks(

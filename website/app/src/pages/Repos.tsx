@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -22,21 +22,31 @@ import {
   Breadcrumbs,
   Link,
   Divider,
-} from '@mui/material';
-import FolderIcon from '@mui/icons-material/Folder';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import LinkOffIcon from '@mui/icons-material/LinkOff';
-import SourceIcon from '@mui/icons-material/Source';
+} from "@mui/material";
+import FolderIcon from "@mui/icons-material/Folder";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import LinkOffIcon from "@mui/icons-material/LinkOff";
+import SourceIcon from "@mui/icons-material/Source";
 import {
-  getRepos, addRepo, removeRepo, browseFolders, connectRepoGithub, disconnectRepoGithub,
-  registerBrowserRepo, supportsFileSystemAccess, scanDirectoryHandle, saveDirectoryHandle, removeDirectoryHandle,
-  type Repo, type BrowseResult,
-} from '../api';
+  getRepos,
+  addRepo,
+  removeRepo,
+  browseFolders,
+  connectRepoGithub,
+  disconnectRepoGithub,
+  registerBrowserRepo,
+  supportsFileSystemAccess,
+  scanDirectoryHandle,
+  saveDirectoryHandle,
+  removeDirectoryHandle,
+  type Repo,
+  type BrowseResult,
+} from "../api";
 
 export function Repos() {
   const [repos, setRepos] = useState<Repo[]>([]);
@@ -59,7 +69,9 @@ export function Repos() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { loadRepos(); }, []);
+  useEffect(() => {
+    loadRepos();
+  }, []);
 
   const [connectingId, setConnectingId] = useState<number | null>(null);
 
@@ -101,14 +113,16 @@ export function Repos() {
     if (supportsFileSystemAccess()) {
       setError(null);
       try {
-        const dirHandle = await (window as any).showDirectoryPicker({ mode: 'read' });
-        setScanProgress('Scanning folder...');
+        const dirHandle = await (window as any).showDirectoryPicker({
+          mode: "read",
+        });
+        setScanProgress("Scanning folder...");
 
         // Scan locally to verify it works
         await scanDirectoryHandle(dirHandle, setScanProgress);
 
         // Register on server (just the name, no files)
-        setScanProgress('Registering...');
+        setScanProgress("Registering...");
         const result = await registerBrowserRepo(dirHandle.name);
 
         // Store the handle in IndexedDB for future re-reads
@@ -118,7 +132,7 @@ export function Repos() {
         loadRepos();
       } catch (err: any) {
         setScanProgress(null);
-        if (err.name === 'AbortError') return; // User cancelled
+        if (err.name === "AbortError") return; // User cancelled
         setError(err.message);
       }
       return;
@@ -169,19 +183,33 @@ export function Repos() {
   // Build breadcrumb segments from current path
   const breadcrumbs = browseData ? buildBreadcrumbs(browseData.current) : [];
 
-  const isBrowserRepo = (repo: Repo) => repo.path.startsWith('browser://');
+  const isBrowserRepo = (repo: Repo) => repo.path.startsWith("browser://");
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 3 }}>Repos</Typography>
+      <Typography variant="h4" sx={{ mb: 3 }}>
+        Repos
+      </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {scanProgress && <Alert severity="info" sx={{ mb: 2 }}>{scanProgress}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {scanProgress && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {scanProgress}
+        </Alert>
+      )}
 
       {/* Add repo */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h6">Add a repository</Typography>
             <Button
               variant="contained"
@@ -193,8 +221,13 @@ export function Repos() {
             </Button>
           </Stack>
           {supportsFileSystemAccess() && (
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-              Your files stay on your machine. Only a structural summary is used during analysis.
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 1, display: "block" }}
+            >
+              Your folders never leaves your browser. Nothing is uploaded or
+              stored on our servers.
             </Typography>
           )}
         </CardContent>
@@ -217,7 +250,7 @@ export function Repos() {
                   key={repo.id}
                   sx={{
                     borderRadius: 1,
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' },
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.03)" },
                   }}
                 >
                   <ListItemIcon>
@@ -232,41 +265,71 @@ export function Repos() {
                       <Stack direction="row" spacing={1} alignItems="center">
                         <span>{repo.name}</span>
                         {isBrowserRepo(repo) && (
-                          <Chip label="local" size="small" color="info" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                          <Chip
+                            label="local"
+                            size="small"
+                            color="info"
+                            variant="outlined"
+                            sx={{ height: 20, fontSize: "0.65rem" }}
+                          />
                         )}
                         {!repo.exists && !isBrowserRepo(repo) && (
-                          <Chip label="not found" size="small" color="error" variant="outlined" />
+                          <Chip
+                            label="not found"
+                            size="small"
+                            color="error"
+                            variant="outlined"
+                          />
                         )}
                         {repo.github_owner && repo.github_repo && (
                           <Chip
-                            icon={<GitHubIcon sx={{ fontSize: '0.85rem' }} />}
+                            icon={<GitHubIcon sx={{ fontSize: "0.85rem" }} />}
                             label={`${repo.github_owner}/${repo.github_repo}`}
                             size="small"
                             variant="outlined"
                             onDelete={() => handleDisconnectGithub(repo.id)}
-                            deleteIcon={<LinkOffIcon sx={{ fontSize: '0.85rem' }} />}
-                            sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}
+                            deleteIcon={
+                              <LinkOffIcon sx={{ fontSize: "0.85rem" }} />
+                            }
+                            sx={{
+                              fontFamily: "monospace",
+                              fontSize: "0.75rem",
+                            }}
                           />
                         )}
                       </Stack>
                     }
-                    secondary={isBrowserRepo(repo) ? 'Connected from your browser' : repo.path}
-                    secondaryTypographyProps={{ sx: { fontFamily: 'monospace', fontSize: '0.8rem' } }}
+                    secondary={
+                      isBrowserRepo(repo)
+                        ? "Connected from your browser"
+                        : repo.path
+                    }
+                    secondaryTypographyProps={{
+                      sx: { fontFamily: "monospace", fontSize: "0.8rem" },
+                    }}
                   />
                   <ListItemSecondaryAction>
                     <Stack direction="row" spacing={0.5}>
-                      {!repo.github_owner && !isBrowserRepo(repo) && repo.exists && (
-                        <Button
-                          size="small"
-                          startIcon={<GitHubIcon />}
-                          onClick={() => handleConnectGithub(repo.id)}
-                          disabled={connectingId === repo.id}
-                          sx={{ fontSize: '0.75rem' }}
-                        >
-                          {connectingId === repo.id ? 'Detecting...' : 'Connect GitHub'}
-                        </Button>
-                      )}
-                      <IconButton edge="end" onClick={() => handleRemove(repo.id)} title="Remove">
+                      {!repo.github_owner &&
+                        !isBrowserRepo(repo) &&
+                        repo.exists && (
+                          <Button
+                            size="small"
+                            startIcon={<GitHubIcon />}
+                            onClick={() => handleConnectGithub(repo.id)}
+                            disabled={connectingId === repo.id}
+                            sx={{ fontSize: "0.75rem" }}
+                          >
+                            {connectingId === repo.id
+                              ? "Detecting..."
+                              : "Connect GitHub"}
+                          </Button>
+                        )}
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleRemove(repo.id)}
+                        title="Remove"
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Stack>
@@ -286,19 +349,26 @@ export function Repos() {
         fullWidth
         PaperProps={{ sx: { minHeight: 500 } }}
       >
-        <DialogTitle>
-          Browse folders
-        </DialogTitle>
+        <DialogTitle>Browse folders</DialogTitle>
         <DialogContent dividers>
-          {browseError && <Alert severity="error" sx={{ mb: 1 }}>{browseError}</Alert>}
+          {browseError && (
+            <Alert severity="error" sx={{ mb: 1 }}>
+              {browseError}
+            </Alert>
+          )}
 
           {browseData && (
             <>
               {/* Breadcrumb path */}
-              <Breadcrumbs sx={{ mb: 1, fontSize: '0.8rem' }}>
-                {breadcrumbs.map((seg, i) => (
+              <Breadcrumbs sx={{ mb: 1, fontSize: "0.8rem" }}>
+                {breadcrumbs.map((seg, i) =>
                   i === breadcrumbs.length - 1 ? (
-                    <Typography key={seg.path} variant="body2" color="text.primary" sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                    <Typography
+                      key={seg.path}
+                      variant="body2"
+                      color="text.primary"
+                      sx={{ fontFamily: "monospace", fontSize: "0.8rem" }}
+                    >
                       {seg.name}
                     </Typography>
                   ) : (
@@ -307,12 +377,16 @@ export function Repos() {
                       component="button"
                       variant="body2"
                       onClick={() => navigateTo(seg.path)}
-                      sx={{ fontFamily: 'monospace', fontSize: '0.8rem', cursor: 'pointer' }}
+                      sx={{
+                        fontFamily: "monospace",
+                        fontSize: "0.8rem",
+                        cursor: "pointer",
+                      }}
                     >
                       {seg.name}
                     </Link>
-                  )
-                ))}
+                  ),
+                )}
               </Breadcrumbs>
 
               <Divider sx={{ mb: 1 }} />
@@ -326,14 +400,26 @@ export function Repos() {
                   <ListItemIcon sx={{ minWidth: 36 }}>
                     <ArrowUpwardIcon fontSize="small" />
                   </ListItemIcon>
-                  <ListItemText primary=".." primaryTypographyProps={{ fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                  <ListItemText
+                    primary=".."
+                    primaryTypographyProps={{
+                      fontFamily: "monospace",
+                      fontSize: "0.85rem",
+                    }}
+                  />
                 </ListItemButton>
               )}
 
               {/* Directory listing */}
-              <List dense disablePadding sx={{ maxHeight: 320, overflow: 'auto' }}>
+              <List
+                dense
+                disablePadding
+                sx={{ maxHeight: 320, overflow: "auto" }}
+              >
                 {browseLoading && browseData.dirs.length === 0 && (
-                  <Typography color="text.secondary" sx={{ p: 2 }}>Loading...</Typography>
+                  <Typography color="text.secondary" sx={{ p: 2 }}>
+                    Loading...
+                  </Typography>
                 )}
                 {browseData.dirs.map((dir) => (
                   <ListItem key={dir.path} disablePadding>
@@ -350,10 +436,27 @@ export function Repos() {
                       </ListItemIcon>
                       <ListItemText
                         primary={
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <span style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{dir.name}</span>
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <span
+                              style={{
+                                fontFamily: "monospace",
+                                fontSize: "0.85rem",
+                              }}
+                            >
+                              {dir.name}
+                            </span>
                             {dir.isGitRepo && (
-                              <Chip label="git" size="small" color="success" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+                              <Chip
+                                label="git"
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                                sx={{ height: 20, fontSize: "0.65rem" }}
+                              />
                             )}
                           </Stack>
                         }
@@ -366,7 +469,7 @@ export function Repos() {
                             selectFolder(dir.path);
                           }}
                           title="Add this repo"
-                          sx={{ color: 'primary.main' }}
+                          sx={{ color: "primary.main" }}
                         >
                           <AddIcon fontSize="small" />
                         </IconButton>
@@ -375,7 +478,10 @@ export function Repos() {
                   </ListItem>
                 ))}
                 {!browseLoading && browseData.dirs.length === 0 && (
-                  <Typography color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
+                  <Typography
+                    color="text.secondary"
+                    sx={{ p: 2, textAlign: "center" }}
+                  >
                     No subfolders
                   </Typography>
                 )}
@@ -399,13 +505,13 @@ export function Repos() {
 }
 
 function buildBreadcrumbs(path: string): Array<{ name: string; path: string }> {
-  const parts = path.split('/').filter(Boolean);
+  const parts = path.split("/").filter(Boolean);
   const crumbs: Array<{ name: string; path: string }> = [];
   // Add root
-  crumbs.push({ name: '/', path: '/' });
-  let current = '';
+  crumbs.push({ name: "/", path: "/" });
+  let current = "";
   for (const part of parts) {
-    current += '/' + part;
+    current += "/" + part;
     crumbs.push({ name: part, path: current });
   }
   return crumbs;

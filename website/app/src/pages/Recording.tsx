@@ -441,6 +441,7 @@ export function Recording() {
                       </Box>
                     </CardContent>
                   </CardActionArea>
+                  {/* Rerun hidden for now
                   {meeting.status === 'failed' && (
                     <IconButton
                       size="small"
@@ -452,6 +453,7 @@ export function Recording() {
                       <ReplayIcon fontSize="small" />
                     </IconButton>
                   )}
+                  */}
                   <IconButton
                     size="small"
                     onClick={() => handleDeleteMeeting(meeting.id)}

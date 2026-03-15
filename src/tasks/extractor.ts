@@ -381,7 +381,7 @@ function estimateTokens(files: FetchedFile[]): number {
 }
 
 const MAX_FULL_SOURCE_FILES = 15;
-const ANALYSIS_MODEL = "claude-haiku-4-5-20251001";
+const ANALYSIS_MODEL = "claude-sonnet-4-6";
 
 // --- Project Understanding ---
 

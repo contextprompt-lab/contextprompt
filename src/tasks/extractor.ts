@@ -169,7 +169,7 @@ function extractRetryWait(err: unknown): number {
 
 const MAX_PROGRAMMATIC_FILES = 20;
 const MAX_HAIKU_ROUNDS = 3;
-const HAIKU_MODEL = "claude-haiku-3-5";
+const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const MAX_FILES_PER_ROUND = 15;
 
 const STOP_WORDS = new Set([

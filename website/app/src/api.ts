@@ -64,6 +64,7 @@ export const getMeetings = () => request<Meeting[]>('/meetings');
 export const getMeeting = (id: number) => request<MeetingDetail>(`/meetings/${id}`);
 export const deleteMeeting = (id: number) => request<{ ok: true }>(`/meetings/${id}`, { method: 'DELETE' });
 export const rerunMeeting = (id: number) => request<{ ok: true; status: string }>(`/meetings/${id}/rerun`, { method: 'POST' });
+export const testAnalysis = (transcript: string) => request<{ ok: true; meeting_id: number; status: string }>('/meetings/test-analysis', { method: 'POST', body: JSON.stringify({ transcript }), headers: { 'Content-Type': 'application/json' } });
 
 // Repos
 export interface Repo {

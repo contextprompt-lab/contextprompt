@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -9,8 +10,11 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  TextField,
+  Button,
+  CircularProgress,
 } from '@mui/material';
-import { getSettings, setSetting } from '../api';
+import { getSettings, setSetting, testAnalysis } from '../api';
 
 const LANGUAGES = [
   'English',
@@ -28,9 +32,12 @@ const LANGUAGES = [
 ];
 
 export function Settings() {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState('');
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
     getSettings().then((s) => {
@@ -48,6 +55,19 @@ export function Settings() {
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       setError((err as Error).message);
+    }
+  };
+
+  const handleTestAnalysis = async () => {
+    if (!transcript.trim()) return;
+    setError(null);
+    setAnalyzing(true);
+    try {
+      const result = await testAnalysis(transcript.trim());
+      navigate(`/meetings/${result.meeting_id}`);
+    } catch (err) {
+      setError((err as Error).message);
+      setAnalyzing(false);
     }
   };
 
@@ -87,6 +107,35 @@ export function Settings() {
               ))}
             </Select>
           </FormControl>
+        </CardContent>
+      </Card>
+
+      {/* Test Analysis */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ mb: 1 }}>Test Analysis</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Paste a transcript to test the extraction pipeline without recording a meeting.
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            minRows={4}
+            maxRows={12}
+            placeholder="Paste meeting transcript here..."
+            value={transcript}
+            onChange={(e) => setTranscript(e.target.value)}
+            disabled={analyzing}
+            size="small"
+            sx={{ mb: 2 }}
+          />
+          <Button
+            variant="contained"
+            onClick={handleTestAnalysis}
+            disabled={analyzing || !transcript.trim()}
+          >
+            {analyzing ? <><CircularProgress size={18} sx={{ mr: 1 }} /> Analyzing...</> : 'Run Analysis'}
+          </Button>
         </CardContent>
       </Card>
 

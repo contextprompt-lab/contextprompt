@@ -366,7 +366,7 @@ async function selectFilesWithHaiku(
         },
         {
           type: "text",
-          text: `## Meeting Transcript\n\n${transcript}\n\n## Already Fetched Files\n\n${formatSourceFiles(alreadyFetched) || "(none)"}`,
+          text: `## Meeting Transcript\n\n${transcript}\n\n## Already Fetched Files (do not re-request these)\n\n${alreadyFetched.length > 0 ? alreadyFetched.map((f) => `- ${f.repo}/${f.path}`).join("\n") : "(none)"}`,
         },
       ],
     },

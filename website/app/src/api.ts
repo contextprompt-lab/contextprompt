@@ -191,16 +191,20 @@ const SKIP_DIRS = new Set([
   'node_modules', 'dist', 'build', '.git', '.next', '.nuxt',
   'coverage', '.cache', '.turbo', 'vendor', '__pycache__',
   '.venv', 'venv', 'target',
+  'Pods', 'ios/Pods', '.expo', 'android/build', 'android/.gradle',
+  'DerivedData', 'xcuserdata', '.gradle',
 ]);
 
 const SKIP_EXT = new Set([
   '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp',
   '.woff', '.woff2', '.ttf', '.eot',
-  '.lock', '.map',
+  '.lock', '.map', '.min.js', '.min.css',
   '.mp3', '.mp4', '.wav', '.avi',
-  '.zip', '.tar', '.gz',
+  '.zip', '.tar', '.gz', '.bz2',
   '.pdf', '.doc', '.docx',
-  '.exe', '.dll', '.so', '.dylib',
+  '.exe', '.dll', '.so', '.dylib', '.a', '.o',
+  '.pbxproj', '.xcscheme', '.xcworkspacedata', '.plist', '.storyboard', '.xib',
+  '.nanopb.c', '.nanopb.h',
 ]);
 
 const SOURCE_EXT = new Set(['.ts', '.tsx', '.js', '.jsx', '.mts', '.mjs', '.py', '.go', '.rs', '.java', '.rb', '.swift']);

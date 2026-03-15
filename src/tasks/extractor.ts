@@ -244,6 +244,7 @@ export function selectFilesProgrammatically(
     }
 
     for (const filePath of allPaths) {
+      if (isJunkPath(filePath)) continue;
       let score = 0;
       const pathLower = filePath.toLowerCase();
       const pathSegments = pathLower.split(/[/.]/);
@@ -392,6 +393,26 @@ interface SearchResult {
   text: string;
 }
 
+// Paths that should never be included in search results or file selection
+const JUNK_PATH_PATTERNS = [
+  /\/Pods\//i,
+  /\/node_modules\//i,
+  /\/DerivedData\//i,
+  /\/xcuserdata\//i,
+  /\/android\/build\//i,
+  /\/\.gradle\//i,
+  /\/\.expo\//i,
+  /\.pbxproj$/i,
+  /\.xcscheme$/i,
+  /\.xcworkspacedata$/i,
+  /\.plist$/i,
+  /\.nanopb\./i,
+];
+
+function isJunkPath(path: string): boolean {
+  return JUNK_PATH_PATTERNS.some((p) => p.test(path));
+}
+
 function searchSourceFiles(
   keyword: string,
   repos: RepoMap[],
@@ -403,6 +424,7 @@ function searchSourceFiles(
   for (const repo of repos) {
     if (!repo.sourceFiles) continue;
     for (const sf of repo.sourceFiles) {
+      if (isJunkPath(sf.path)) continue;
       const lines = sf.content.split("\n");
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].toLowerCase().includes(kwLower)) {

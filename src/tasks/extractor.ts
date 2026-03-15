@@ -296,7 +296,7 @@ function estimateTokens(files: FetchedFile[]): number {
   );
 }
 
-const MAX_FULL_SOURCE_FILES = 5;
+const MAX_FULL_SOURCE_FILES = 15;
 const ANALYSIS_MODEL = "claude-haiku-4-5-20251001";
 
 // --- Compact File Summaries ---
@@ -1133,23 +1133,43 @@ export async function extractTasks(
   const summaryTokens = Math.ceil(fileSummaries.length / CHARS_PER_TOKEN);
   logger.info(`File summaries: ~${summaryTokens} tokens`);
 
-  // b) Full source only for top N most relevant files (by keyword score)
+  // b) Full source for top N files — merge scored + investigation, deduped, ranked
   const anchorFiles = getAnchorFiles(repos);
-  const topFiles = [...anchorFiles, ...scoredFiles.slice(0, MAX_FULL_SOURCE_FILES)];
-  // Also add top investigation files not in topFiles
-  const topPaths = new Set(topFiles.map((f) => `${f.repo}:${f.path}`));
+  const allCandidates = new Map<string, { repo: string; path: string; score: number }>();
+
+  // Add scored files with their scores
+  for (let i = 0; i < scoredFiles.length; i++) {
+    const f = scoredFiles[i];
+    const key = `${f.repo}:${f.path}`;
+    allCandidates.set(key, { ...f, score: scoredFiles.length - i }); // higher rank = higher score
+  }
+
+  // Add investigation files (boost score if already in candidates)
   for (const f of filesToRead) {
-    if (topPaths.size >= MAX_FULL_SOURCE_FILES + anchorFiles.length + 3) break;
-    if (!topPaths.has(`${f.repo}:${f.path}`)) {
-      topFiles.push(f);
-      topPaths.add(`${f.repo}:${f.path}`);
+    const key = `${f.repo}:${f.path}`;
+    const existing = allCandidates.get(key);
+    if (existing) {
+      existing.score += 5; // boost files found by both keyword match AND grep
+    } else {
+      allCandidates.set(key, { ...f, score: 3 });
     }
   }
+
+  // Sort by score and take top N
+  const rankedFiles = [...allCandidates.values()]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, MAX_FULL_SOURCE_FILES);
+  const topFiles = [...anchorFiles, ...rankedFiles];
   const fullSourceFiles = fetchRequestedFiles(topFiles, repos);
   const sourceFilesBlock = formatSourceFiles(fullSourceFiles);
   logger.info(
     `Full source: ${fullSourceFiles.length} files (~${estimateTokens(fullSourceFiles)} tokens)`,
   );
+  if (fullSourceFiles.length > 0) {
+    logger.info(
+      `  Files: ${fullSourceFiles.map((f) => `${f.repo}/${f.path}`).join(", ")}`,
+    );
+  }
 
   // c) Combine into context
   const contextBlock = `## File Summaries (all files in the codebase)\n\n${fileSummaries}\n\n${sourceFilesBlock}\n\n${searchResults}`;

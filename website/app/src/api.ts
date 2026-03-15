@@ -243,6 +243,10 @@ function extractExportsFromSource(content: string, ext: string): ExportInfo[] {
     // export default function/class
     const defaultMatch = line.match(/export\s+default\s+(?:(?:async\s+)?function|class)\s+(\w+)/);
     if (defaultMatch) { exports.push({ name: defaultMatch[1], kind: 'function' }); continue; }
+
+    // export default Name (bare identifier)
+    const defaultBareMatch = line.match(/^export\s+default\s+(\w+)\s*;?\s*$/);
+    if (defaultBareMatch) { exports.push({ name: defaultBareMatch[1], kind: 'const' }); continue; }
   }
 
   return exports;
@@ -318,14 +322,12 @@ export async function scanDirectoryHandle(
   // Build file tree
   const fileTree = buildFileTree(allPaths);
 
-  // Extract exports from source files
+  // Build file entries for all source files (exports are optional bonus signal)
   const files: FileEntry[] = [];
   for (const [path, content] of fileContents) {
     const ext = '.' + path.split('.').pop()!.toLowerCase();
     const exports = extractExportsFromSource(content, ext);
-    if (exports.length > 0) {
-      files.push({ path, exports });
-    }
+    files.push({ path, exports });
   }
 
   // Include all source file contents

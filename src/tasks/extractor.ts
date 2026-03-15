@@ -226,9 +226,29 @@ export function selectFilesProgrammatically(
   const scored: Array<{ repo: string; path: string; score: number }> = [];
 
   for (const repo of repos) {
+    // Build a map of export names by path for quick lookup
+    const exportsByPath = new Map<string, string[]>();
     for (const file of repo.files) {
+      exportsByPath.set(
+        file.path,
+        file.exports.map((e) => e.name.toLowerCase()),
+      );
+    }
+
+    // Collect all known file paths (from files array + sourceFiles for browser repos)
+    const allPaths = new Set<string>();
+    for (const file of repo.files) {
+      allPaths.add(file.path);
+    }
+    if (repo.sourceFiles) {
+      for (const sf of repo.sourceFiles) {
+        allPaths.add(sf.path);
+      }
+    }
+
+    for (const filePath of allPaths) {
       let score = 0;
-      const pathLower = file.path.toLowerCase();
+      const pathLower = filePath.toLowerCase();
       const pathSegments = pathLower.split(/[/.]/);
 
       for (const kw of keywords) {
@@ -237,26 +257,29 @@ export function selectFilesProgrammatically(
           score += 3;
         }
         // Export name match
-        for (const exp of file.exports) {
-          if (exp.name.toLowerCase().includes(kw)) {
-            score += 4;
-            break; // count each keyword once per file
+        const exports = exportsByPath.get(filePath);
+        if (exports) {
+          for (const name of exports) {
+            if (name.includes(kw)) {
+              score += 4;
+              break;
+            }
           }
         }
       }
 
       // Import hub bonus (capped at 5)
-      const hubCount = importCounts.get(`${repo.name}:${file.path}`) || 0;
+      const hubCount = importCounts.get(`${repo.name}:${filePath}`) || 0;
       score += Math.min(hubCount, 5);
 
       // Anchor bonus
       const isAnchor =
-        ANCHOR_PATTERNS.some((p) => p.test(file.path)) ||
-        ENTRY_PATTERNS.some((p) => p.test(file.path));
+        ANCHOR_PATTERNS.some((p) => p.test(filePath)) ||
+        ENTRY_PATTERNS.some((p) => p.test(filePath));
       if (isAnchor) score += 2;
 
       if (score > 0) {
-        scored.push({ repo: repo.name, path: file.path, score });
+        scored.push({ repo: repo.name, path: filePath, score });
       }
     }
   }

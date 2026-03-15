@@ -50,13 +50,11 @@ export async function scanRepo(repoPath: string): Promise<RepoMap> {
     if (isSourceFile(filePath) && !isTestFile(relPath)) {
       const exports = extractExports(filePath);
       const imports = extractImports(filePath, repoPath);
-      if (exports.length > 0 || imports.length > 0) {
-        files.push({
-          path: relPath,
-          exports,
-          ...(imports.length > 0 ? { imports } : {}),
-        });
-      }
+      files.push({
+        path: relPath,
+        exports,
+        ...(imports.length > 0 ? { imports } : {}),
+      });
     }
   }
 

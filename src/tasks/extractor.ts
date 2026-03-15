@@ -195,6 +195,89 @@ export function extractKeywords(transcript: string): string[] {
   return [...new Set(words)];
 }
 
+// Extract bigrams and convert to file name search patterns
+export function extractSearchPatterns(transcript: string): string[] {
+  const patterns: string[] = [];
+  const words = transcript
+    .split(/[\n\r]+/)
+    .map((line) => line.replace(/^\[.*?\]\s*Speaker\s*\d+:\s*/i, "").trim())
+    .join(" ")
+    .split(/\s+/)
+    .map((w) => w.replace(/[^a-zA-Z0-9]/g, ""))
+    .filter((w) => w.length >= 2);
+
+  // Generate bigrams → PascalCase file name patterns
+  for (let i = 0; i < words.length - 1; i++) {
+    const a = words[i].toLowerCase();
+    const b = words[i + 1].toLowerCase();
+    if (STOP_WORDS.has(a) || STOP_WORDS.has(b)) continue;
+    if (a.length < 3 || b.length < 3) continue;
+
+    // PascalCase: "welcome screen" → "WelcomeScreen"
+    const pascal = a.charAt(0).toUpperCase() + a.slice(1) + b.charAt(0).toUpperCase() + b.slice(1);
+    patterns.push(pascal.toLowerCase());
+
+    // Also just the individual significant words as file name patterns
+    if (!patterns.includes(a)) patterns.push(a);
+    if (!patterns.includes(b)) patterns.push(b);
+  }
+
+  // Add trigrams for 3-word phrases: "continue with email" → "ContinueWithEmail"
+  for (let i = 0; i < words.length - 2; i++) {
+    const a = words[i].toLowerCase();
+    const b = words[i + 1].toLowerCase();
+    const c = words[i + 2].toLowerCase();
+    if (a.length < 3 || c.length < 3) continue;
+    // Only if middle word is a short connector
+    if (b === "with" || b === "and" || b === "for" || b === "the" || b === "from") {
+      const pascal = a.charAt(0).toUpperCase() + a.slice(1) + b.charAt(0).toUpperCase() + b.slice(1) + c.charAt(0).toUpperCase() + c.slice(1);
+      patterns.push(pascal.toLowerCase());
+    }
+  }
+
+  return [...new Set(patterns)];
+}
+
+// Search repos by file NAME (not content) — highest signal
+function searchFileNames(
+  patterns: string[],
+  repos: RepoMap[],
+): Array<{ repo: string; path: string; matchCount: number }> {
+  const results = new Map<string, { repo: string; path: string; matchCount: number }>();
+
+  for (const repo of repos) {
+    // Collect all file paths from the repo
+    const allPaths: string[] = [];
+    for (const file of repo.files) allPaths.push(file.path);
+    if (repo.sourceFiles) {
+      for (const sf of repo.sourceFiles) {
+        if (!allPaths.includes(sf.path)) allPaths.push(sf.path);
+      }
+    }
+
+    for (const filePath of allPaths) {
+      if (isJunkPath(filePath)) continue;
+      const fileNameLower = filePath.toLowerCase();
+      // Extract just the file name (last segment)
+      const baseName = fileNameLower.split("/").pop() || "";
+
+      let matchCount = 0;
+      for (const pattern of patterns) {
+        if (baseName.includes(pattern) || fileNameLower.includes(pattern)) {
+          matchCount++;
+        }
+      }
+
+      if (matchCount > 0) {
+        const key = `${repo.name}:${filePath}`;
+        results.set(key, { repo: repo.name, path: filePath, matchCount });
+      }
+    }
+  }
+
+  return [...results.values()].sort((a, b) => b.matchCount - a.matchCount);
+}
+
 function buildReverseImportCounts(repos: RepoMap[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const repo of repos) {
@@ -1133,47 +1216,60 @@ export async function extractTasks(
   const repoContext = formatRepoContext(repos);
   const analysisModel = ANALYSIS_MODEL;
 
-  // --- Step 1: Keyword extraction + file scoring ---
-  logger.info("Analyzing transcript keywords...");
-  const { files: scoredFiles, keywords } = selectFilesProgrammatically(
-    transcript,
-    repos,
-  );
-  logger.info(`Found ${keywords.length} keywords, ${scoredFiles.length} matching files`);
+  // --- Step 1: File name search (highest signal) ---
+  logger.info("Searching file names...");
+  const searchPatterns = extractSearchPatterns(transcript);
+  const fileNameMatches = searchFileNames(searchPatterns, repos);
+  logger.info(`File name search: ${fileNameMatches.length} matches from ${searchPatterns.length} patterns`);
+  if (fileNameMatches.length > 0) {
+    logger.info(`  Top matches: ${fileNameMatches.slice(0, 10).map((f) => f.path).join(", ")}`);
+  }
 
-  // --- Step 2: Programmatic investigation (grep keywords across source files) ---
-  logger.info("Investigating codebase...");
+  // --- Step 2: Keyword scoring + content search (secondary) ---
+  const { files: scoredFiles, keywords } = selectFilesProgrammatically(transcript, repos);
   const { searchResults, filesToRead } = investigateCodebase(keywords, repos);
-  logger.info(`Search found matches in ${filesToRead.length} files`);
+  logger.info(`Content search: ${keywords.length} keywords, ${filesToRead.length} content matches`);
 
   // --- Step 3: Build compact context ---
-  // a) File summaries for relevant files only (keyword matches + investigation hits)
+  // a) File summaries for relevant files only
   const relevantPaths = new Set<string>();
+  for (const f of fileNameMatches) relevantPaths.add(`${f.repo}:${f.path}`);
   for (const f of scoredFiles) relevantPaths.add(`${f.repo}:${f.path}`);
   for (const f of filesToRead) relevantPaths.add(`${f.repo}:${f.path}`);
   const fileSummaries = buildFileSummaries(repos, relevantPaths);
   const summaryTokens = Math.ceil(fileSummaries.length / CHARS_PER_TOKEN);
   logger.info(`File summaries: ~${summaryTokens} tokens`);
 
-  // b) Full source for top N files — merge scored + investigation, deduped, ranked
+  // b) Full source — file name matches get highest priority, then scored + investigation
   const anchorFiles = getAnchorFiles(repos);
   const allCandidates = new Map<string, { repo: string; path: string; score: number }>();
 
-  // Add scored files with their scores
+  // File name matches get highest scores (10 + matchCount)
+  for (const f of fileNameMatches) {
+    const key = `${f.repo}:${f.path}`;
+    allCandidates.set(key, { repo: f.repo, path: f.path, score: 10 + f.matchCount });
+  }
+
+  // Keyword-scored files
   for (let i = 0; i < scoredFiles.length; i++) {
     const f = scoredFiles[i];
     const key = `${f.repo}:${f.path}`;
-    allCandidates.set(key, { ...f, score: scoredFiles.length - i }); // higher rank = higher score
+    const existing = allCandidates.get(key);
+    if (existing) {
+      existing.score += 3;
+    } else {
+      allCandidates.set(key, { ...f, score: scoredFiles.length - i });
+    }
   }
 
-  // Add investigation files (boost score if already in candidates)
+  // Content search matches
   for (const f of filesToRead) {
     const key = `${f.repo}:${f.path}`;
     const existing = allCandidates.get(key);
     if (existing) {
-      existing.score += 5; // boost files found by both keyword match AND grep
+      existing.score += 2;
     } else {
-      allCandidates.set(key, { ...f, score: 3 });
+      allCandidates.set(key, { ...f, score: 2 });
     }
   }
 

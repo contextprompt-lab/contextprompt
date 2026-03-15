@@ -290,12 +290,25 @@ async function processCompletedBot(botId: string): Promise<void> {
       .run('processing', formattedTranscript, durationMinutes, speakerCount, meetingId);
 
     // 3. Scan repos (use client-provided maps for browser repos, scan disk for local repos)
+    // Wait for browser repo maps if they haven't arrived yet
+    const hasBrowserRepos = repoPaths.some(p => p.startsWith('browser://'));
+    if (hasBrowserRepos && !session.clientRepoMaps) {
+      logger.info('Waiting for browser repo maps...');
+      for (let i = 0; i < 30; i++) { // wait up to 30 seconds
+        await new Promise(r => setTimeout(r, 1000));
+        if (session.clientRepoMaps) break;
+      }
+      if (!session.clientRepoMaps) {
+        logger.warn('Browser repo maps did not arrive within 30s, proceeding without them');
+      }
+    }
+
     const repoMaps: RepoMap[] = [];
 
     // Add any client-provided repo maps (from browser File System Access API)
-    if (clientRepoMaps && clientRepoMaps.length > 0) {
-      repoMaps.push(...clientRepoMaps);
-      logger.info(`Using ${clientRepoMaps.length} client-provided repo map(s)`);
+    if (session.clientRepoMaps && session.clientRepoMaps.length > 0) {
+      repoMaps.push(...session.clientRepoMaps);
+      logger.info(`Using ${session.clientRepoMaps.length} client-provided repo map(s)`);
     }
 
     // Scan any local (non-browser) repos from disk

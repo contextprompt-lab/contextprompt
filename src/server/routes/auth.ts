@@ -9,6 +9,7 @@ import {
   deleteSession,
   resetUsageIfNeeded,
   getSession as getSessionDb,
+  getDb,
 } from '../db.js';
 import { parseCookies } from '../middleware/auth.js';
 
@@ -166,6 +167,13 @@ authRouter.get('/me', (req, res) => {
 
   const user = result.user;
   resetUsageIfNeeded(user.id);
+
+  // Auto-promote admin if configured and not yet flagged
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (adminEmail && user.email === adminEmail && !user.is_admin) {
+    getDb().prepare('UPDATE users SET is_admin = 1 WHERE id = ?').run(user.id);
+  }
+
   const fresh = getUserById(user.id)!;
 
   // Calculate usage limits

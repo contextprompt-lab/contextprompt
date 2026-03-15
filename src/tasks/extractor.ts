@@ -482,7 +482,19 @@ async function analyzeWithTools(
       .map((block) => block.text)
       .join("");
 
-    return parseClaudeResponse(text);
+    // Check if the response contains JSON
+    if (text.includes("{") && text.includes("tasks")) {
+      return parseClaudeResponse(text);
+    }
+
+    // Model responded with text instead of JSON — nudge it
+    logger.warn("Model responded with text instead of JSON, requesting JSON output...");
+    messages.push({ role: "assistant", content: response.content });
+    messages.push({
+      role: "user",
+      content: "Please provide your analysis as the JSON object specified in the output format. No commentary, just the JSON.",
+    });
+    continue;
   }
 
   throw new Error("Analysis did not complete within maximum tool-use rounds");

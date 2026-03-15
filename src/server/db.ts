@@ -130,6 +130,26 @@ function runMigrations(db: Database.Database): void {
 
   // Add admin flag
   try { db.exec('ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0'); } catch { /* already exists */ }
+
+  // Recreate repos table without UNIQUE on path (multi-user needs same path for different users)
+  const hasUniquePathConstraint = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='repos'").get() as { sql: string } | undefined;
+  if (hasUniquePathConstraint?.sql.includes('UNIQUE')) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS repos_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        path TEXT NOT NULL,
+        name TEXT NOT NULL,
+        last_used TEXT,
+        github_owner TEXT,
+        github_repo TEXT,
+        user_id INTEGER REFERENCES users(id),
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT OR IGNORE INTO repos_new SELECT id, path, name, last_used, github_owner, github_repo, user_id, created_at FROM repos;
+      DROP TABLE repos;
+      ALTER TABLE repos_new RENAME TO repos;
+    `);
+  }
 }
 
 // --- Users ---
@@ -425,11 +445,13 @@ export function getRepos(userId?: number): RepoRow[] {
 export function addRepo(path: string, name: string, userId?: number): number {
   const db = getDb();
   if (userId !== undefined) {
-    const stmt = db.prepare(`
-      INSERT INTO repos (path, name, user_id) VALUES (?, ?, ?)
-      ON CONFLICT(path) DO UPDATE SET name = excluded.name
-    `);
-    const result = stmt.run(path, name, userId);
+    // Check if this user already has this repo
+    const existing = db.prepare('SELECT id FROM repos WHERE path = ? AND user_id = ?').get(path, userId) as { id: number } | undefined;
+    if (existing) {
+      db.prepare('UPDATE repos SET name = ? WHERE id = ?').run(name, existing.id);
+      return existing.id;
+    }
+    const result = db.prepare('INSERT INTO repos (path, name, user_id) VALUES (?, ?, ?)').run(path, name, userId);
     return result.lastInsertRowid as number;
   }
   const stmt = db.prepare(`

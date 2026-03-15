@@ -14,7 +14,7 @@ import {
   Button,
   CircularProgress,
 } from '@mui/material';
-import { getSettings, setSetting, testAnalysis } from '../api';
+import { getSettings, setSetting, testAnalysis, getRepos, buildRepoMaps } from '../api';
 
 const LANGUAGES = [
   'English',
@@ -63,7 +63,16 @@ export function Settings() {
     setError(null);
     setAnalyzing(true);
     try {
-      const result = await testAnalysis(transcript.trim());
+      // Build repo maps from browser-connected repos
+      const repos = await getRepos();
+      const browserRepoIds = repos
+        .filter(r => r.path.startsWith('browser://'))
+        .map(r => r.id);
+      const repoMaps = browserRepoIds.length > 0
+        ? await buildRepoMaps(browserRepoIds)
+        : undefined;
+
+      const result = await testAnalysis(transcript.trim(), repoMaps);
       navigate(`/meetings/${result.meeting_id}`);
     } catch (err) {
       setError((err as Error).message);

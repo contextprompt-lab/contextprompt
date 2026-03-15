@@ -139,11 +139,12 @@ meetingsRouter.post('/:id/rerun', async (req, res) => {
 
 // Test analysis from a pasted transcript
 meetingsRouter.post('/test-analysis', async (req, res) => {
-  const { transcript } = req.body;
+  const { transcript, repo_maps } = req.body;
   if (!transcript || typeof transcript !== 'string' || transcript.trim().length === 0) {
     res.status(400).json({ error: 'Transcript is required' });
     return;
   }
+  const clientRepoMaps = Array.isArray(repo_maps) ? repo_maps as RepoMap[] : undefined;
 
   // Create a meeting record immediately
   const meetingId = insertMeeting({
@@ -165,14 +166,18 @@ meetingsRouter.post('/test-analysis', async (req, res) => {
     const { getDb } = await import('../db.js');
     const db = getDb();
 
-    const repos = getRepos(req.userId);
     const repoMaps: RepoMap[] = [];
-    logger.info(`Test analysis: found ${repos.length} repos for userId=${req.userId}${repos.length > 0 ? ` (${repos.map(r => r.name).join(', ')})` : ''}`);
+
+    // Use client-provided repo maps (from browser File System Access API)
+    if (clientRepoMaps && clientRepoMaps.length > 0) {
+      repoMaps.push(...clientRepoMaps);
+      logger.info(`Test analysis: using ${clientRepoMaps.length} client-provided repo map(s)`);
+    }
+
+    // Also scan any local (non-browser) repos
+    const repos = getRepos(req.userId);
     for (const repo of repos) {
-      if (repo.path.startsWith('browser://')) {
-        logger.info(`  Skipping browser repo: ${repo.path}`);
-        continue;
-      }
+      if (repo.path.startsWith('browser://')) continue;
       try {
         const map = await scanRepo(repo.path);
         repoMaps.push(map);

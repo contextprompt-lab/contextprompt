@@ -10,6 +10,7 @@ import { Repos } from './pages/Repos';
 import { Settings } from './pages/Settings';
 import { Issues } from './pages/Issues';
 import { IssueDetail } from './pages/IssueDetail';
+import { Admin } from './pages/Admin';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
                 <Route path="/issues" element={<Issues />} />
                 <Route path="/issues/:id" element={<IssueDetail />} />
                 <Route path="/settings" element={<Settings />} />
+            <Route path="/admin" element={<Admin />} />
               </Routes>
             </AppLayout>
           </ProtectedRoute>

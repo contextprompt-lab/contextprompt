@@ -127,6 +127,9 @@ function runMigrations(db: Database.Database): void {
   try { db.exec('ALTER TABLE repos ADD COLUMN user_id INTEGER REFERENCES users(id)'); } catch { /* already exists */ }
   try { db.exec('ALTER TABLE settings ADD COLUMN user_id INTEGER REFERENCES users(id)'); } catch { /* already exists */ }
   try { db.exec('ALTER TABLE issue_analyses ADD COLUMN user_id INTEGER REFERENCES users(id)'); } catch { /* already exists */ }
+
+  // Add admin flag
+  try { db.exec('ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0'); } catch { /* already exists */ }
 }
 
 // --- Users ---
@@ -138,12 +141,27 @@ export interface UserRow {
   name: string;
   picture: string | null;
   plan: string;
+  is_admin: number;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   recording_seconds_used: number;
   usage_reset_at: string;
   created_at: string;
   updated_at: string;
+}
+
+export function runAdminQuery(sql: string): { columns: string[]; rows: unknown[][] } | { changes: number } {
+  const db = getDb();
+  const trimmed = sql.trim().toLowerCase();
+  if (trimmed.startsWith('select') || trimmed.startsWith('pragma') || trimmed.startsWith('explain')) {
+    const stmt = db.prepare(sql);
+    const rows = stmt.all() as Record<string, unknown>[];
+    if (rows.length === 0) return { columns: [], rows: [] };
+    const columns = Object.keys(rows[0]);
+    return { columns, rows: rows.map(r => columns.map(c => r[c])) };
+  }
+  const result = db.prepare(sql).run();
+  return { changes: result.changes };
 }
 
 export function findUserByGoogleId(googleId: string): UserRow | undefined {

@@ -27,6 +27,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StarIcon from '@mui/icons-material/Star';
+import StorageIcon from '@mui/icons-material/Storage';
 import { useAuth } from '../hooks/useAuth';
 import { createCheckoutSession, createPortalSession } from '../api';
 
@@ -100,6 +101,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   };
 
   const isPro = user?.plan === 'pro';
+  const isAdmin = user?.is_admin;
 
   // Filter nav items based on plan
   const filteredNav = MAIN_NAV.map((section) => ({
@@ -211,6 +213,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
               onClick={() => handleNav(item.path)}
             />
           ))}
+          {isAdmin && (
+            <NavButton
+              item={{ label: 'Admin', path: '/admin', icon: <StorageIcon /> }}
+              active={isActive('/admin')}
+              onClick={() => handleNav('/admin')}
+            />
+          )}
         </List>
       </Box>
     </Box>

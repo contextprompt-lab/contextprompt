@@ -122,6 +122,14 @@ authRouter.get('/google/callback', async (req, res) => {
     if (!user) {
       const userId = createUser(payload.sub, payload.email, payload.name, payload.picture ?? null);
       user = getUserById(userId)!;
+
+      // Auto-set admin for configured email
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (adminEmail && user.email === adminEmail) {
+        const { getDb } = await import('../db.js');
+        getDb().prepare('UPDATE users SET is_admin = 1 WHERE id = ?').run(user.id);
+        user = getUserById(user.id)!;
+      }
     }
 
     // Create session
@@ -170,6 +178,7 @@ authRouter.get('/me', (req, res) => {
     name: fresh.name,
     picture: fresh.picture,
     plan: fresh.plan,
+    is_admin: Boolean(fresh.is_admin),
     usage: {
       recording_seconds_used: fresh.recording_seconds_used,
       recording_seconds_limit: limitSeconds,

@@ -515,6 +515,7 @@ export interface AuthUser {
   name: string;
   picture: string | null;
   plan: 'none' | 'free' | 'pro';
+  is_admin: boolean;
   usage: {
     recording_seconds_used: number;
     recording_seconds_limit: number;
@@ -533,3 +534,9 @@ export const selectPlan = (plan: string) => request<{ ok: true; plan: string }>(
 // Stripe
 export const createCheckoutSession = () => request<{ url: string }>('/stripe/checkout', { method: 'POST' });
 export const createPortalSession = () => request<{ url: string }>('/stripe/portal', { method: 'POST' });
+
+// Admin
+export const adminQuery = (sql: string) => request<{ columns: string[]; rows: unknown[][] } | { changes: number }>('/admin/query', {
+  method: 'POST',
+  body: JSON.stringify({ sql }),
+});

@@ -10,6 +10,7 @@ import { issuesRouter } from './routes/issues.js';
 import { botsRouter, botsWebhookRouter } from './routes/bots.js';
 import { authRouter } from './routes/auth.js';
 import { stripeRouter, stripeWebhookRouter } from './routes/stripe.js';
+import { adminRouter } from './routes/admin.js';
 import { requireAuth, requirePro } from './middleware/auth.js';
 import { closeDb } from './db.js';
 import { attachWebSocket } from './ws.js';
@@ -43,6 +44,7 @@ export function createServer() {
   app.use('/api/issues', requirePro, issuesRouter);
   app.use('/api/bots', botsRouter);
   app.use('/api/stripe', stripeRouter);
+  app.use('/api/admin', adminRouter);
 
   // Serve website + dashboard static files (built output)
   // Try website/dist first (contains both marketing site and /app dashboard)

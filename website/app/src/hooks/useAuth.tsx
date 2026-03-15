@@ -7,6 +7,7 @@ export interface AuthUser {
   name: string;
   picture: string | null;
   plan: 'none' | 'free' | 'pro';
+  is_admin: boolean;
   usage: {
     recording_seconds_used: number;
     recording_seconds_limit: number;

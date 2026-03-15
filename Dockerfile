@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 # Create data directory for SQLite
-RUN mkdir -p /data
+RUN mkdir -p /data && chmod 777 /data
 
 ENV NODE_ENV=production
 ENV CONTEXTPROMPT_DB_PATH=/data/contextprompt.db

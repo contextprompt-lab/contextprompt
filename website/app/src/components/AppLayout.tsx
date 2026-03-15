@@ -28,7 +28,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StarIcon from '@mui/icons-material/Star';
 import { useAuth } from '../hooks/useAuth';
-import { createPortalSession } from '../api';
+import { createCheckoutSession, createPortalSession } from '../api';
 
 const DRAWER_WIDTH = 240;
 
@@ -186,13 +186,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
             color="primary"
             variant="outlined"
             clickable
-            onClick={() => {
-              window.location.href = '/api/auth/google';
-              // Will re-trigger plan selection if needed, or go to stripe
-              createPortalSession().catch(() => {
-                // Not a subscriber yet — redirect to plan page
+            onClick={async () => {
+              try {
+                const { url } = await createCheckoutSession();
+                window.location.href = url;
+              } catch {
                 navigate('/');
-              });
+              }
             }}
             sx={{ width: '100%', justifyContent: 'flex-start' }}
           />

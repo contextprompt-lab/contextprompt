@@ -554,10 +554,6 @@ async function callClaudeAnalysis(
                 },
               ],
             },
-            {
-              role: "assistant",
-              content: "{",
-            },
           ],
         })
         .withResponse();
@@ -570,8 +566,7 @@ async function callClaudeAnalysis(
         .map((block) => block.text)
         .join("");
 
-      // Prepend the '{' we used as assistant prefill
-      return parseClaudeResponse("{" + text);
+      return parseClaudeResponse(text);
     } catch (err) {
       lastError = err as Error;
       const msg = lastError.message || "";

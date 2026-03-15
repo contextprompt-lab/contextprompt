@@ -338,31 +338,44 @@ function summarizeFile(path: string, content: string, exports: string[]): string
   return summary;
 }
 
-function buildFileSummaries(repos: RepoMap[]): string {
+const MAX_SUMMARY_TOKENS = 15_000;
+
+function buildFileSummaries(
+  repos: RepoMap[],
+  relevantPaths?: Set<string>,
+): string {
   const summaries: string[] = [];
+  let totalChars = 0;
+  const charBudget = MAX_SUMMARY_TOKENS * CHARS_PER_TOKEN;
 
   for (const repo of repos) {
     summaries.push(`### ${repo.name}`);
 
     if (repo.sourceFiles) {
-      // Browser repos — have full source content
       const exportsByPath = new Map<string, string[]>();
       for (const file of repo.files) {
         exportsByPath.set(file.path, file.exports.map((e) => e.name));
       }
 
       for (const sf of repo.sourceFiles) {
+        // Skip files not in the relevant set (if provided)
+        if (relevantPaths && !relevantPaths.has(`${repo.name}:${sf.path}`)) continue;
+        if (totalChars >= charBudget) break;
         const exports = exportsByPath.get(sf.path) || [];
-        summaries.push(summarizeFile(sf.path, sf.content, exports));
+        const summary = summarizeFile(sf.path, sf.content, exports);
+        summaries.push(summary);
+        totalChars += summary.length;
       }
     } else {
-      // Disk repos — use FileEntry data (no full content at this stage)
       for (const file of repo.files) {
+        if (relevantPaths && !relevantPaths.has(`${repo.name}:${file.path}`)) continue;
+        if (totalChars >= charBudget) break;
         const exports = file.exports.map((e) => e.name);
         let summary = `${file.path}`;
         if (exports.length > 0) summary += `\n  exports: ${exports.join(", ")}`;
         if (file.imports && file.imports.length > 0) summary += `\n  imports: ${file.imports.join(", ")}`;
         summaries.push(summary);
+        totalChars += summary.length;
       }
     }
   }
@@ -1117,8 +1130,11 @@ export async function extractTasks(
   logger.info(`Search found matches in ${filesToRead.length} files`);
 
   // --- Step 3: Build compact context ---
-  // a) File summaries for ALL files (cheap, ~100 tokens each)
-  const fileSummaries = buildFileSummaries(repos);
+  // a) File summaries for relevant files only (keyword matches + investigation hits)
+  const relevantPaths = new Set<string>();
+  for (const f of scoredFiles) relevantPaths.add(`${f.repo}:${f.path}`);
+  for (const f of filesToRead) relevantPaths.add(`${f.repo}:${f.path}`);
+  const fileSummaries = buildFileSummaries(repos, relevantPaths);
   const summaryTokens = Math.ceil(fileSummaries.length / CHARS_PER_TOKEN);
   logger.info(`File summaries: ~${summaryTokens} tokens`);
 
@@ -1296,8 +1312,9 @@ export async function extractTasksFromIssue(
   // Investigate codebase for issue-related keywords
   const issueText = `${issue.title} ${issue.body || ""}`;
   const issueKeywords = extractKeywords(issueText);
-  const { searchResults } = investigateCodebase(issueKeywords, repos);
-  const fileSummaries = buildFileSummaries(repos);
+  const { searchResults, filesToRead } = investigateCodebase(issueKeywords, repos);
+  const relevantPaths = new Set(filesToRead.map((f) => `${f.repo}:${f.path}`));
+  const fileSummaries = buildFileSummaries(repos, relevantPaths);
   const contextBlock = `## File Summaries\n\n${fileSummaries}\n\n${searchResults}`;
 
   return await callClaudeAnalysis(

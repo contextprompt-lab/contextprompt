@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -20,6 +20,8 @@ import {
   LinearProgress,
   Tooltip,
 } from '@mui/material';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { supportsFileSystemAccess } from '../api';
 import MenuIcon from '@mui/icons-material/Menu';
 import MicIcon from '@mui/icons-material/Mic';
 import FolderIcon from '@mui/icons-material/Folder';
@@ -33,6 +35,7 @@ import { useAuth } from '../hooks/useAuth';
 import { createCheckoutSession, createPortalSession } from '../api';
 
 const DRAWER_WIDTH = 240;
+const BROWSER_BANNER_HEIGHT = 48;
 
 interface NavItem {
   label: string;
@@ -104,6 +107,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   const isPro = user?.plan === 'pro';
   const isAdmin = user?.is_admin;
+  const showBrowserBanner = useMemo(() => !supportsFileSystemAccess(), []);
 
   // Filter nav items based on plan
   const filteredNav = MAIN_NAV.map((section) => ({
@@ -229,9 +233,35 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      {showBrowserBanner && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: BROWSER_BANNER_HEIGHT,
+            zIndex: (theme) => theme.zIndex.drawer + 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1,
+            bgcolor: 'warning.main',
+            color: 'warning.contrastText',
+            px: 2,
+          }}
+        >
+          <WarningAmberIcon fontSize="small" />
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            Your browser doesn't support repo browsing. Please use Chrome or Edge for the full experience.
+          </Typography>
+        </Box>
+      )}
+
       <AppBar
         position="fixed"
         sx={{
+          top: showBrowserBanner ? BROWSER_BANNER_HEIGHT : 0,
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           ml: { sm: `${DRAWER_WIDTH}px` },
           bgcolor: 'background.default',
@@ -322,6 +352,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
               width: DRAWER_WIDTH,
               bgcolor: 'background.paper',
               borderRight: '1px solid rgba(255,255,255,0.06)',
+              ...(showBrowserBanner && {
+                top: BROWSER_BANNER_HEIGHT,
+                height: `calc(100% - ${BROWSER_BANNER_HEIGHT}px)`,
+              }),
             },
           }}
           open
@@ -336,8 +370,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          mt: '64px',
-          minHeight: 'calc(100vh - 64px)',
+          mt: showBrowserBanner ? `${64 + BROWSER_BANNER_HEIGHT}px` : '64px',
+          minHeight: showBrowserBanner ? `calc(100vh - ${64 + BROWSER_BANNER_HEIGHT}px)` : 'calc(100vh - 64px)',
         }}
       >
         {children}

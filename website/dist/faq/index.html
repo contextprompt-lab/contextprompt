@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ — contextprompt</title>
+  <meta name="description" content="Frequently asked questions about contextprompt — how the meeting bot works, supported platforms, repo scanning, pricing, privacy, and more.">
+
+  <!-- SEO -->
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/faq/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FAQ — contextprompt">
+  <meta property="og:description" content="Answers to common questions about contextprompt — the AI meeting assistant that extracts repo-aware coding tasks.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/faq/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FAQ — contextprompt">
+  <meta name="twitter:description" content="Answers to common questions about contextprompt — the AI meeting assistant that extracts repo-aware coding tasks.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+
+  <style>
+    /* FAQ page styles */
+    .faq-hero {
+      padding: 7rem 0 3rem;
+      text-align: center;
+    }
+
+    .faq-hero h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: var(--text-primary, #e6e6e6);
+      margin-bottom: 0.75rem;
+    }
+
+    .faq-hero p {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: var(--text-secondary, #999);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .faq-content {
+      padding: 2rem 0 5rem;
+    }
+
+    .faq-category {
+      margin-bottom: 3rem;
+    }
+
+    .faq-category-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-green, #3fb950);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-subtle, #21262d);
+    }
+
+    .faq-item {
+      border: 1px solid var(--border-subtle, #21262d);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      background: var(--bg-surface, #111113);
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+
+    .faq-item:hover {
+      border-color: #30363d;
+    }
+
+    .faq-item[open] {
+      border-color: #30363d;
+      background: var(--bg-elevated, #1a1a1e);
+    }
+
+    .faq-item summary {
+      padding: 1.125rem 1.25rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-primary, #e6e6e6);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      line-height: 1.5;
+      user-select: none;
+    }
+
+    .faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-item summary::after {
+      content: '+';
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--text-dim, #555);
+      flex-shrink: 0;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .faq-item[open] summary::after {
+      content: '-';
+      color: var(--accent-green, #3fb950);
+    }
+
+    .faq-item summary:hover {
+      color: #fff;
+    }
+
+    .faq-answer {
+      padding: 0 1.25rem 1.25rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      color: var(--text-secondary, #999);
+      line-height: 1.7;
+    }
+
+    .faq-answer p {
+      margin-bottom: 0.75rem;
+    }
+
+    .faq-answer p:last-child {
+      margin-bottom: 0;
+    }
+
+    .faq-answer ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .faq-answer li {
+      margin-bottom: 0.35rem;
+    }
+
+    .faq-answer strong {
+      color: var(--text-primary, #e6e6e6);
+      font-weight: 500;
+    }
+
+    .faq-answer code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background: rgba(110, 118, 129, 0.1);
+      border: 1px solid var(--border-subtle, #21262d);
+      border-radius: 4px;
+      padding: 0.15em 0.4em;
+      color: var(--text-primary, #e6e6e6);
+    }
+
+    /* Bottom CTA */
+    .faq-cta {
+      text-align: center;
+      padding: 4rem 0 5rem;
+      border-top: 1px solid var(--border-subtle, #21262d);
+    }
+
+    .faq-cta h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text-primary, #e6e6e6);
+      margin-bottom: 0.75rem;
+    }
+
+    .faq-cta p {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-secondary, #999);
+      margin-bottom: 1.5rem;
+      font-size: 1.0625rem;
+    }
+
+    .faq-cta-button {
+      display: inline-block;
+      padding: 0.875rem 2rem;
+      background: var(--accent-green, #3fb950);
+      color: #000;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .faq-cta-button:hover {
+      opacity: 0.9;
+    }
+
+    .faq-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8125rem;
+      color: var(--text-dim, #555);
+      margin-top: 0.75rem;
+    }
+  </style>
+  <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
+  <link rel="stylesheet" crossorigin href="/assets/components-Bbc_4yBY.css">
+</head>
+<body>
+
+  <!-- ====== NAV ====== -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ====== FAQ HERO ====== -->
+  <section class="faq-hero">
+    <div class="container">
+      <h1>Frequently Asked Questions</h1>
+      <p>Everything you need to know about contextprompt, from how the bot works to pricing and privacy.</p>
+    </div>
+  </section>
+
+  <!-- ====== FAQ CONTENT ====== -->
+  <section class="faq-content">
+    <div class="container">
+
+      <!-- Getting Started -->
+      <div class="faq-category">
+        <h2 class="faq-category-title">Getting Started</h2>
+
+        <details class="faq-item">
+          <summary>What is contextprompt?</summary>
+          <div class="faq-answer">
+            <p>contextprompt is a SaaS tool that sends an AI bot to your meetings on Zoom, Google Meet, Slack, or Microsoft Teams. The bot records and transcribes the conversation, scans your connected code repositories, and extracts structured coding tasks with real file paths, implementation steps, and confidence levels. You can then hand those tasks directly to any AI coding assistant like Claude Code.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How do I get started?</summary>
+          <div class="faq-answer">
+            <p>Sign up for free at <a href="/app/" style="color: var(--accent-blue, #58a6ff);">contextprompt.app</a>, connect your repos, and paste a meeting link. The contextprompt bot joins your call automatically. After the meeting ends, your structured tasks will be ready in the dashboard within a few minutes. No API keys, no browser extensions, no audio drivers required.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Do I need to install anything?</summary>
+          <div class="faq-answer">
+            <p>No. contextprompt is entirely web-based. You sign in through your browser, paste a meeting link, and the bot joins your call server-side. There is nothing to install on your computer. Repo scanning uses the browser's File System Access API, so you grant access directly from the dashboard without any CLI tools or plugins.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Do I need API keys to use contextprompt?</summary>
+          <div class="faq-answer">
+            <p>No. All AI processing (transcription and task extraction) happens on contextprompt's servers. You do not need to provide any API keys, configure any external services, or manage any credentials. Just sign in and paste a meeting link.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Features -->
+      <div class="faq-category">
+        <h2 class="faq-category-title">Features</h2>
+
+        <details class="faq-item">
+          <summary>Which meeting platforms are supported?</summary>
+          <div class="faq-answer">
+            <p>contextprompt supports the four major meeting platforms:</p>
+            <ul>
+              <li><strong>Zoom</strong> — regular meetings, scheduled calls, and instant meetings</li>
+              <li><strong>Google Meet</strong> — standard and Workspace meetings</li>
+              <li><strong>Slack</strong> — Huddles</li>
+              <li><strong>Microsoft Teams</strong> — scheduled and ad-hoc meetings</li>
+            </ul>
+            <p>Just paste the meeting link and the bot joins like any other participant.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How does repo scanning work?</summary>
+          <div class="faq-answer">
+            <p>When you connect a repository through the dashboard, contextprompt scans your file tree, exports, function signatures, and type definitions. It respects <code>.gitignore</code> rules and skips directories like <code>node_modules</code> and <code>dist</code>. The scan creates a repo map that the AI uses to match discussion points from your meeting to actual file paths in your codebase. This is what makes the extracted tasks actionable rather than generic.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What does a "structured task" look like?</summary>
+          <div class="faq-answer">
+            <p>Each task includes a title, description, list of relevant file paths from your repo, step-by-step implementation instructions, a confidence level (high, medium, or low), and the exact transcript excerpt that prompted it. Tasks are designed to be copy-pasted directly into an AI coding assistant like Claude Code, Cursor, or GitHub Copilot.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What languages does transcription support?</summary>
+          <div class="faq-answer">
+            <p>contextprompt supports transcription and task extraction in 12 languages. Your team can speak in their preferred language during the meeting, and contextprompt will transcribe and extract tasks accordingly. Multi-language support is available on the Pro plan.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I use contextprompt with any AI coding tool?</summary>
+          <div class="faq-answer">
+            <p>Yes. The extracted tasks are plain structured text with file paths and implementation steps. You can copy and paste them into any AI coding assistant: Claude Code, Cursor, GitHub Copilot, Windsurf, Aider, or anything else that accepts a text prompt. There is no lock-in to a specific tool.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What is GitHub issue integration?</summary>
+          <div class="faq-answer">
+            <p>On the Pro plan, you can connect a GitHub repository and analyze open issues against your repo structure. contextprompt reads the issue description, scans your codebase, and generates an implementation plan with specific file paths and steps, just like it does for meeting-derived tasks. It is available under the Issues tab in the dashboard.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Pricing -->
+      <div class="faq-category">
+        <h2 class="faq-category-title">Pricing</h2>
+
+        <details class="faq-item">
+          <summary>How much does contextprompt cost?</summary>
+          <div class="faq-answer">
+            <p>contextprompt offers two plans:</p>
+            <ul>
+              <li><strong>Free</strong> — $0/month. Includes 1 hour of meeting recording per month, repo-aware task extraction, all meeting platforms, and full dashboard access.</li>
+              <li><strong>Pro</strong> — $30/month. Includes 15 hours of meeting recording per month, plus GitHub issue integration, multi-language support, and priority support.</li>
+            </ul>
+            <p>No credit card is required for the Free plan.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What counts toward my recording time?</summary>
+          <div class="faq-answer">
+            <p>Recording time is measured as the duration the contextprompt bot is active in your meeting. A 30-minute meeting uses 30 minutes of your monthly allowance. If you are on the Free plan with 1 hour per month, that covers two 30-minute standups or one longer planning session. Unused time does not roll over.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I cancel my Pro subscription at any time?</summary>
+          <div class="faq-answer">
+            <p>Yes. You can cancel your Pro subscription at any time from the dashboard settings. Your Pro features will remain active until the end of your current billing period. After that, your account reverts to the Free plan with 1 hour per month. There are no cancellation fees or long-term commitments.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Technical & Privacy -->
+      <div class="faq-category">
+        <h2 class="faq-category-title">Technical &amp; Privacy</h2>
+
+        <details class="faq-item">
+          <summary>Is my meeting data private and secure?</summary>
+          <div class="faq-answer">
+            <p>Yes. Meeting recordings are processed server-side and are not shared with third parties. Transcripts and extracted tasks are stored in your account and are only accessible to you. Repo scanning happens via the browser's File System Access API, meaning your source code is read locally and only the file structure (paths, exports, types) is sent to the server for task mapping. Full file contents are only accessed during task extraction and are not stored permanently.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Will meeting participants know the bot is recording?</summary>
+          <div class="faq-answer">
+            <p>Yes. The contextprompt bot joins the meeting as a visible participant named "contextprompt." All participants can see it in the attendee list, and most platforms also display a recording indicator. This ensures full transparency with everyone in the meeting.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How accurate is the transcription?</summary>
+          <div class="faq-answer">
+            <p>contextprompt uses production-grade speech-to-text that handles multiple speakers, technical terminology, and cross-talk. Accuracy depends on audio quality, but in typical meeting conditions with decent microphones, you can expect high accuracy with correct speaker attribution. The AI task extraction step also helps compensate for minor transcription errors by understanding context.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What programming languages and frameworks does repo scanning support?</summary>
+          <div class="faq-answer">
+            <p>Repo scanning works with any codebase. The file tree scanner is language-agnostic and will index file paths, directory structure, and basic metadata for any project. For TypeScript and JavaScript projects, contextprompt additionally extracts exported functions, classes, types, and interfaces using AST parsing. Regardless of your stack, the AI will map meeting discussions to the correct files in your repo.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How long does it take to get tasks after a meeting ends?</summary>
+          <div class="faq-answer">
+            <p>Typically a few minutes. After the meeting ends, the bot uploads the recording, the transcript is generated, and the AI runs multi-stage extraction against your connected repos. For a typical 30-minute meeting, you can expect tasks to appear in your dashboard within 2 to 5 minutes. Longer meetings may take slightly more time due to transcript chunking and deduplication.</p>
+          </div>
+        </details>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ====== CTA ====== -->
+  <section class="faq-cta">
+    <div class="container">
+      <h2>Still have questions?</h2>
+      <p>Try contextprompt for free and see how it works with your team.</p>
+      <a href="/app/" class="faq-cta-button">Get started free</a>
+      <p class="faq-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Legal</h4>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD FAQPage Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is contextprompt?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt is a SaaS tool that sends an AI bot to your meetings on Zoom, Google Meet, Slack, or Microsoft Teams. The bot records and transcribes the conversation, scans your connected code repositories, and extracts structured coding tasks with real file paths, implementation steps, and confidence levels. You can then hand those tasks directly to any AI coding assistant like Claude Code."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I get started?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sign up for free at contextprompt.app, connect your repos, and paste a meeting link. The contextprompt bot joins your call automatically. After the meeting ends, your structured tasks will be ready in the dashboard within a few minutes. No API keys, no browser extensions, no audio drivers required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to install anything?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. contextprompt is entirely web-based. You sign in through your browser, paste a meeting link, and the bot joins your call server-side. There is nothing to install on your computer. Repo scanning uses the browser's File System Access API, so you grant access directly from the dashboard without any CLI tools or plugins."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need API keys to use contextprompt?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. All AI processing (transcription and task extraction) happens on contextprompt's servers. You do not need to provide any API keys, configure any external services, or manage any credentials. Just sign in and paste a meeting link."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which meeting platforms are supported?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt supports Zoom (regular meetings, scheduled calls, and instant meetings), Google Meet (standard and Workspace meetings), Slack Huddles, and Microsoft Teams (scheduled and ad-hoc meetings). Just paste the meeting link and the bot joins like any other participant."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does repo scanning work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When you connect a repository through the dashboard, contextprompt scans your file tree, exports, function signatures, and type definitions. It respects .gitignore rules and skips directories like node_modules and dist. The scan creates a repo map that the AI uses to match discussion points from your meeting to actual file paths in your codebase."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does a structured task look like?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Each task includes a title, description, list of relevant file paths from your repo, step-by-step implementation instructions, a confidence level (high, medium, or low), and the exact transcript excerpt that prompted it. Tasks are designed to be copy-pasted directly into an AI coding assistant like Claude Code, Cursor, or GitHub Copilot."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What languages does transcription support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt supports transcription and task extraction in 12 languages. Your team can speak in their preferred language during the meeting, and contextprompt will transcribe and extract tasks accordingly. Multi-language support is available on the Pro plan."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use contextprompt with any AI coding tool?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The extracted tasks are plain structured text with file paths and implementation steps. You can copy and paste them into any AI coding assistant: Claude Code, Cursor, GitHub Copilot, Windsurf, Aider, or anything else that accepts a text prompt. There is no lock-in to a specific tool."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is GitHub issue integration?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the Pro plan, you can connect a GitHub repository and analyze open issues against your repo structure. contextprompt reads the issue description, scans your codebase, and generates an implementation plan with specific file paths and steps, just like it does for meeting-derived tasks."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does contextprompt cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt offers two plans: Free ($0/month) with 1 hour of meeting recording per month, repo-aware task extraction, all meeting platforms, and full dashboard access; and Pro ($30/month) with 15 hours of meeting recording per month, plus GitHub issue integration, multi-language support, and priority support. No credit card is required for the Free plan."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What counts toward my recording time?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Recording time is measured as the duration the contextprompt bot is active in your meeting. A 30-minute meeting uses 30 minutes of your monthly allowance. Unused time does not roll over to the next month."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I cancel my Pro subscription at any time?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. You can cancel your Pro subscription at any time from the dashboard settings. Your Pro features will remain active until the end of your current billing period. After that, your account reverts to the Free plan. There are no cancellation fees or long-term commitments."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my meeting data private and secure?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Meeting recordings are processed server-side and are not shared with third parties. Transcripts and extracted tasks are stored in your account and are only accessible to you. Repo scanning happens via the browser's File System Access API, meaning your source code is read locally and only the file structure is sent to the server for task mapping."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will meeting participants know the bot is recording?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The contextprompt bot joins the meeting as a visible participant named 'contextprompt.' All participants can see it in the attendee list, and most platforms also display a recording indicator. This ensures full transparency with everyone in the meeting."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How accurate is the transcription?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt uses production-grade speech-to-text that handles multiple speakers, technical terminology, and cross-talk. Accuracy depends on audio quality, but in typical meeting conditions with decent microphones, you can expect high accuracy with correct speaker attribution."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What programming languages and frameworks does repo scanning support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Repo scanning works with any codebase. The file tree scanner is language-agnostic and will index file paths, directory structure, and basic metadata for any project. For TypeScript and JavaScript projects, contextprompt additionally extracts exported functions, classes, types, and interfaces using AST parsing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does it take to get tasks after a meeting ends?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Typically a few minutes. After the meeting ends, the bot uploads the recording, the transcript is generated, and the AI runs multi-stage extraction against your connected repos. For a typical 30-minute meeting, you can expect tasks to appear in your dashboard within 2 to 5 minutes."
+        }
+      }
+    ]
+  }
+  </script>
+</body>
+</html>

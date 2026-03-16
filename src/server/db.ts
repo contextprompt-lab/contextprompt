@@ -92,6 +92,48 @@ function runMigrations(db: Database.Database): void {
     );
   `);
 
+  // --- Blog tables ---
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS blog_posts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT NOT NULL UNIQUE,
+      title TEXT NOT NULL,
+      meta_description TEXT,
+      meta_keywords TEXT,
+      content_html TEXT NOT NULL,
+      content_text TEXT,
+      author TEXT NOT NULL DEFAULT 'contextprompt',
+      published_at TEXT,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      status TEXT NOT NULL DEFAULT 'draft',
+      research_sources_json TEXT,
+      generation_model TEXT,
+      pipeline_log_json TEXT,
+      word_count INTEGER NOT NULL DEFAULT 0,
+      reading_time_minutes INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS blog_categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE
+    );
+
+    CREATE TABLE IF NOT EXISTS blog_tags (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE
+    );
+
+    CREATE TABLE IF NOT EXISTS blog_post_tags (
+      post_id INTEGER NOT NULL,
+      tag_id INTEGER NOT NULL,
+      PRIMARY KEY (post_id, tag_id),
+      FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+      FOREIGN KEY (tag_id) REFERENCES blog_tags(id) ON DELETE CASCADE
+    );
+  `);
+
   // Add github columns to repos table (idempotent)
   try { db.exec('ALTER TABLE repos ADD COLUMN github_owner TEXT'); } catch { /* already exists */ }
   try { db.exec('ALTER TABLE repos ADD COLUMN github_repo TEXT'); } catch { /* already exists */ }
@@ -605,6 +647,110 @@ export function deleteSetting(key: string, userId?: number): void {
     return;
   }
   db.prepare('DELETE FROM settings WHERE key = ?').run(key);
+}
+
+// --- Blog Posts ---
+
+export interface BlogPostRow {
+  id: number;
+  slug: string;
+  title: string;
+  meta_description: string | null;
+  meta_keywords: string | null;
+  content_html: string;
+  content_text: string | null;
+  author: string;
+  published_at: string | null;
+  updated_at: string;
+  status: string;
+  research_sources_json: string | null;
+  generation_model: string | null;
+  pipeline_log_json: string | null;
+  word_count: number;
+  reading_time_minutes: number;
+}
+
+export function getPublishedBlogPosts(limit = 50, offset = 0): BlogPostRow[] {
+  const db = getDb();
+  return db.prepare(
+    "SELECT id, slug, title, meta_description, author, published_at, word_count, reading_time_minutes FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC LIMIT ? OFFSET ?"
+  ).all(limit, offset) as BlogPostRow[];
+}
+
+export function getBlogPostBySlug(slug: string): BlogPostRow | undefined {
+  const db = getDb();
+  return db.prepare("SELECT * FROM blog_posts WHERE slug = ? AND status = 'published'").get(slug) as BlogPostRow | undefined;
+}
+
+export function getRecentBlogPosts(limit = 10): BlogPostRow[] {
+  const db = getDb();
+  return db.prepare(
+    "SELECT id, slug, title, meta_description, published_at FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC LIMIT ?"
+  ).all(limit) as BlogPostRow[];
+}
+
+export function insertBlogPost(data: {
+  slug: string;
+  title: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  content_html: string;
+  content_text?: string;
+  author?: string;
+  status?: string;
+  research_sources_json?: string;
+  generation_model?: string;
+  pipeline_log_json?: string;
+  word_count?: number;
+  reading_time_minutes?: number;
+}): number {
+  const db = getDb();
+  const result = db.prepare(`
+    INSERT INTO blog_posts (slug, title, meta_description, meta_keywords, content_html, content_text, author, published_at, status, research_sources_json, generation_model, pipeline_log_json, word_count, reading_time_minutes)
+    VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?)
+  `).run(
+    data.slug,
+    data.title,
+    data.meta_description ?? null,
+    data.meta_keywords ?? null,
+    data.content_html,
+    data.content_text ?? null,
+    data.author ?? 'contextprompt',
+    data.status ?? 'published',
+    data.research_sources_json ?? null,
+    data.generation_model ?? null,
+    data.pipeline_log_json ?? null,
+    data.word_count ?? 0,
+    data.reading_time_minutes ?? 0,
+  );
+  return result.lastInsertRowid as number;
+}
+
+export function getBlogPostCount(): number {
+  const db = getDb();
+  const row = db.prepare("SELECT COUNT(*) as count FROM blog_posts WHERE status = 'published'").get() as { count: number };
+  return row.count;
+}
+
+export function getAllBlogSlugs(): string[] {
+  const db = getDb();
+  const rows = db.prepare("SELECT slug FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC").all() as { slug: string }[];
+  return rows.map(r => r.slug);
+}
+
+// --- Blog Tags ---
+
+export function upsertBlogTag(name: string, slug: string): number {
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM blog_tags WHERE slug = ?').get(slug) as { id: number } | undefined;
+  if (existing) return existing.id;
+  const result = db.prepare('INSERT INTO blog_tags (name, slug) VALUES (?, ?)').run(name, slug);
+  return result.lastInsertRowid as number;
+}
+
+export function linkBlogPostTag(postId: number, tagId: number): void {
+  const db = getDb();
+  db.prepare('INSERT OR IGNORE INTO blog_post_tags (post_id, tag_id) VALUES (?, ?)').run(postId, tagId);
 }
 
 export function closeDb(): void {

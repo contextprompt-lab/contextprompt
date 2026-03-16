@@ -20,6 +20,8 @@ export function initSupportModal() {
   }
 
   link.addEventListener('click', open);
+  const footerLink = document.getElementById('footer-support-link');
+  if (footerLink) footerLink.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
   backdrop.addEventListener('click', (e) => {
     if (e.target === backdrop) close();

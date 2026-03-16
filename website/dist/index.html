@@ -6,19 +6,33 @@
   <title>contextprompt — Turn meetings into repo-aware coding tasks</title>
   <meta name="description" content="contextprompt joins your Zoom, Google Meet, Slack, or Teams call, records and transcribes, then scans your repos and extracts structured coding tasks with real file paths.">
 
+  <!-- SEO -->
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/">
+
   <!-- Open Graph -->
   <meta property="og:title" content="contextprompt — Turn meetings into repo-aware coding tasks">
   <meta property="og:description" content="Your meeting decides what to build. contextprompt tells Claude Code how.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="/og-image.svg">
+  <meta property="og:url" content="https://contextprompt.app/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="contextprompt — Turn meetings into repo-aware coding tasks">
   <meta name="twitter:description" content="Your meeting decides what to build. contextprompt tells Claude Code how.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
 
-  <!-- Favicon -->
+  <!-- Favicon & Icons -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,10 +40,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
-  <script type="module" crossorigin src="/assets/main-CLzMU1MM.js"></script>
+  <script type="module" crossorigin src="/assets/main-C_6-eFyM.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-BA_UFvZ3.css">
+  <link rel="stylesheet" crossorigin href="/assets/main-BOKQ0QFz.css">
   <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
+  <link rel="stylesheet" crossorigin href="/assets/components-Bbc_4yBY.css">
 </head>
 <body>
 
@@ -41,6 +56,8 @@
         <a href="#how-it-works">How it works</a>
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
         <a href="#" id="support-link">Support</a>
         <a href="/app/" class="nav-link--cta">Get Started Free</a>
       </div>
@@ -471,8 +488,32 @@
 
   <!-- ====== FOOTER ====== -->
   <footer class="footer">
-    <div class="container footer-inner">
-      <span class="footer-logo">contextprompt</span>
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="#" id="footer-support-link">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Legal</h4>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
     </div>
   </footer>
 
@@ -493,5 +534,100 @@
   </div>
 
   <!-- Scripts -->
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "contextprompt",
+    "description": "AI meeting assistant that joins your Zoom, Google Meet, Slack, or Teams call, transcribes the conversation, scans your repos, and extracts structured coding tasks with real file paths.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "url": "https://contextprompt.app",
+    "offers": [
+      { "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free" },
+      { "@type": "Offer", "price": "30", "priceCurrency": "USD", "name": "Pro", "billingIncrement": "P1M" }
+    ],
+    "featureList": [
+      "Meeting transcription for Zoom, Google Meet, Slack, and Teams",
+      "Repo-aware task extraction with real file paths",
+      "AI-powered coding task generation",
+      "One-click copy to AI coding assistants",
+      "GitHub issue integration",
+      "12 language support"
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "contextprompt",
+    "url": "https://contextprompt.app",
+    "logo": "https://contextprompt.app/favicon.svg"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does contextprompt work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Paste a Zoom, Google Meet, Slack, or Teams meeting link. The contextprompt bot joins your call, records and transcribes, then scans your connected repos and extracts structured coding tasks with real file paths you can hand to any AI coding assistant."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What meeting platforms does contextprompt support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt supports Zoom, Google Meet, Slack Huddles, and Microsoft Teams."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need API keys to use contextprompt?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. contextprompt handles all AI processing server-side. You just paste a meeting link and get structured tasks — no API keys or setup required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What makes contextprompt different from other meeting tools?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt is the only tool that combines meeting transcription with repo-aware code analysis. It scans your actual codebase to map discussion points to real file paths, exports, and types — producing tasks that AI coding assistants can execute immediately."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does contextprompt cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt offers a free plan with 1 hour per month of meeting recording, and a Pro plan at $30 per month with 15 hours of recording, GitHub issue integration, multi-language support, and priority support."
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to turn meetings into coding tasks with contextprompt",
+    "step": [
+      { "@type": "HowToStep", "position": 1, "name": "Connect your repos", "text": "Sign in with Google, then add your repos. contextprompt scans file paths, exports, and types." },
+      { "@type": "HowToStep", "position": 2, "name": "Paste a meeting link", "text": "Paste a Zoom, Google Meet, Slack, or Teams link. The contextprompt bot joins and records." },
+      { "@type": "HowToStep", "position": 3, "name": "Get structured tasks", "text": "contextprompt extracts coding tasks with real file paths, confidence levels, and implementation steps." },
+      { "@type": "HowToStep", "position": 4, "name": "Hand tasks to your AI tool", "text": "One-click copy. Paste into Claude Code or any AI coding assistant and start shipping." }
+    ]
+  }
+  </script>
 </body>
 </html>

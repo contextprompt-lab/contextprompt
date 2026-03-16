@@ -1,0 +1,14 @@
+{
+  "name": "contextprompt",
+  "short_name": "contextprompt",
+  "description": "Turn meetings into repo-aware coding tasks",
+  "start_url": "/app/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}

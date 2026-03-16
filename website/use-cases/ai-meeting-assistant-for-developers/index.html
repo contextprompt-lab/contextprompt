@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Meeting Assistant Built for Developers — contextprompt</title>
+  <meta name="description" content="contextprompt is an AI meeting assistant designed specifically for developers. It joins your calls, transcribes discussions, scans your repos, and extracts structured coding tasks with real file paths.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/use-cases/ai-meeting-assistant-for-developers/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="AI Meeting Assistant Built for Developers — contextprompt">
+  <meta property="og:description" content="Generic meeting assistants don't understand code. contextprompt is built for engineering teams — it scans your repos and extracts structured coding tasks from meeting transcripts.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/use-cases/ai-meeting-assistant-for-developers/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Meeting Assistant Built for Developers — contextprompt">
+  <meta name="twitter:description" content="Generic meeting assistants don't understand code. contextprompt is built for engineering teams — it extracts structured coding tasks from meeting transcripts.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/css/reset.css">
+  <link rel="stylesheet" href="/src/css/tokens.css">
+  <link rel="stylesheet" href="/src/css/layout.css">
+  <link rel="stylesheet" href="/src/css/components.css">
+
+  <style>
+    .uc-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .uc-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 800px;
+      margin: 0 auto 1.5rem;
+    }
+    .uc-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .uc-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .uc-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .uc-cta:hover { opacity: 0.85; }
+    .uc-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+
+    .uc-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .uc-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .uc-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    .uc-problems {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-problem-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .uc-problem-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #f85149;
+      margin-bottom: 0.75rem;
+    }
+    .uc-problem-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .uc-problem-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-compare {
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 640px) {
+      .uc-compare { grid-template-columns: 1fr; }
+    }
+    .uc-compare-col {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .uc-compare-col--them {
+      border-top: 3px solid #f85149;
+    }
+    .uc-compare-col--us {
+      border-top: 3px solid #3fb950;
+    }
+    .uc-compare-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+    .uc-compare-col--them .uc-compare-label { color: #f85149; }
+    .uc-compare-col--us .uc-compare-label { color: #3fb950; }
+    .uc-compare-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .uc-compare-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.5;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .uc-compare-col--them .uc-compare-list li::before {
+      content: "x";
+      position: absolute;
+      left: 0;
+      color: #f85149;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+    .uc-compare-col--us .uc-compare-list li::before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    .uc-solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-solution-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .uc-solution-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .uc-solution-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-steps {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .uc-step {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+    .uc-step-num {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #161b22;
+      border: 1px solid #3fb950;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .uc-step-content h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.35rem;
+    }
+    .uc-step-content p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-testimonial {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .uc-testimonial-stars {
+      color: #f0c000;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .uc-testimonial blockquote {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      color: #e6e6e6;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .uc-testimonial-author {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .uc-testimonial-name {
+      color: #e6e6e6;
+      font-weight: 500;
+    }
+
+    .uc-pricing-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .uc-pricing-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex: 1;
+      min-width: 220px;
+    }
+    .uc-pricing-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.25rem;
+    }
+    .uc-pricing-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .uc-pricing-detail {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    .uc-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .uc-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="uc-hero">
+    <div class="container">
+      <h1>The <u>AI meeting assistant for developers</u> that understands your code</h1>
+      <p class="uc-hero-sub">An AI meeting assistant for developers needs to do more than transcribe. contextprompt is the first meeting tool that scans your repositories and extracts structured coding tasks with real file paths, implementation steps, and confidence levels. It joins your Zoom, Google Meet, Slack, or Teams call as a bot, records the conversation, and produces output that AI coding assistants can execute immediately.</p>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">No API keys needed. Free plan includes 1 hour/month.</p>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Why generic meeting tools fail developers</h2>
+      <p class="uc-section-sub">Tools like Otter.ai and Fireflies produce meeting summaries. Engineering teams need implementation plans.</p>
+
+      <div class="uc-problems">
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">//</div>
+          <h3>No repo awareness</h3>
+          <p>Generic meeting assistants have no concept of your codebase. When someone discusses "the authentication middleware," these tools record the words but cannot map them to <code>src/middleware/auth.ts</code>. You still have to do the translation manually.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">?!</div>
+          <h3>Summaries instead of tasks</h3>
+          <p>Meeting summaries are written for managers, not engineers. "The team discussed updating the auth flow" is useless to the developer who needs to implement it. Developers need file paths, implementation steps, and specific changes, not a paragraph restating the conversation.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">~></div>
+          <h3>Output that AI tools cannot use</h3>
+          <p>You cannot paste a meeting summary into Claude Code or Cursor and expect working code. AI coding assistants need structured input with file paths and concrete steps. Generic meeting output creates another manual translation step instead of eliminating one.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Generic vs. developer-built</h2>
+      <p class="uc-section-sub">The difference between a meeting summary and an implementation plan.</p>
+
+      <div class="uc-compare">
+        <div class="uc-compare-col uc-compare-col--them">
+          <div class="uc-compare-label">Generic meeting tools</div>
+          <ul class="uc-compare-list">
+            <li>Produce text summaries of what was said</li>
+            <li>List vague "action items" without file context</li>
+            <li>No awareness of your codebase structure</li>
+            <li>Output requires manual translation to tickets</li>
+            <li>Designed for sales teams and managers</li>
+          </ul>
+        </div>
+        <div class="uc-compare-col uc-compare-col--us">
+          <div class="uc-compare-label">contextprompt</div>
+          <ul class="uc-compare-list">
+            <li>Extracts structured coding tasks with steps</li>
+            <li>Maps discussions to real file paths in your repos</li>
+            <li>Scans exports, types, and function signatures</li>
+            <li>Output is ready for AI coding assistants</li>
+            <li>Built specifically for engineering teams</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE SOLUTION -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Built for how developers actually work</h2>
+      <p class="uc-section-sub">contextprompt bridges the gap between meeting discussions and code changes.</p>
+
+      <div class="uc-solution-grid">
+        <div class="uc-solution-card">
+          <h3>Understands your codebase</h3>
+          <p>Connect your repositories and contextprompt builds a map of your file tree, exports, function signatures, and types. When a task is extracted from a meeting, it references real files in your project, not generic placeholders.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Structured for AI tools</h3>
+          <p>Every task includes a title, description, affected files, implementation steps, and confidence level. Copy it into Claude Code, Cursor, or any AI coding assistant and it can start working immediately. No reformatting required.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Speaker-attributed context</h3>
+          <p>Each task links back to the exact transcript quotes that prompted it, with speaker names. When you need to know whether the PM or the tech lead made a specific request, the attribution is already there.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>How it works</h2>
+      <p class="uc-section-sub">Three minutes of setup, then it runs on autopilot.</p>
+
+      <div class="uc-steps">
+        <div class="uc-step">
+          <div class="uc-step-num">1</div>
+          <div class="uc-step-content">
+            <h3>Connect your repos</h3>
+            <p>Add your project repositories from the dashboard. contextprompt indexes your file tree, exported functions, types, and signatures to build a codebase map.</p>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-step-num">2</div>
+          <div class="uc-step-content">
+            <h3>Invite the bot to your meeting</h3>
+            <p>Paste a Zoom, Google Meet, Slack, or Teams link. The contextprompt bot joins as a participant, records the audio, and transcribes with speaker identification.</p>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-step-num">3</div>
+          <div class="uc-step-content">
+            <h3>Get repo-aware coding tasks</h3>
+            <p>After the meeting, contextprompt cross-references the transcript with your codebase. Tasks appear in your dashboard with file paths, steps, confidence levels, and transcript evidence.</p>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-step-num">4</div>
+          <div class="uc-step-content">
+            <h3>Hand off to your AI coding tool</h3>
+            <p>One-click copy any task. Paste it into Claude Code, Cursor, Copilot, or your preferred AI coding assistant. The structured format means it can start implementing right away.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="uc-section">
+    <div class="container">
+      <div class="uc-testimonial">
+        <div class="uc-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <blockquote>&ldquo;Meeting tools don&rsquo;t understand code. Coding agents don&rsquo;t attend meetings. contextprompt is the glue that was missing.&rdquo;</blockquote>
+        <div class="uc-testimonial-author">
+          <span class="uc-testimonial-name">Sarah K.</span> &mdash; Senior Developer
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Simple pricing</h2>
+      <p class="uc-section-sub">Try the AI meeting assistant built for developers. Start free, upgrade when you need more.</p>
+
+      <div class="uc-pricing-row">
+        <div class="uc-pricing-card">
+          <h3>Free</h3>
+          <div class="uc-pricing-amount">$0</div>
+          <p class="uc-pricing-detail">1 hour/month of recording</p>
+          <p class="uc-pricing-detail">Repo-aware task extraction</p>
+          <p class="uc-pricing-detail">All meeting platforms</p>
+        </div>
+        <div class="uc-pricing-card">
+          <h3>Pro</h3>
+          <div class="uc-pricing-amount">$30<span style="font-size:1rem;color:#999">/mo</span></div>
+          <p class="uc-pricing-detail">15 hours/month of recording</p>
+          <p class="uc-pricing-detail">GitHub issue integration</p>
+          <p class="uc-pricing-detail">Priority support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="uc-bottom-cta">
+    <div class="container">
+      <h2>Your meeting tool should understand code.<br>This one does.</h2>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Legal</h4>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "contextprompt",
+    "description": "AI meeting assistant built for developers. Joins your Zoom, Google Meet, Slack, or Teams call, transcribes the conversation, scans your repositories, and extracts structured coding tasks with real file paths and implementation steps.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "url": "https://contextprompt.app",
+    "offers": [
+      { "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free" },
+      { "@type": "Offer", "price": "30", "priceCurrency": "USD", "name": "Pro", "billingIncrement": "P1M" }
+    ],
+    "featureList": [
+      "AI meeting assistant for developers",
+      "Repo-aware coding task extraction",
+      "Real file path mapping from meeting discussions",
+      "Structured output for AI coding assistants",
+      "Support for Zoom, Google Meet, Slack, and Teams"
+    ]
+  }
+  </script>
+</body>
+</html>

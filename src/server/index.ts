@@ -13,9 +13,11 @@ import { stripeRouter, stripeWebhookRouter } from './routes/stripe.js';
 import { adminRouter } from './routes/admin.js';
 import { supportRouter } from './routes/support.js';
 import { requireAuth, requirePro } from './middleware/auth.js';
+import { blogRouter } from './routes/blog.js';
 import { closeDb } from './db.js';
 import { attachWebSocket } from './ws.js';
 import { logger } from '../utils/logger.js';
+import cron from 'node-cron';
 
 export const DEFAULT_PORT = 3847;
 
@@ -48,6 +50,9 @@ export function createServer() {
   app.use('/api/stripe', stripeRouter);
   app.use('/api/admin', adminRouter);
 
+  // --- Public blog routes (no auth, dynamic HTML) ---
+  app.use('/blog', blogRouter);
+
   // Serve website + dashboard static files (built output)
   // Try website/dist first (contains both marketing site and /app dashboard)
   // Fall back to standalone dashboard/dist for dev
@@ -77,6 +82,16 @@ export function createServer() {
     });
   }
 
+  // 404 catch-all for non-API, non-app routes
+  app.use((_req, res) => {
+    const notFoundPath = staticRoot ? join(staticRoot, '404.html') : '';
+    if (notFoundPath && existsSync(notFoundPath)) {
+      res.status(404).sendFile(notFoundPath);
+    } else {
+      res.status(404).send('Not found');
+    }
+  });
+
   return app;
 }
 
@@ -87,6 +102,36 @@ export async function startServer(port = DEFAULT_PORT): Promise<void> {
     const server = app.listen(port, () => {
       attachWebSocket(server);
       logger.success(`Dashboard running at http://localhost:${port}`);
+
+      // Blog generation cron — runs daily at 9am and 3pm UTC by default
+      // Set BLOG_CRON_SCHEDULE to customize, or BLOG_CRON_ENABLED=false to disable
+      const cronEnabled = process.env.BLOG_CRON_ENABLED !== 'false' && !!process.env.OPENAI_API_KEY;
+      const cronSchedule = process.env.BLOG_CRON_SCHEDULE || '0 14 * * *';
+
+      if (cronEnabled) {
+        let blogRunning = false;
+        cron.schedule(cronSchedule, async () => {
+          if (blogRunning) {
+            logger.info('Blog pipeline already running, skipping');
+            return;
+          }
+          blogRunning = true;
+          try {
+            logger.info('Blog cron: starting pipeline...');
+            const { runPipeline } = await import('../blog/pipeline.js');
+            await runPipeline();
+            logger.success('Blog cron: pipeline complete');
+          } catch (err) {
+            logger.error(`Blog cron: pipeline failed — ${err}`);
+          } finally {
+            blogRunning = false;
+          }
+        });
+        logger.info(`Blog cron scheduled: "${cronSchedule}" (2 posts per run)`);
+      } else if (!process.env.OPENAI_API_KEY) {
+        logger.info('Blog cron disabled — OPENAI_API_KEY not set');
+      }
+
       resolve();
     });
 

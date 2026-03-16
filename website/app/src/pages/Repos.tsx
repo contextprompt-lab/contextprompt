@@ -44,6 +44,8 @@ import {
   scanDirectoryHandle,
   saveDirectoryHandle,
   removeDirectoryHandle,
+  detectBrowserRepoGithubRemote,
+  detectGithubRemoteFromHandle,
   type Repo,
   type BrowseResult,
 } from "../api";
@@ -89,9 +91,40 @@ export function Repos() {
     setConnectingId(id);
     setError(null);
     try {
-      await connectRepoGithub(id);
-      loadRepos();
-    } catch (err) {
+      // Try client-side detection first (works on deployed server without git)
+      const remote = await detectBrowserRepoGithubRemote(id);
+      if (remote) {
+        await connectRepoGithub(id, remote.owner, remote.repo);
+        loadRepos();
+        return;
+      }
+
+      // No stored handle — try server-side detection (works when running locally)
+      try {
+        await connectRepoGithub(id);
+        loadRepos();
+        return;
+      } catch {
+        // Server-side detection failed too — prompt user to select the folder
+      }
+
+      // Last resort: ask user to pick the folder so we can read .git/config
+      if (supportsFileSystemAccess()) {
+        const dirHandle = await (window as any).showDirectoryPicker({ mode: "read" });
+        const detected = await detectGithubRemoteFromHandle(dirHandle);
+        if (!detected) {
+          setError("No GitHub remote found in this folder's .git/config.");
+          return;
+        }
+        await connectRepoGithub(id, detected.owner, detected.repo);
+        // Save handle for future use
+        await saveDirectoryHandle(id, dirHandle);
+        loadRepos();
+      } else {
+        setError("Could not detect GitHub remote.");
+      }
+    } catch (err: any) {
+      if (err.name === "AbortError") return; // User cancelled folder picker
       setError((err as Error).message);
     } finally {
       setConnectingId(null);

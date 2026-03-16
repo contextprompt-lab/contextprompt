@@ -185,6 +185,26 @@ export async function removeDirectoryHandle(repoId: number): Promise<void> {
   });
 }
 
+/**
+ * Detect GitHub remote for a browser repo by loading its stored handle
+ * and reading .git/config client-side.
+ */
+export async function detectBrowserRepoGithubRemote(
+  repoId: number,
+): Promise<{ owner: string; repo: string } | null> {
+  const handle = await getDirectoryHandle(repoId);
+  if (!handle) return null;
+
+  // Verify we still have permission
+  const permission = await (handle as any).queryPermission({ mode: 'read' });
+  if (permission !== 'granted') {
+    const requested = await (handle as any).requestPermission({ mode: 'read' });
+    if (requested !== 'granted') return null;
+  }
+
+  return detectGithubRemoteFromHandle(handle);
+}
+
 // --- Client-side repo scanner ---
 
 const SKIP_DIRS = new Set([
@@ -265,7 +285,7 @@ const GITHUB_REMOTE_RE = /github\.com[/:]([^/]+)\/([^/.]+)/;
 /**
  * Try to read .git/config from a directory handle and extract the GitHub remote URL.
  */
-async function detectGithubRemoteFromHandle(
+export async function detectGithubRemoteFromHandle(
   dirHandle: FileSystemDirectoryHandle,
 ): Promise<{ owner: string; repo: string } | null> {
   try {

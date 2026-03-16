@@ -97,3 +97,43 @@ contextprompt uses [Recall.ai](https://recall.ai) to join meetings across all ma
 - **Microsoft Teams** — joins via meeting URL
 
 The bot appears as a named participant ("contextprompt") that your team admits from the waiting room.
+
+## Development
+
+```bash
+npm install
+npm run dev        # Run server via tsx (development)
+npm run build      # Build with tsup (ESM + .d.ts)
+npm start          # Run built version
+npm test           # Run vitest test suite
+```
+
+### Environment variables
+
+Create `~/.contextprompt/.env`:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+RECALL_API_KEY=...
+STRIPE_SECRET_KEY=sk_...
+```
+
+### CLI mode
+
+For local audio capture (without Recall.ai bot):
+
+```bash
+contextprompt start --repos .    # Record via system audio
+contextprompt stop               # Stop recording
+contextprompt config             # Set up API keys
+contextprompt issue <url>        # Analyze a GitHub issue
+```
+
+### Architecture
+
+- **Backend**: Express server (port 3847) with SQLite, JWT auth, Stripe billing
+- **Frontend**: React + MUI dashboard at `/app`
+- **Transcription**: Recall.ai bots join meetings, webhook triggers processing when done
+- **Repo scanning**: Parse-only TypeScript AST extracts exports/imports, respects .gitignore, 30k token budget per repo
+- **Task extraction**: Multi-stage Claude pipeline — project summary → file name search → keyword scoring → content search → Claude analysis with Zod-validated JSON
+- **Output**: Structured markdown with task tables, dependency chains, confidence levels, and copy-paste agent execution blocks for Claude Code

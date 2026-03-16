@@ -53,6 +53,37 @@ export function createServer() {
   // --- Public blog routes (no auth, dynamic HTML) ---
   app.use('/blog', blogRouter);
 
+  // Dynamic sitemap — merges static pages + blog posts into one file
+  app.get('/sitemap.xml', (_req, res) => {
+    const { getAllBlogSlugs } = require('./db.js');
+    const slugs: string[] = getAllBlogSlugs();
+    const staticPages = [
+      { loc: '/', changefreq: 'weekly', priority: '1.0' },
+      { loc: '/playground/', changefreq: 'monthly', priority: '0.7' },
+      { loc: '/faq/', changefreq: 'monthly', priority: '0.8' },
+      { loc: '/privacy/', changefreq: 'yearly', priority: '0.3' },
+      { loc: '/terms/', changefreq: 'yearly', priority: '0.3' },
+      { loc: '/blog/', changefreq: 'daily', priority: '0.9' },
+      { loc: '/use-cases/meeting-transcription-to-coding-tasks/', changefreq: 'monthly', priority: '0.8' },
+      { loc: '/use-cases/ai-meeting-assistant-for-developers/', changefreq: 'monthly', priority: '0.8' },
+      { loc: '/use-cases/sprint-planning-automation/', changefreq: 'monthly', priority: '0.8' },
+    ];
+
+    const urls = [
+      ...staticPages.map(p =>
+        `  <url><loc>https://contextprompt.app${p.loc}</loc><changefreq>${p.changefreq}</changefreq><priority>${p.priority}</priority></url>`
+      ),
+      ...slugs.map(slug =>
+        `  <url><loc>https://contextprompt.app/blog/${slug}/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>`
+      ),
+    ].join('\n');
+
+    res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`);
+  });
+
   // Serve website + dashboard static files (built output)
   // Try website/dist first (contains both marketing site and /app dashboard)
   // Fall back to standalone dashboard/dist for dev

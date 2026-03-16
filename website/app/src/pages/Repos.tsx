@@ -22,8 +22,6 @@ import {
   Breadcrumbs,
   Link,
   Divider,
-  TextField,
-  DialogContentText,
 } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
@@ -77,14 +75,6 @@ export function Repos() {
 
   const [connectingId, setConnectingId] = useState<number | null>(null);
 
-  // GitHub connect dialog state
-  const [githubDialogOpen, setGithubDialogOpen] = useState(false);
-  const [githubDialogRepoId, setGithubDialogRepoId] = useState<number | null>(null);
-  const [githubOwner, setGithubOwner] = useState("");
-  const [githubRepoName, setGithubRepoName] = useState("");
-  const [githubDialogError, setGithubDialogError] = useState<string | null>(null);
-  const [githubDialogLoading, setGithubDialogLoading] = useState(false);
-
   const handleRemove = async (id: number) => {
     try {
       await removeDirectoryHandle(id).catch(() => {}); // Clean up IndexedDB handle
@@ -95,49 +85,14 @@ export function Repos() {
     }
   };
 
-  const openGithubDialog = (id: number) => {
-    setGithubDialogRepoId(id);
-    setGithubOwner("");
-    setGithubRepoName("");
-    setGithubDialogError(null);
-    setGithubDialogLoading(false);
-    setGithubDialogOpen(true);
-  };
-
-  const handleGithubDialogSubmit = async () => {
-    if (!githubDialogRepoId) return;
-    if (!githubOwner.trim() || !githubRepoName.trim()) {
-      setGithubDialogError("Both owner and repo name are required.");
-      return;
-    }
-    setGithubDialogLoading(true);
-    setGithubDialogError(null);
-    try {
-      await connectRepoGithub(githubDialogRepoId, githubOwner.trim(), githubRepoName.trim());
-      setGithubDialogOpen(false);
-      loadRepos();
-    } catch (err) {
-      setGithubDialogError((err as Error).message);
-    } finally {
-      setGithubDialogLoading(false);
-    }
-  };
-
   const handleConnectGithub = async (id: number) => {
-    const repo = repos.find((r) => r.id === id);
-    // Browser repos can't auto-detect — go straight to manual dialog
-    if (repo && isBrowserRepo(repo)) {
-      openGithubDialog(id);
-      return;
-    }
     setConnectingId(id);
     setError(null);
     try {
       await connectRepoGithub(id);
       loadRepos();
-    } catch {
-      // Auto-detect failed — fall back to manual dialog
-      openGithubDialog(id);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setConnectingId(null);
     }
@@ -163,12 +118,12 @@ export function Repos() {
         });
         setScanProgress("Scanning folder...");
 
-        // Scan locally to verify it works
-        await scanDirectoryHandle(dirHandle, setScanProgress);
+        // Scan locally to verify it works + detect GitHub remote
+        const scanResult = await scanDirectoryHandle(dirHandle, setScanProgress);
 
-        // Register on server (just the name, no files)
+        // Register on server (just the name, no files) — auto-connect GitHub if detected
         setScanProgress("Registering...");
-        const result = await registerBrowserRepo(dirHandle.name);
+        const result = await registerBrowserRepo(dirHandle.name, scanResult.githubRemote);
 
         // Store the handle in IndexedDB for future re-reads
         await saveDirectoryHandle(result.id, dirHandle);
@@ -384,58 +339,6 @@ export function Repos() {
           )}
         </CardContent>
       </Card>
-
-      {/* GitHub connect dialog (manual owner/repo input) */}
-      <Dialog
-        open={githubDialogOpen}
-        onClose={() => setGithubDialogOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Connect to GitHub</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ mb: 2 }}>
-            Enter the GitHub owner and repository name (e.g. for
-            github.com/acme/my-app, owner is "acme" and repo is "my-app").
-          </DialogContentText>
-          {githubDialogError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {githubDialogError}
-            </Alert>
-          )}
-          <TextField
-            autoFocus
-            label="Owner"
-            placeholder="acme"
-            fullWidth
-            size="small"
-            value={githubOwner}
-            onChange={(e) => setGithubOwner(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            label="Repository"
-            placeholder="my-app"
-            fullWidth
-            size="small"
-            value={githubRepoName}
-            onChange={(e) => setGithubRepoName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleGithubDialogSubmit();
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setGithubDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleGithubDialogSubmit}
-            disabled={githubDialogLoading || !githubOwner.trim() || !githubRepoName.trim()}
-          >
-            {githubDialogLoading ? "Connecting..." : "Connect"}
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Folder browser dialog (local dev fallback) */}
       <Dialog

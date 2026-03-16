@@ -30,6 +30,7 @@ export function parseIssueRef(input: string): IssueRef {
   );
 }
 
+/** Check if gh CLI is available (used by CLI command only) */
 export async function checkGhInstalled(): Promise<void> {
   try {
     await execFileAsync('gh', ['--version']);
@@ -41,34 +42,46 @@ export async function checkGhInstalled(): Promise<void> {
   }
 }
 
-export async function fetchIssue(ref: IssueRef): Promise<GitHubIssue> {
-  const target = ref.owner && ref.repo
-    ? `${ref.owner}/${ref.repo}`
-    : undefined;
+async function githubApiFetch(path: string): Promise<unknown> {
+  const url = `https://api.github.com${path}`;
+  const headers: Record<string, string> = {
+    'Accept': 'application/vnd.github+json',
+    'User-Agent': 'contextprompt',
+  };
 
-  const args = ['issue', 'view', String(ref.number),
-    '--json', 'title,body,number,url,author,labels,comments',
-  ];
-  if (target) {
-    args.push('--repo', target);
+  // Use GitHub token from environment if available (for private repos / rate limits)
+  const token = process.env.GITHUB_TOKEN;
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const { stdout } = await execFileAsync('gh', args);
-  const data = JSON.parse(stdout);
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`GitHub API ${res.status}: ${body.slice(0, 200)}`);
+  }
+  return res.json();
+}
+
+export async function fetchIssue(ref: IssueRef): Promise<GitHubIssue> {
+  const [issueData, commentsData] = await Promise.all([
+    githubApiFetch(`/repos/${ref.owner}/${ref.repo}/issues/${ref.number}`) as Promise<Record<string, any>>,
+    githubApiFetch(`/repos/${ref.owner}/${ref.repo}/issues/${ref.number}/comments?per_page=100`) as Promise<Array<Record<string, any>>>,
+  ]);
 
   return {
-    title: data.title ?? '',
-    body: data.body ?? '',
-    number: data.number ?? ref.number,
-    url: data.url ?? '',
-    author: data.author?.login ?? data.author ?? '',
-    labels: (data.labels ?? []).map((l: { name: string } | string) =>
+    title: issueData.title ?? '',
+    body: issueData.body ?? '',
+    number: issueData.number ?? ref.number,
+    url: issueData.html_url ?? '',
+    author: issueData.user?.login ?? '',
+    labels: (issueData.labels ?? []).map((l: { name: string } | string) =>
       typeof l === 'string' ? l : l.name
     ),
-    comments: (data.comments ?? []).map((c: { author?: { login?: string }; body?: string; createdAt?: string }) => ({
-      author: c.author?.login ?? '',
+    comments: (commentsData ?? []).map((c: Record<string, any>) => ({
+      author: c.user?.login ?? '',
       body: c.body ?? '',
-      createdAt: c.createdAt ?? '',
+      createdAt: c.created_at ?? '',
     } satisfies GitHubComment)),
   };
 }
@@ -90,23 +103,21 @@ export async function detectGithubRemote(repoPath: string): Promise<{ owner: str
 }
 
 export async function listOpenIssues(owner: string, repo: string): Promise<GitHubIssueSummary[]> {
-  const { stdout } = await execFileAsync('gh', [
-    'issue', 'list',
-    '--repo', `${owner}/${repo}`,
-    '--state', 'open',
-    '--json', 'number,title,url,author,labels,createdAt',
-    '--limit', '50',
-  ]);
+  const data = await githubApiFetch(
+    `/repos/${owner}/${repo}/issues?state=open&per_page=50&sort=created&direction=desc`
+  ) as Array<Record<string, any>>;
 
-  const data = JSON.parse(stdout);
-  return (data as Array<Record<string, unknown>>).map((d) => ({
-    number: (d.number as number) ?? 0,
-    title: (d.title as string) ?? '',
-    url: (d.url as string) ?? '',
-    author: (d.author as { login?: string })?.login ?? '',
-    labels: ((d.labels ?? []) as Array<{ name: string } | string>).map((l) =>
-      typeof l === 'string' ? l : l.name
-    ),
-    createdAt: (d.createdAt as string) ?? '',
-  }));
+  // GitHub API returns PRs in the issues endpoint — filter them out
+  return data
+    .filter((d) => !d.pull_request)
+    .map((d) => ({
+      number: d.number ?? 0,
+      title: d.title ?? '',
+      url: d.html_url ?? '',
+      author: d.user?.login ?? '',
+      labels: (d.labels ?? []).map((l: { name: string } | string) =>
+        typeof l === 'string' ? l : l.name
+      ),
+      createdAt: d.created_at ?? '',
+    }));
 }

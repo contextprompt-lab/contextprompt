@@ -83,10 +83,10 @@ export const addRepo = (path: string) => request<{ id: number; path: string; nam
   method: 'POST',
   body: JSON.stringify({ path }),
 });
-export const registerBrowserRepo = (name: string) =>
+export const registerBrowserRepo = (name: string, github?: { owner: string; repo: string }) =>
   request<{ id: number; path: string; name: string }>('/repos/register', {
     method: 'POST',
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, github_owner: github?.owner, github_repo: github?.repo }),
   });
 export const removeRepo = (id: number) => request<{ ok: true }>(`/repos/${id}`, { method: 'DELETE' });
 export const connectRepoGithub = (id: number, owner?: string, repo?: string) =>
@@ -260,6 +260,29 @@ function isTestFile(path: string): boolean {
   return /\.(test|spec)\.|__tests__|__mocks__/.test(path);
 }
 
+const GITHUB_REMOTE_RE = /github\.com[/:]([^/]+)\/([^/.]+)/;
+
+/**
+ * Try to read .git/config from a directory handle and extract the GitHub remote URL.
+ */
+async function detectGithubRemoteFromHandle(
+  dirHandle: FileSystemDirectoryHandle,
+): Promise<{ owner: string; repo: string } | null> {
+  try {
+    const gitDir = await dirHandle.getDirectoryHandle('.git');
+    const configFile = await gitDir.getFileHandle('config');
+    const file = await configFile.getFile();
+    const text = await file.text();
+    const match = text.match(GITHUB_REMOTE_RE);
+    if (match) {
+      return { owner: match[1], repo: match[2].replace(/\.git$/, '') };
+    }
+  } catch {
+    // No .git dir or no config — not a problem
+  }
+  return null;
+}
+
 /**
  * Scan a local directory via File System Access API and build a RepoMap.
  * No files are sent to the server — only the resulting RepoMap metadata.
@@ -267,7 +290,7 @@ function isTestFile(path: string): boolean {
 export async function scanDirectoryHandle(
   dirHandle: FileSystemDirectoryHandle,
   onProgress?: (msg: string) => void,
-): Promise<ClientRepoMap> {
+): Promise<ClientRepoMap & { githubRemote?: { owner: string; repo: string } }> {
   const allPaths: string[] = [];
   const fileContents = new Map<string, string>();
   let readme: string | null = null;
@@ -341,6 +364,9 @@ export async function scanDirectoryHandle(
 
   onProgress?.(`Scanned ${fileCount} files, ${sourceFiles.length} source files`);
 
+  // Detect GitHub remote from .git/config
+  const githubRemote = await detectGithubRemoteFromHandle(dirHandle) ?? undefined;
+
   return {
     name: dirHandle.name,
     rootPath: `browser://${dirHandle.name}`,
@@ -348,6 +374,7 @@ export async function scanDirectoryHandle(
     files,
     readme,
     sourceFiles,
+    githubRemote,
   };
 }
 

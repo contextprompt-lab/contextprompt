@@ -10,7 +10,7 @@ import {
   deleteIssueAnalysis,
   getSetting,
 } from '../db.js';
-import { checkGhInstalled, fetchIssue, listOpenIssues } from '../../github/client.js';
+import { fetchIssue, listOpenIssues } from '../../github/client.js';
 import { scanRepo } from '../../repo/scanner.js';
 import { extractTasksFromIssue } from '../../tasks/extractor.js';
 import { loadConfig } from '../../config.js';
@@ -21,13 +21,6 @@ export const issuesRouter = Router();
 // List open issues from GitHub for connected repos
 issuesRouter.get('/', async (req, res) => {
   const repoId = req.query.repo_id ? parseInt(req.query.repo_id as string, 10) : undefined;
-
-  try {
-    await checkGhInstalled();
-  } catch (err) {
-    res.status(400).json({ error: (err as Error).message });
-    return;
-  }
 
   try {
     const repos = repoId ? [getRepo(repoId, req.userId)].filter(Boolean) : getRepos(req.userId);

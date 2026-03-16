@@ -39,7 +39,11 @@ reposRouter.post('/', (req, res) => {
 
 // Register a browser-connected repo (no files on server — scanned client-side)
 reposRouter.post('/register', (req, res) => {
-  const { name } = req.body as { name?: string };
+  const { name, github_owner, github_repo } = req.body as {
+    name?: string;
+    github_owner?: string;
+    github_repo?: string;
+  };
 
   if (!name || typeof name !== 'string') {
     res.status(400).json({ error: 'Missing name' });
@@ -49,6 +53,12 @@ reposRouter.post('/register', (req, res) => {
   const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const browserPath = `browser://${safeName}`;
   const id = addRepo(browserPath, safeName, req.userId);
+
+  // Auto-connect GitHub if detected client-side from .git/config
+  if (github_owner && github_repo) {
+    updateRepoGithub(id, github_owner, github_repo);
+  }
+
   res.json({ id, path: browserPath, name: safeName });
 });
 

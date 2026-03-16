@@ -37,23 +37,23 @@ export function Support() {
   };
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
       <Typography variant="h4" sx={{ mb: 3 }}>
         Contact Support
       </Typography>
 
       {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
+        <Alert severity="success" sx={{ mb: 2, width: '100%', maxWidth: 560 }}>
           Message sent! We'll get back to you soon.
         </Alert>
       )}
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2, width: '100%', maxWidth: 560 }}>
           {error}
         </Alert>
       )}
 
-      <Card sx={{ maxWidth: 560 }}>
+      <Card sx={{ maxWidth: 560, width: '100%' }}>
         <CardContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Have a question or running into an issue? Send us a message and we'll get back to you.

@@ -17,9 +17,9 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.step-card--blue { border-top-color: var(--accent-blue); }
-.step-card--red { border-top-color: var(--accent-red); }
-.step-card--green { border-top-color: var(--accent-green); }
+.step-card--blue,
+.step-card--red,
+.step-card--green { border-top-color: var(--border-subtle); }
 
 .step-card-desc {
   font-size: var(--text-sm);

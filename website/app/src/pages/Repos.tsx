@@ -226,7 +226,8 @@ export function Repos() {
               color="text.secondary"
               sx={{ mt: 1, display: "block" }}
             >
-              Your code is read-only — we never edit, upload, or store anything on our servers.
+              Your folders are read-only — we never edit, upload, or store
+              anything on our servers.
             </Typography>
           )}
         </CardContent>

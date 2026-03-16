@@ -128,6 +128,18 @@ export async function startServer(port = DEFAULT_PORT): Promise<void> {
           }
         });
         logger.info(`Blog cron scheduled: "${cronSchedule}" (2 posts per run)`);
+
+        // Seed blog on first deploy if empty
+        const { getBlogPostCount } = await import('./db.js');
+        if (getBlogPostCount() === 0) {
+          logger.info('Blog is empty — seeding initial posts...');
+          blogRunning = true;
+          import('../blog/pipeline.js')
+            .then(m => m.runPipeline())
+            .then(() => logger.success('Blog seed complete'))
+            .catch(err => logger.error(`Blog seed failed — ${err}`))
+            .finally(() => { blogRunning = false; });
+        }
       } else if (!process.env.OPENAI_API_KEY) {
         logger.info('Blog cron disabled — OPENAI_API_KEY not set');
       }

@@ -14,7 +14,7 @@ import { adminRouter } from './routes/admin.js';
 import { supportRouter } from './routes/support.js';
 import { requireAuth, requirePro } from './middleware/auth.js';
 import { blogRouter } from './routes/blog.js';
-import { closeDb } from './db.js';
+import { closeDb, getBlogPostCount } from './db.js';
 import { attachWebSocket } from './ws.js';
 import { logger } from '../utils/logger.js';
 import cron from 'node-cron';
@@ -130,7 +130,6 @@ export async function startServer(port = DEFAULT_PORT): Promise<void> {
         logger.info(`Blog cron scheduled: "${cronSchedule}" (2 posts per run)`);
 
         // Seed blog on first deploy if empty
-        const { getBlogPostCount } = await import('./db.js');
         if (getBlogPostCount() === 0) {
           logger.info('Blog is empty — seeding initial posts...');
           blogRunning = true;

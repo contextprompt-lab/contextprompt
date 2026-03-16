@@ -1,6 +1,7 @@
 import { initScrollReveal } from './scroll-reveal.js';
 import { initCopyCommand } from './copy-command.js';
 import { initSplitDemo } from './split-demo.js';
+import { initSupportModal } from './support-modal.js';
 
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(link => {
@@ -19,4 +20,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initCopyCommand();
   initSmoothScroll();
   initSplitDemo();
+  initSupportModal();
 });

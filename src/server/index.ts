@@ -11,6 +11,7 @@ import { botsRouter, botsWebhookRouter } from './routes/bots.js';
 import { authRouter } from './routes/auth.js';
 import { stripeRouter, stripeWebhookRouter } from './routes/stripe.js';
 import { adminRouter } from './routes/admin.js';
+import { supportRouter } from './routes/support.js';
 import { requireAuth, requirePro } from './middleware/auth.js';
 import { closeDb } from './db.js';
 import { attachWebSocket } from './ws.js';
@@ -28,6 +29,7 @@ export function createServer() {
   app.use('/api/auth', authRouter);
   app.use('/api/stripe/webhook', stripeWebhookRouter);
   app.use('/api/bots/webhook', botsWebhookRouter);
+  app.use('/api/support', supportRouter);
 
   // Health check (public)
   app.get('/api/health', (_req, res) => {

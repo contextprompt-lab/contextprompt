@@ -25,6 +25,7 @@ import MicIcon from '@mui/icons-material/Mic';
 import FolderIcon from '@mui/icons-material/Folder';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SettingsIcon from '@mui/icons-material/Settings';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StarIcon from '@mui/icons-material/Star';
 import StorageIcon from '@mui/icons-material/Storage';
@@ -56,6 +57,7 @@ const MAIN_NAV: { section: string; items: NavItem[] }[] = [
 ];
 
 const BOTTOM_NAV: NavItem[] = [
+  { label: 'Support', path: '/support', icon: <HelpOutlineIcon /> },
   { label: 'Settings', path: '/settings', icon: <SettingsIcon /> },
 ];
 

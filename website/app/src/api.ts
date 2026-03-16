@@ -549,6 +549,13 @@ export const selectPlan = (plan: string) => request<{ ok: true; plan: string }>(
 export const createCheckoutSession = () => request<{ url: string }>('/stripe/checkout', { method: 'POST' });
 export const createPortalSession = () => request<{ url: string }>('/stripe/portal', { method: 'POST' });
 
+// Support
+export const submitSupportRequest = (email: string, message: string) =>
+  request<{ ok: true }>('/support/contact', {
+    method: 'POST',
+    body: JSON.stringify({ email, message }),
+  });
+
 // Admin
 export const adminQuery = (sql: string) => request<{ columns: string[]; rows: unknown[][] } | { changes: number }>('/admin/query', {
   method: 'POST',

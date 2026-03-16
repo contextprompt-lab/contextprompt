@@ -8,6 +8,7 @@ import { MeetingDetail } from './pages/MeetingDetail';
 import { Recording } from './pages/Recording';
 import { Repos } from './pages/Repos';
 import { Settings } from './pages/Settings';
+import { Support } from './pages/Support';
 import { Issues } from './pages/Issues';
 import { IssueDetail } from './pages/IssueDetail';
 import { Admin } from './pages/Admin';
@@ -28,6 +29,7 @@ export default function App() {
                 <Route path="/issues" element={<Issues />} />
                 <Route path="/issues/:id" element={<IssueDetail />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/support" element={<Support />} />
             <Route path="/admin" element={<Admin />} />
               </Routes>
             </AppLayout>

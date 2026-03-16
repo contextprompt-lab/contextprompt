@@ -26,9 +26,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Styles -->
-  <script type="module" crossorigin src="/assets/main-I4Eh-eXV.js"></script>
+  <script type="module" crossorigin src="/assets/main-CLzMU1MM.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/assets/main-C0uRz5TL.css">
+  <link rel="stylesheet" crossorigin href="/assets/main-BA_UFvZ3.css">
   <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
 </head>
 <body>
@@ -41,6 +41,7 @@
         <a href="#how-it-works">How it works</a>
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
+        <a href="#" id="support-link">Support</a>
         <a href="/app/" class="nav-link--cta">Get Started Free</a>
       </div>
     </div>
@@ -429,13 +430,15 @@
             <h3>Free</h3>
             <div class="pricing-price">$0</div>
           </div>
-          <p class="pricing-desc">Get started with no commitment.</p>
+          <p class="pricing-desc">Everything you need to get started.</p>
           <ul class="pricing-features">
             <li>1 hour/month of meeting recording</li>
             <li>Repo-aware task extraction</li>
             <li>All meeting platforms</li>
-            <li>AI-powered extraction</li>
+            <li>AI-powered analysis</li>
             <li>Dashboard access</li>
+            <li>GitHub issue integration</li>
+            <li>Multi-language support</li>
           </ul>
           <a href="/app/" class="pricing-cta">Get started free</a>
         </div>
@@ -445,13 +448,11 @@
             <h3>Pro</h3>
             <div class="pricing-price">$30<span class="pricing-period"> / mo</span></div>
           </div>
-          <p class="pricing-desc">For teams that ship fast.</p>
+          <p class="pricing-desc">For those who ship every day.</p>
           <ul class="pricing-features">
             <li>15 hours/month of meeting recording</li>
             <li>Everything in Free</li>
-            <li>GitHub issue integration</li>
             <li>Priority support</li>
-            <li>Multi-language support</li>
           </ul>
           <a href="/app/" class="pricing-cta">Start Pro</a>
         </div>
@@ -474,6 +475,22 @@
       <span class="footer-logo">contextprompt</span>
     </div>
   </footer>
+
+  <!-- Support Modal -->
+  <div class="support-modal-backdrop" id="support-modal" aria-hidden="true">
+    <div class="support-modal">
+      <button class="support-modal-close" id="support-modal-close" aria-label="Close">&times;</button>
+      <h2 class="support-modal-title">Contact Support</h2>
+      <form id="support-form">
+        <label class="support-label" for="support-email">Email</label>
+        <input class="support-input" type="email" id="support-email" name="email" required placeholder="you@example.com">
+        <label class="support-label" for="support-message">Message</label>
+        <textarea class="support-input support-textarea" id="support-message" name="message" required placeholder="How can we help?" maxlength="5000" rows="5"></textarea>
+        <button class="support-submit" type="submit" id="support-submit">Send message</button>
+      </form>
+      <div class="support-feedback" id="support-feedback"></div>
+    </div>
+  </div>
 
   <!-- Scripts -->
 </body>

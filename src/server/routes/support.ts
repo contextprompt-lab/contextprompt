@@ -65,7 +65,7 @@ supportRouter.post('/contact', (req, res) => {
 
   resend.emails
     .send({
-      from: 'contextprompt <support@contextprompt.com>',
+      from: 'contextprompt <onboarding@resend.dev>',
       to: supportEmail,
       replyTo: email,
       subject: `[Support] New message from ${email}`,

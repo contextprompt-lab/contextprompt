@@ -56,7 +56,8 @@ function sharedHead(title: string, description: string, canonicalPath: string): 
 
     .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,10,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid #21262d; height: 56px; }
     .nav-inner { display: flex; align-items: center; height: 56px; gap: 24px; }
-    .nav-logo { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.125rem; color: #e6e6e6; flex-shrink: 0; }
+    .nav-logo { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.125rem; color: #e6e6e6; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+    .nav-logo-icon { width: 28px; height: 28px; border-radius: 6px; }
     .nav-links { display: flex; gap: 24px; margin-left: auto; align-items: center; }
     .nav-links a { font-size: 0.875rem; color: #999; transition: color 0.15s; }
     .nav-links a:hover { color: #e6e6e6; }
@@ -66,7 +67,8 @@ function sharedHead(title: string, description: string, canonicalPath: string): 
     .footer { border-top: 1px solid #21262d; padding: 48px 0 32px; }
     .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 32px; }
     .footer-col { display: flex; flex-direction: column; gap: 8px; }
-    .footer-logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #999; font-size: 1rem; }
+    .footer-logo { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #999; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+    .footer-logo-icon { width: 24px; height: 24px; border-radius: 5px; }
     .footer-tagline { font-size: 0.875rem; color: #555; line-height: 1.5; }
     .footer-heading { font-size: 0.75rem; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
     .footer-col a { font-size: 0.875rem; color: #555; transition: color 0.15s; }
@@ -89,7 +91,7 @@ function nav(): string {
   return `
   <nav class="nav">
     <div class="nav-inner container">
-      <a href="/" class="nav-logo">contextprompt</a>
+      <a href="/" class="nav-logo"><img src="/logo-icon.svg" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
       <div class="nav-links">
         <a href="/#how-it-works">How it works</a>
         <a href="/#features">Features</a>
@@ -106,7 +108,7 @@ function footer(): string {
   <footer class="footer">
     <div class="container footer-grid">
       <div class="footer-col">
-        <span class="footer-logo">contextprompt</span>
+        <span class="footer-logo"><img src="/logo-icon.svg" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
         <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
       </div>
       <div class="footer-col">

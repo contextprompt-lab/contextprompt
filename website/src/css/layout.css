@@ -53,6 +53,15 @@ section {
   font-size: var(--text-lg);
   color: var(--text-primary);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nav-logo-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
 }
 
 .nav-links {
@@ -403,6 +412,15 @@ section {
   font-weight: 600;
   color: var(--text-secondary);
   font-size: var(--text-base);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.footer-logo-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
 }
 
 .footer-tagline {

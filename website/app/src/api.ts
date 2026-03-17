@@ -280,7 +280,7 @@ function isTestFile(path: string): boolean {
   return /\.(test|spec)\.|__tests__|__mocks__/.test(path);
 }
 
-const GITHUB_REMOTE_RE = /github\.com[/:]([^/]+)\/([^/.]+)/;
+const GITHUB_REMOTE_RE = /github\.com[/:]([^/\s]+)\/([^/.\s]+)/;
 
 /**
  * Try to read .git/config from a directory handle and extract the GitHub remote URL.

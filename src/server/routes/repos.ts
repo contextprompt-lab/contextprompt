@@ -56,7 +56,9 @@ reposRouter.post('/register', (req, res) => {
 
   // Auto-connect GitHub if detected client-side from .git/config
   if (github_owner && github_repo) {
-    updateRepoGithub(id, github_owner, github_repo);
+    const cleanOwner = github_owner.split(/[\s/]/)[0];
+    const cleanRepo = github_repo.split(/[\s/]/)[0].replace(/\.git$/, '');
+    updateRepoGithub(id, cleanOwner, cleanRepo);
   }
 
   res.json({ id, path: browserPath, name: safeName });
@@ -136,6 +138,10 @@ reposRouter.patch('/:id/github', async (req, res) => {
     owner = detected.owner;
     repoName = detected.repo;
   }
+
+  // Sanitize — strip anything after the repo/owner name
+  owner = owner.split(/[\s/]/)[0];
+  repoName = repoName.split(/[\s/]/)[0].replace(/\.git$/, '');
 
   updateRepoGithub(id, owner, repoName);
   res.json({ ok: true, github_owner: owner, github_repo: repoName });

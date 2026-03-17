@@ -138,6 +138,10 @@ function runMigrations(db: Database.Database): void {
   try { db.exec('ALTER TABLE repos ADD COLUMN github_owner TEXT'); } catch { /* already exists */ }
   try { db.exec('ALTER TABLE repos ADD COLUMN github_repo TEXT'); } catch { /* already exists */ }
 
+  // Clean up corrupted github_repo values (e.g. "RepoName fetch = +refs...")
+  db.exec(`UPDATE repos SET github_repo = TRIM(SUBSTR(github_repo, 1, INSTR(github_repo || ' ', ' ') - 1)) WHERE github_repo LIKE '% %'`);
+  db.exec(`UPDATE repos SET github_owner = TRIM(SUBSTR(github_owner, 1, INSTR(github_owner || ' ', ' ') - 1)) WHERE github_owner LIKE '% %'`);
+
   // --- Auth tables ---
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (

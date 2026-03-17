@@ -3,7 +3,7 @@ import { getSetting, setSetting, deleteSetting } from '../db.js';
 
 export const settingsRouter = Router();
 
-const ALLOWED_KEYS = ['auth_token', 'default_model', 'default_speakers', 'verbose', 'response_language'];
+const ALLOWED_KEYS = ['auth_token', 'default_model', 'default_speakers', 'verbose', 'response_language', 'github_token'];
 
 // Get all settings
 settingsRouter.get('/', (req, res) => {

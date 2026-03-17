@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseIssueRef } from '../client.js';
+import { parseIssueRef, parseGithubRemote } from '../client.js';
 
 describe('parseIssueRef', () => {
   it('parses full GitHub URL', () => {
@@ -42,5 +42,32 @@ describe('parseIssueRef', () => {
 
   it('throws on empty string', () => {
     expect(() => parseIssueRef('')).toThrow('Could not parse issue reference');
+  });
+});
+
+describe('parseGithubRemote', () => {
+  it('parses https remotes', () => {
+    expect(parseGithubRemote('https://github.com/acme/widgets.git')).toEqual({
+      owner: 'acme',
+      repo: 'widgets',
+    });
+  });
+
+  it('parses ssh remotes', () => {
+    expect(parseGithubRemote('git@github.com:acme/widgets.git')).toEqual({
+      owner: 'acme',
+      repo: 'widgets',
+    });
+  });
+
+  it('preserves dots in repo names', () => {
+    expect(parseGithubRemote('git@github.com:acme/repo.js.git')).toEqual({
+      owner: 'acme',
+      repo: 'repo.js',
+    });
+  });
+
+  it('returns null for non-github remotes', () => {
+    expect(parseGithubRemote('git@gitlab.com:acme/widgets.git')).toBeNull();
   });
 });

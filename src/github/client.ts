@@ -42,17 +42,17 @@ export async function checkGhInstalled(): Promise<void> {
   }
 }
 
-async function githubApiFetch(path: string): Promise<unknown> {
+async function githubApiFetch(path: string, token?: string): Promise<unknown> {
   const url = `https://api.github.com${path}`;
   const headers: Record<string, string> = {
     'Accept': 'application/vnd.github+json',
     'User-Agent': 'contextprompt',
   };
 
-  // Use GitHub token from environment if available (for private repos / rate limits)
-  const token = process.env.GITHUB_TOKEN;
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  // Use provided token, fall back to environment variable
+  const authToken = token || process.env.GITHUB_TOKEN;
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
   }
 
   const res = await fetch(url, { headers });
@@ -63,10 +63,10 @@ async function githubApiFetch(path: string): Promise<unknown> {
   return res.json();
 }
 
-export async function fetchIssue(ref: IssueRef): Promise<GitHubIssue> {
+export async function fetchIssue(ref: IssueRef, token?: string): Promise<GitHubIssue> {
   const [issueData, commentsData] = await Promise.all([
-    githubApiFetch(`/repos/${ref.owner}/${ref.repo}/issues/${ref.number}`) as Promise<Record<string, any>>,
-    githubApiFetch(`/repos/${ref.owner}/${ref.repo}/issues/${ref.number}/comments?per_page=100`) as Promise<Array<Record<string, any>>>,
+    githubApiFetch(`/repos/${ref.owner}/${ref.repo}/issues/${ref.number}`, token) as Promise<Record<string, any>>,
+    githubApiFetch(`/repos/${ref.owner}/${ref.repo}/issues/${ref.number}/comments?per_page=100`, token) as Promise<Array<Record<string, any>>>,
   ]);
 
   return {
@@ -86,25 +86,32 @@ export async function fetchIssue(ref: IssueRef): Promise<GitHubIssue> {
   };
 }
 
-const GITHUB_HTTPS_RE = /github\.com[/:]([^/]+)\/([^/.]+)/;
+const GITHUB_REMOTE_RE = /github\.com[/:]([^/\s]+)\/([^/\s]+?)(?:\.git)?$/i;
+
+export function parseGithubRemote(input: string): { owner: string; repo: string } | null {
+  const trimmed = input.trim();
+  const match = trimmed.match(GITHUB_REMOTE_RE);
+  if (!match) return null;
+
+  return {
+    owner: match[1],
+    repo: match[2],
+  };
+}
 
 export async function detectGithubRemote(repoPath: string): Promise<{ owner: string; repo: string } | null> {
   try {
     const { stdout } = await execFileAsync('git', ['-C', repoPath, 'remote', 'get-url', 'origin']);
-    const url = stdout.trim();
-    const match = url.match(GITHUB_HTTPS_RE);
-    if (match) {
-      return { owner: match[1], repo: match[2].replace(/\.git$/, '') };
-    }
-    return null;
+    return parseGithubRemote(stdout);
   } catch {
     return null;
   }
 }
 
-export async function listOpenIssues(owner: string, repo: string): Promise<GitHubIssueSummary[]> {
+export async function listOpenIssues(owner: string, repo: string, token?: string): Promise<GitHubIssueSummary[]> {
   const data = await githubApiFetch(
-    `/repos/${owner}/${repo}/issues?state=open&per_page=50&sort=created&direction=desc`
+    `/repos/${owner}/${repo}/issues?state=open&per_page=50&sort=created&direction=desc`,
+    token,
   ) as Array<Record<string, any>>;
 
   // GitHub API returns PRs in the issues endpoint — filter them out

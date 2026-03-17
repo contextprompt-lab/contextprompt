@@ -9,6 +9,9 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  TextField,
+  Button,
+  Stack,
 } from "@mui/material";
 import { getSettings, setSetting } from "../api";
 
@@ -31,11 +34,13 @@ export function Settings() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [githubToken, setGithubToken] = useState("");
 
   useEffect(() => {
     getSettings()
       .then((s) => {
         setSettings(s);
+        if (s.github_token) setGithubToken(s.github_token);
       })
       .catch((err) => setError(err.message));
   }, []);
@@ -106,6 +111,45 @@ export function Settings() {
           </FormControl>
         </CardContent>
       </Card>
+
+      {/* GitHub Token */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            GitHub Token
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Required for private repos. Create a{" "}
+            <a
+              href="https://github.com/settings/tokens/new?scopes=repo&description=contextprompt"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "inherit" }}
+            >
+              personal access token
+            </a>{" "}
+            with <strong>repo</strong> scope.
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            <TextField
+              fullWidth
+              size="small"
+              type="password"
+              placeholder="ghp_..."
+              value={githubToken}
+              onChange={(e) => setGithubToken(e.target.value)}
+            />
+            <Button
+              variant="contained"
+              onClick={() => handleSave("github_token", githubToken)}
+              disabled={!githubToken.trim()}
+            >
+              Save
+            </Button>
+          </Stack>
+        </CardContent>
+      </Card>
+
     </Box>
   );
 }

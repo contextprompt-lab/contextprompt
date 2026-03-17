@@ -280,7 +280,7 @@ function isTestFile(path: string): boolean {
   return /\.(test|spec)\.|__tests__|__mocks__/.test(path);
 }
 
-const GITHUB_REMOTE_RE = /github\.com[/:]([^/\s]+)\/([^/.\s]+)/;
+const GITHUB_REMOTE_RE = /github\.com[/:]([^/\s]+)\/([^/\s]+?)(?:\.git)?$/im;
 
 /**
  * Try to read .git/config from a directory handle and extract the GitHub remote URL.
@@ -295,7 +295,7 @@ export async function detectGithubRemoteFromHandle(
     const text = await file.text();
     const match = text.match(GITHUB_REMOTE_RE);
     if (match) {
-      return { owner: match[1], repo: match[2].replace(/\.git$/, '') };
+      return { owner: match[1], repo: match[2] };
     }
   } catch {
     // No .git dir or no config — not a problem

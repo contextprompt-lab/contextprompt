@@ -31,10 +31,13 @@ issuesRouter.get('/', async (req, res) => {
       return;
     }
 
+    const githubToken = getSetting('github_token', req.userId);
+
     const allIssues: Array<Record<string, unknown>> = [];
+    const fetchErrors: string[] = [];
     for (const repo of connectedRepos) {
       try {
-        const issues = await listOpenIssues(repo!.github_owner!, repo!.github_repo!);
+        const issues = await listOpenIssues(repo!.github_owner!, repo!.github_repo!, githubToken);
         for (const issue of issues) {
           allIssues.push({
             ...issue,
@@ -45,8 +48,18 @@ issuesRouter.get('/', async (req, res) => {
           });
         }
       } catch (err) {
-        logger.warn(`Failed to fetch issues for ${repo!.github_owner}/${repo!.github_repo}: ${(err as Error).message}`);
+        const message = `Failed to fetch issues for ${repo!.github_owner}/${repo!.github_repo}: ${(err as Error).message}`;
+        logger.warn(message);
+        fetchErrors.push(message);
       }
+    }
+
+    if (allIssues.length === 0 && fetchErrors.length > 0) {
+      const help = githubToken
+        ? 'Check that the connected owner/repo is correct and that the token has access to this repository.'
+        : 'If this is a private repository, add a GitHub token in Settings first.';
+      res.status(502).json({ error: `${fetchErrors.join(' ')} ${help}` });
+      return;
     }
 
     res.json(allIssues);
@@ -182,7 +195,8 @@ issuesRouter.post('/analyze', async (req, res) => {
   // Fire-and-forget analysis
   const model = getSetting('default_model', req.userId) || 'claude-sonnet-4-6';
   const language = getSetting('response_language', req.userId) || undefined;
-  runAnalysis(analysisId, repo.github_owner, repo.github_repo, issue_number, repoPaths, apiKey, model, language);
+  const githubToken = getSetting('github_token', req.userId);
+  runAnalysis(analysisId, repo.github_owner, repo.github_repo, issue_number, repoPaths, apiKey, model, language, githubToken);
 });
 
 // Delete an analysis
@@ -206,11 +220,12 @@ async function runAnalysis(
   apiKey: string,
   model: string,
   language?: string,
+  githubToken?: string,
 ): Promise<void> {
   try {
     // Fetch full issue details
     logger.info(`Fetching issue ${owner}/${repo}#${issueNumber}...`);
-    const issue = await fetchIssue({ owner, repo, number: issueNumber });
+    const issue = await fetchIssue({ owner, repo, number: issueNumber }, githubToken);
 
     // Update the analysis record with issue details
     const db = await import('../db.js');

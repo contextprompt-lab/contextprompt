@@ -12,6 +12,7 @@ import {
 } from '../db.js';
 import { fetchIssue, listOpenIssues } from '../../github/client.js';
 import { scanRepo } from '../../repo/scanner.js';
+import type { RepoMap } from '../../repo/types.js';
 import { extractTasksFromIssue } from '../../tasks/extractor.js';
 import { loadConfig } from '../../config.js';
 import { logger } from '../../utils/logger.js';
@@ -57,7 +58,7 @@ issuesRouter.get('/', async (req, res) => {
     if (allIssues.length === 0 && fetchErrors.length > 0) {
       const help = githubToken
         ? 'Check that the connected owner/repo is correct and that the token has access to this repository.'
-        : 'If this is a private repository, add a GitHub token in Settings first.';
+        : 'If this is a private repository, add a GitHub token in Settings.';
       res.status(502).json({ error: `${fetchErrors.join(' ')} ${help}` });
       return;
     }
@@ -143,7 +144,11 @@ issuesRouter.get('/analyses/:id/status', (req, res) => {
 
 // Trigger analysis for an issue
 issuesRouter.post('/analyze', async (req, res) => {
-  const { repo_id, issue_number } = req.body as { repo_id?: number; issue_number?: number };
+  const { repo_id, issue_number, repo_maps } = req.body as {
+    repo_id?: number;
+    issue_number?: number;
+    repo_maps?: RepoMap[];
+  };
 
   if (!repo_id || !issue_number) {
     res.status(400).json({ error: 'Missing repo_id or issue_number' });
@@ -183,11 +188,14 @@ issuesRouter.post('/analyze', async (req, res) => {
     user_id: req.userId,
   });
 
-  // Gather all dashboard repos for cross-referencing
+  // Gather server-side repos that exist on disk
   const allRepos = getRepos(req.userId);
   const repoPaths = allRepos
     .filter((r) => existsSync(r.path))
     .map((r) => r.path);
+
+  // Client-provided repo maps (from browser File System Access API)
+  const clientRepoMaps = Array.isArray(repo_maps) ? repo_maps as RepoMap[] : [];
 
   // Return immediately, run analysis async
   res.json({ id: analysisId, status: 'analyzing' });
@@ -196,7 +204,7 @@ issuesRouter.post('/analyze', async (req, res) => {
   const model = getSetting('default_model', req.userId) || 'claude-sonnet-4-6';
   const language = getSetting('response_language', req.userId) || undefined;
   const githubToken = getSetting('github_token', req.userId);
-  runAnalysis(analysisId, repo.github_owner, repo.github_repo, issue_number, repoPaths, apiKey, model, language, githubToken);
+  runAnalysis(analysisId, repo.github_owner, repo.github_repo, issue_number, repoPaths, clientRepoMaps, apiKey, model, language, githubToken);
 });
 
 // Delete an analysis
@@ -217,6 +225,7 @@ async function runAnalysis(
   repo: string,
   issueNumber: number,
   repoPaths: string[],
+  clientRepoMaps: RepoMap[],
   apiKey: string,
   model: string,
   language?: string,
@@ -235,22 +244,29 @@ async function runAnalysis(
       'UPDATE issue_analyses SET issue_title = ?, issue_body = ?, issue_author = ?, issue_labels_json = ? WHERE id = ?'
     ).run(issue.title, issue.body, issue.author, JSON.stringify(issue.labels), analysisId);
 
-    // Scan all repos for cross-referencing
-    logger.info(`Scanning ${repoPaths.length} repo(s)...`);
-    const repoMaps = await Promise.all(
-      repoPaths.map(async (path) => {
-        try {
-          return await scanRepo(path);
-        } catch (err) {
-          logger.warn(`Failed to scan repo at ${path}: ${(err as Error).message}`);
-          return null;
-        }
-      })
-    );
-    const validRepoMaps = repoMaps.filter((m) => m !== null);
+    // Combine client-provided repo maps with server-side scanned repos
+    const validRepoMaps: RepoMap[] = [...clientRepoMaps];
+
+    // Scan server-side repos that exist on disk
+    if (repoPaths.length > 0) {
+      logger.info(`Scanning ${repoPaths.length} local repo(s)...`);
+      const scanned = await Promise.all(
+        repoPaths.map(async (path) => {
+          try {
+            return await scanRepo(path);
+          } catch (err) {
+            logger.warn(`Failed to scan repo at ${path}: ${(err as Error).message}`);
+            return null;
+          }
+        })
+      );
+      validRepoMaps.push(...scanned.filter((m) => m !== null));
+    }
+
+    logger.info(`${validRepoMaps.length} repo map(s) available (${clientRepoMaps.length} from browser, ${validRepoMaps.length - clientRepoMaps.length} from server)`);
 
     if (validRepoMaps.length === 0) {
-      throw new Error('No repos could be scanned');
+      throw new Error('No repos could be scanned. Make sure your repos are connected and accessible.');
     }
 
     // Extract tasks via Claude with all repo context

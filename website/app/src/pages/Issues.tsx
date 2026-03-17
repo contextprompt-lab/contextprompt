@@ -28,6 +28,7 @@ import {
   analyzeIssue,
   getAnalysisStatus,
   deleteIssueAnalysis,
+  buildRepoMaps,
   type Repo,
   type GitHubIssueSummary,
   type IssueAnalysis,
@@ -87,7 +88,15 @@ export function Issues() {
     const key = `${repoId}-${issueNumber}`;
     setError(null);
     try {
-      const { id } = await analyzeIssue(repoId, issueNumber);
+      // Scan browser repos client-side so the server has code context
+      const browserRepoIds = repos
+        .filter((r) => r.path.startsWith('browser://'))
+        .map((r) => r.id);
+      const repoMaps = browserRepoIds.length > 0
+        ? await buildRepoMaps(browserRepoIds)
+        : undefined;
+
+      const { id } = await analyzeIssue(repoId, issueNumber, repoMaps);
       setAnalyzingIds((prev) => new Map(prev).set(key, id));
 
       // Poll for completion

@@ -119,7 +119,8 @@ export function Settings() {
             GitHub Token
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Required for private repos. Create a{" "}
+            Required to access issues on private repos. One token works for all
+            your GitHub repos. Create a{" "}
             <a
               href="https://github.com/settings/tokens/new?scopes=repo&description=contextprompt"
               target="_blank"
@@ -149,7 +150,6 @@ export function Settings() {
           </Stack>
         </CardContent>
       </Card>
-
     </Box>
   );
 }

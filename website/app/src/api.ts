@@ -547,10 +547,10 @@ export const getIssueAnalysis = (id: number) =>
   request<IssueAnalysisDetail>(`/issues/analyses/${id}`);
 export const getAnalysisStatus = (id: number) =>
   request<{ id: number; status: string; error: string | null }>(`/issues/analyses/${id}/status`);
-export const analyzeIssue = (repoId: number, issueNumber: number) =>
+export const analyzeIssue = (repoId: number, issueNumber: number, repoMaps?: ClientRepoMap[]) =>
   request<{ id: number; status: string }>('/issues/analyze', {
     method: 'POST',
-    body: JSON.stringify({ repo_id: repoId, issue_number: issueNumber }),
+    body: JSON.stringify({ repo_id: repoId, issue_number: issueNumber, repo_maps: repoMaps }),
   });
 export const deleteIssueAnalysis = (id: number) =>
   request<{ ok: true }>(`/issues/analyses/${id}`, { method: 'DELETE' });

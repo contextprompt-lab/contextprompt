@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ea043"/>
+      <stop offset="100%" stop-color="#3fb950"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="108" fill="#0d1117"/>
+
+  <!-- Audio waves (left side - meeting input) -->
+  <!-- Center mic bar -->
+  <line x1="88" y1="210" x2="88" y2="302" stroke="url(#glow)" stroke-width="22" stroke-linecap="round"/>
+  <!-- Inner wave arc -->
+  <path d="M128 210 Q158 256 128 302" stroke="url(#glow)" stroke-width="16" stroke-linecap="round" fill="none" opacity="0.85"/>
+  <!-- Outer wave arc -->
+  <path d="M160 185 Q200 256 160 327" stroke="url(#glow)" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.5"/>
+
+  <!-- Arrow (center - transformation) -->
+  <line x1="200" y1="256" x2="310" y2="256" stroke="#3fb950" stroke-width="12" stroke-linecap="round" opacity="0.9"/>
+  <polyline points="286,232 316,256 286,280" stroke="#3fb950" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.9"/>
+
+  <!-- Code brackets (right side - code output) -->
+  <!-- Opening bracket { -->
+  <path d="M355 180 Q338 180 338 206 L338 238 Q338 256 322 256 Q338 256 338 274 L338 306 Q338 332 355 332"
+        stroke="url(#glow)" stroke-width="18" stroke-linecap="round" fill="none"/>
+  <!-- Closing bracket } -->
+  <path d="M415 180 Q432 180 432 206 L432 238 Q432 256 448 256 Q432 256 432 274 L432 306 Q432 332 415 332"
+        stroke="url(#glow)" stroke-width="18" stroke-linecap="round" fill="none"/>
+</svg>

@@ -3,15 +3,36 @@ import { getOpenAI, blogConfig } from '../config.js';
 
 export async function stepGenerateOutline(ctx: PipelineContext): Promise<void> {
   const openai = getOpenAI();
-  const { title, targetQuery, contentType, cluster, angle } = ctx.selectedTopic;
+  const { title, targetQuery, contentType, cluster, angle, postStyle } = ctx.selectedTopic;
+  const isEditorial = postStyle === 'editorial';
 
-  const response = await openai.chat.completions.create({
-    model: blogConfig.generationModel,
-    response_format: { type: 'json_object' },
-    messages: [
-      {
-        role: 'system',
-        content: `You are an SEO content strategist for contextprompt, a developer productivity tool that turns meeting transcriptions into repo-aware coding tasks.
+  const systemPrompt = isEditorial
+    ? `You are an SEO content strategist for a developer-focused blog.
+
+Create a structured article outline for a developer-audience blog post. This is an editorial/informative post — it should provide genuine value to developers without pitching any specific product.
+
+Return JSON:
+{
+  "title": "SEO-friendly H1 title aligned with the target query",
+  "intro": "1-2 sentence intro description — must directly address the search query",
+  "sections": [
+    { "heading": "H2 heading", "description": "What this section covers" }
+  ],
+  "cta": {
+    "heading": "Further Reading",
+    "description": "Related resources or next steps for the reader"
+  },
+  "faq": ["Question 1", "Question 2", "Question 3"],
+  "conclusion": "Brief conclusion description"
+}
+
+Requirements:
+- 4-6 H2 sections structured for developer search intent
+- Sections should be practical, specific, and technically grounded
+- FAQ: 2-4 real questions people search for about this topic
+- CTA should suggest further reading or related resources, not pitch a product
+- No generic wellness/productivity fluff — stay technical and practical`
+    : `You are an SEO content strategist for contextprompt, a developer productivity tool that turns meeting transcriptions into repo-aware coding tasks.
 
 Create a structured article outline for a developer-audience blog post.
 
@@ -35,8 +56,13 @@ Requirements:
 - Sections should be practical, specific, and technically grounded
 - FAQ: 2-4 real questions people search for about this topic
 - CTA always links to contextprompt — position it as a natural solution
-- No generic wellness/productivity fluff — stay technical and practical`,
-      },
+- No generic wellness/productivity fluff — stay technical and practical`;
+
+  const response = await openai.chat.completions.create({
+    model: blogConfig.generationModel,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: systemPrompt },
       {
         role: 'user',
         content: `Target query: ${targetQuery}

@@ -3,8 +3,13 @@ import { getOpenAI, blogConfig } from '../config.js';
 
 export async function stepGenerateSeo(ctx: PipelineContext): Promise<void> {
   const openai = getOpenAI();
-  const { targetQuery, contentType, cluster } = ctx.selectedTopic;
+  const { targetQuery, contentType, cluster, postStyle } = ctx.selectedTopic;
   const contentPreview = ctx.contentText.slice(0, 800);
+  const isEditorial = postStyle === 'editorial';
+
+  const roleDescription = isEditorial
+    ? 'You are an SEO specialist for a developer-focused blog.'
+    : 'You are an SEO specialist for contextprompt, a developer productivity tool.';
 
   const response = await openai.chat.completions.create({
     model: blogConfig.generationModel,
@@ -12,7 +17,7 @@ export async function stepGenerateSeo(ctx: PipelineContext): Promise<void> {
     messages: [
       {
         role: 'system',
-        content: `You are an SEO specialist for contextprompt, a developer productivity tool.
+        content: `${roleDescription}
 
 Generate precise, search-intent-aligned metadata for a developer-audience blog article.
 

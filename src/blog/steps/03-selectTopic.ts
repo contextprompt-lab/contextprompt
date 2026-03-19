@@ -21,21 +21,38 @@ export async function stepSelectTopic(ctx: PipelineContext): Promise<void> {
 
   const recentTitles = ctx.previousPosts.slice(0, 5).map(p => p.title.toLowerCase());
 
+  // Detect recent postStyle pattern for balance
+  const recentStyles = ctx.previousPosts.slice(0, 2).map(p => {
+    const titleLower = p.title.toLowerCase();
+    const matchedTopic = seoTopics.find(t => titleLower.includes(t.query.toLowerCase()));
+    return matchedTopic?.postStyle ?? 'product';
+  });
+  const allSameStyle = recentStyles.length >= 2 && recentStyles[0] === recentStyles[1];
+  const balanceHint = allSameStyle
+    ? `The last 2 posts were "${recentStyles[0]}" style. Prefer a "${recentStyles[0] === 'product' ? 'editorial' : 'product'}" topic next for variety.`
+    : '';
+
   const response = await openai.chat.completions.create({
     model: blogConfig.generationModel,
     response_format: { type: 'json_object' },
     messages: [
       {
         role: 'system',
-        content: `You are an SEO content strategist for contextprompt, a developer tool that turns meeting transcriptions into repo-aware coding tasks.
+        content: `You are an SEO content strategist for a developer-focused blog.
 
 Your job is to select the single best topic from the provided candidate list to publish next.
+
+Each topic has a "postStyle" field:
+- "product": focused on contextprompt (a developer tool that turns meeting transcripts into repo-aware coding tasks)
+- "editorial": generally informative developer content, not product-focused
 
 Selection priorities:
 1. Prefer "high-intent" topics first — they have the highest search demand
 2. Maintain topical balance — avoid clusters already covered in recent posts
-3. Strengthen developer-tools topical authority
-4. Pillar articles should be chosen when multiple high-intent articles in a cluster already exist
+3. Alternate between "product" and "editorial" postStyle for variety
+4. Strengthen developer-tools topical authority
+5. Pillar articles should be chosen when multiple high-intent articles in a cluster already exist
+${balanceHint ? `\n${balanceHint}` : ''}
 
 Return a JSON object:
 {
@@ -44,7 +61,8 @@ Return a JSON object:
   "contentType": "pillar | high-intent | supporting",
   "cluster": "the exact cluster value from the candidate list",
   "angle": "unique perspective or angle for the article",
-  "rationale": "why this topic was selected"
+  "rationale": "why this topic was selected",
+  "postStyle": "product | editorial (must match the candidate's postStyle)"
 }`,
       },
       {
@@ -66,7 +84,15 @@ Select the single best topic.`,
   const content = response.choices[0]?.message?.content;
   if (!content) throw new Error('No response from topic selection');
 
-  const topic: SelectedTopic = JSON.parse(content);
+  const parsed = JSON.parse(content);
+
+  // Ensure postStyle matches the candidate
+  const matchedCandidate = candidates.find(c => c.query === parsed.targetQuery);
+  const topic: SelectedTopic = {
+    ...parsed,
+    postStyle: matchedCandidate?.postStyle ?? parsed.postStyle ?? 'product',
+  };
+
   ctx.selectedTopic = topic;
-  console.log(`[pipeline] Selected: "${topic.title}" [${topic.cluster} / ${topic.contentType}]`);
+  console.log(`[pipeline] Selected: "${topic.title}" [${topic.cluster} / ${topic.contentType} / ${topic.postStyle}]`);
 }

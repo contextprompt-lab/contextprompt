@@ -15,6 +15,8 @@ export interface PreviousPost {
   meta_keywords: string | null;
 }
 
+export type PostStyle = 'product' | 'editorial';
+
 export interface SelectedTopic {
   title: string;
   targetQuery: string;
@@ -22,6 +24,7 @@ export interface SelectedTopic {
   cluster: string;
   angle: string;
   rationale: string;
+  postStyle: PostStyle;
 }
 
 export interface BlogOutline {

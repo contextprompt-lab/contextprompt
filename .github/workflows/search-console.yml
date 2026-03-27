@@ -1,0 +1,33 @@
+name: Fetch Search Console Data
+
+on:
+  schedule:
+    # Runs daily at 6am UTC (before agents wake up)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install googleapis
+        run: npm install googleapis
+
+      - name: Fetch Search Console data
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SEARCH_CONSOLE_SITE_URL: ${{ secrets.SEARCH_CONSOLE_SITE_URL }}
+        run: node scripts/fetch-search-console.mjs
+
+      - name: Commit and push reports
+        run: |
+          git config user.name "search-console-bot"
+          git config user.email "bot@contextprompt.app"
+          git add reports/search-console/
+          git diff --cached --quiet || (git commit -m "[search-console] Daily report $(date +%Y-%m-%d)" && git push)

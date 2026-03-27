@@ -134,6 +134,18 @@ function runMigrations(db: Database.Database): void {
     );
   `);
 
+  // --- Error log table ---
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS error_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      error_type TEXT NOT NULL,
+      message TEXT NOT NULL,
+      stack TEXT,
+      context_json TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+
   // Add github columns to repos table (idempotent)
   try { db.exec('ALTER TABLE repos ADD COLUMN github_owner TEXT'); } catch { /* already exists */ }
   try { db.exec('ALTER TABLE repos ADD COLUMN github_repo TEXT'); } catch { /* already exists */ }
@@ -755,6 +767,28 @@ export function upsertBlogTag(name: string, slug: string): number {
 export function linkBlogPostTag(postId: number, tagId: number): void {
   const db = getDb();
   db.prepare('INSERT OR IGNORE INTO blog_post_tags (post_id, tag_id) VALUES (?, ?)').run(postId, tagId);
+}
+
+// --- Error Log ---
+
+export function logError(errorType: string, message: string, stack?: string, context?: Record<string, unknown>): void {
+  try {
+    const db = getDb();
+    db.prepare(
+      'INSERT INTO error_log (error_type, message, stack, context_json) VALUES (?, ?, ?, ?)'
+    ).run(errorType, message, stack ?? null, context ? JSON.stringify(context) : null);
+  } catch {
+    // Don't let error logging itself cause crashes
+  }
+}
+
+export function pruneErrorLog(keepDays = 30): void {
+  try {
+    const db = getDb();
+    db.prepare("DELETE FROM error_log WHERE created_at < datetime('now', '-' || ? || ' days')").run(keepDays);
+  } catch {
+    // Best-effort cleanup
+  }
 }
 
 export function closeDb(): void {

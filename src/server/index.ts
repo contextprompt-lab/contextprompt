@@ -14,7 +14,7 @@ import { adminRouter } from './routes/admin.js';
 import { supportRouter } from './routes/support.js';
 import { requireAuth, requirePro } from './middleware/auth.js';
 import { blogRouter } from './routes/blog.js';
-import { closeDb, getBlogPostCount } from './db.js';
+import { closeDb, getBlogPostCount, getDb, logError, pruneErrorLog } from './db.js';
 import { attachWebSocket } from './ws.js';
 import { logger } from '../utils/logger.js';
 import cron from 'node-cron';
@@ -33,9 +33,57 @@ export function createServer() {
   app.use('/api/bots/webhook', botsWebhookRouter);
   app.use('/api/support', supportRouter);
 
+  // Public config (PostHog key, etc. — safe to expose)
+  app.get('/api/public-config', (_req, res) => {
+    res.json({
+      posthogKey: process.env.POSTHOG_API_KEY || null,
+    });
+  });
+
   // Health check (public)
-  app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', recording: getRecordingStatus() });
+  app.get('/api/health', (req, res) => {
+    const basic = { status: 'ok', recording: getRecordingStatus() };
+
+    // Detailed mode: requires HEALTH_SECRET query param
+    if (req.query.detailed === 'true') {
+      const secret = process.env.HEALTH_SECRET;
+      if (!secret || req.query.secret !== secret) {
+        return res.json(basic);
+      }
+
+      try {
+        const db = getDb();
+        const totalUsers = (db.prepare('SELECT COUNT(*) as c FROM users').get() as { c: number }).c;
+        const proUsers = (db.prepare("SELECT COUNT(*) as c FROM users WHERE plan = 'pro'").get() as { c: number }).c;
+        const freeUsers = (db.prepare("SELECT COUNT(*) as c FROM users WHERE plan = 'free'").get() as { c: number }).c;
+
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const meetingsThisWeek = (db.prepare('SELECT COUNT(*) as c FROM meetings WHERE created_at >= ?').get(weekAgo) as { c: number }).c;
+
+        const blogPostCount = getBlogPostCount();
+
+        const recentErrors = db.prepare(
+          'SELECT error_type, message, created_at FROM error_log ORDER BY created_at DESC LIMIT 20'
+        ).all() as Array<{ error_type: string; message: string; created_at: string }>;
+
+        const errorsLast24h = (db.prepare(
+          'SELECT COUNT(*) as c FROM error_log WHERE created_at >= ?'
+        ).get(new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) as { c: number }).c;
+
+        return res.json({
+          ...basic,
+          users: { total: totalUsers, pro: proUsers, free: freeUsers },
+          meetingsThisWeek,
+          blogPostCount,
+          errorsLast24h,
+          recentErrors,
+        });
+      } catch {
+        return res.json(basic);
+      }
+    }
+
+    res.json(basic);
   });
 
   // --- Protected routes (auth required) ---
@@ -123,6 +171,13 @@ ${urls}
     }
   });
 
+  // Global error handler — logs to error_log table
+  app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    logError('unhandled', err.message, err.stack, { url: _req.originalUrl, method: _req.method });
+    logger.error(`Unhandled error: ${err.message}`);
+    res.status(500).json({ error: 'Internal server error' });
+  });
+
   return app;
 }
 
@@ -133,6 +188,10 @@ export async function startServer(port = DEFAULT_PORT): Promise<void> {
     const server = app.listen(port, () => {
       attachWebSocket(server);
       logger.success(`Dashboard running at http://localhost:${port}`);
+
+      // Prune old error logs on startup and weekly
+      pruneErrorLog(30);
+      cron.schedule('0 0 * * 0', () => pruneErrorLog(30));
 
       // Blog generation cron — runs daily at 9am and 3pm UTC by default
       // Set BLOG_CRON_SCHEDULE to customize, or BLOG_CRON_ENABLED=false to disable

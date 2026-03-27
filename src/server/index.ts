@@ -36,7 +36,7 @@ export function createServer() {
   // Public config (PostHog key, etc. — safe to expose)
   app.get('/api/public-config', (_req, res) => {
     res.json({
-      posthogKey: process.env.POSTHOG_API_KEY || null,
+      posthogKey: process.env.POSTHOG_PUBLIC_KEY || null,
     });
   });
 

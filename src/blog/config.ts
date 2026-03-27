@@ -11,7 +11,7 @@ export function getOpenAI(): OpenAI {
 }
 
 export const blogConfig = {
-  generationModel: process.env.BLOG_GENERATION_MODEL || 'gpt-4.1-mini',
-  targetWordCount: parseInt(process.env.BLOG_TARGET_WORD_COUNT || '1800', 10),
-  postsPerRun: parseInt(process.env.BLOG_POSTS_PER_RUN || '2', 10),
+  generationModel: process.env.BLOG_GENERATION_MODEL || 'gpt-5.4-mini',
+  targetWordCount: parseInt(process.env.BLOG_TARGET_WORD_COUNT || '1500', 10),
+  postsPerRun: parseInt(process.env.BLOG_POSTS_PER_RUN || '1', 10),
 };

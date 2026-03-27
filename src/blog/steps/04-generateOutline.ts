@@ -6,6 +6,16 @@ export async function stepGenerateOutline(ctx: PipelineContext): Promise<void> {
   const { title, targetQuery, contentType, cluster, angle, postStyle } = ctx.selectedTopic;
   const isEditorial = postStyle === 'editorial';
 
+  const sharedRequirements = `Requirements:
+- 3-5 H2 sections — keep it tight, no fluff, no padding
+- Each section MUST include 2-3 key points that the writer should cover
+- At least one section should include a concrete example or code snippet
+- Sections should be practical, opinionated, and technically grounded
+- FAQ: 2-3 real questions people search for about this topic
+- Tone: casual, direct, like a senior dev explaining something to a friend over coffee. Think "bro who actually knows his stuff" — not corporate, not AI-sounding, not boring
+- No generic productivity fluff, no buzzword soup, no "in today's rapidly evolving landscape" energy
+- Front-load the most valuable section (the one that directly answers the search query) as section 1 or 2`;
+
   const systemPrompt = isEditorial
     ? `You are an SEO content strategist for a developer-focused blog.
 
@@ -14,9 +24,9 @@ Create a structured article outline for a developer-audience blog post. This is 
 Return JSON:
 {
   "title": "SEO-friendly H1 title aligned with the target query",
-  "intro": "1-2 sentence intro description — must directly address the search query",
+  "intro": "2-3 sentence intro — directly address the search query, state what the reader will learn, and why it matters now",
   "sections": [
-    { "heading": "H2 heading", "description": "What this section covers" }
+    { "heading": "H2 heading", "description": "What this section covers", "keyPoints": ["point 1", "point 2", "point 3"] }
   ],
   "cta": {
     "heading": "Further Reading",
@@ -26,12 +36,9 @@ Return JSON:
   "conclusion": "Brief conclusion description"
 }
 
-Requirements:
-- 4-6 H2 sections structured for developer search intent
-- Sections should be practical, specific, and technically grounded
-- FAQ: 2-4 real questions people search for about this topic
+${sharedRequirements}
 - CTA should suggest further reading or related resources, not pitch a product
-- No generic wellness/productivity fluff — stay technical and practical`
+- If mentioning tools, mention several options fairly`
     : `You are an SEO content strategist for contextprompt, a developer productivity tool that turns meeting transcriptions into repo-aware coding tasks.
 
 Create a structured article outline for a developer-audience blog post.
@@ -39,9 +46,9 @@ Create a structured article outline for a developer-audience blog post.
 Return JSON:
 {
   "title": "SEO-friendly H1 title aligned with the target query",
-  "intro": "1-2 sentence intro description — must directly address the search query",
+  "intro": "2-3 sentence intro — directly address the search query, state what the reader will learn, and why it matters now",
   "sections": [
-    { "heading": "H2 heading", "description": "What this section covers" }
+    { "heading": "H2 heading", "description": "What this section covers", "keyPoints": ["point 1", "point 2", "point 3"] }
   ],
   "cta": {
     "heading": "Try contextprompt Free",
@@ -51,12 +58,8 @@ Return JSON:
   "conclusion": "Brief conclusion description"
 }
 
-Requirements:
-- 4-6 H2 sections structured for developer search intent
-- Sections should be practical, specific, and technically grounded
-- FAQ: 2-4 real questions people search for about this topic
-- CTA always links to contextprompt — position it as a natural solution
-- No generic wellness/productivity fluff — stay technical and practical`;
+${sharedRequirements}
+- CTA always links to contextprompt — position it as a natural solution`;
 
   const response = await openai.chat.completions.create({
     model: blogConfig.generationModel,

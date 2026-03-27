@@ -8,6 +8,7 @@ import { stepResearchTopics } from './steps/02-researchTopics.js';
 import { stepSelectTopic } from './steps/03-selectTopic.js';
 import { stepGenerateOutline } from './steps/04-generateOutline.js';
 import { stepGenerateContent } from './steps/05-generateContent.js';
+import { stepReviewContent } from './steps/05b-reviewContent.js';
 import { stepGenerateSeo } from './steps/06-generateSeo.js';
 import { stepInsertInternalLinks } from './steps/07-insertInternalLinks.js';
 import { stepSaveToDatabase } from './steps/08-saveToDatabase.js';
@@ -18,6 +19,7 @@ const steps = [
   { name: 'selectTopic', fn: stepSelectTopic },
   { name: 'generateOutline', fn: stepGenerateOutline },
   { name: 'generateContent', fn: stepGenerateContent },
+  { name: 'reviewContent', fn: stepReviewContent },
   { name: 'generateSeo', fn: stepGenerateSeo },
   { name: 'insertInternalLinks', fn: stepInsertInternalLinks },
   { name: 'saveToDatabase', fn: stepSaveToDatabase },

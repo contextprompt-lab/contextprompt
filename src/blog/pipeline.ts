@@ -46,7 +46,7 @@ async function runSinglePost(): Promise<void> {
   const ctx: PipelineContext = {
     previousPosts: [],
     researchResults: [],
-    selectedTopic: { title: '', targetQuery: '', contentType: 'supporting', cluster: '', angle: '', rationale: '' },
+    selectedTopic: { title: '', targetQuery: '', contentType: 'supporting', cluster: '', angle: '', rationale: '', postStyle: 'editorial' },
     outline: { title: '', intro: '', sections: [], cta: { heading: '', description: '' }, faq: [], conclusion: '' },
     contentHtml: '',
     contentText: '',

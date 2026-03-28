@@ -12,7 +12,7 @@ export async function stepGenerateOutline(ctx: PipelineContext): Promise<void> {
 - At least one section should include a concrete example or code snippet
 - Sections should be practical, opinionated, and technically grounded
 - FAQ: 2-3 real questions people search for about this topic
-- Tone: casual, direct, like a senior dev explaining something to a friend over coffee. Think "bro who actually knows his stuff" — not corporate, not AI-sounding, not boring
+- Tone: casual, direct, like a senior dev explaining something to a friend. Think "bro who actually knows his stuff" — not corporate, not AI-sounding, not boring
 - No generic productivity fluff, no buzzword soup, no "in today's rapidly evolving landscape" energy
 - Front-load the most valuable section (the one that directly answers the search query) as section 1 or 2`;
 

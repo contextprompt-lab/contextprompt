@@ -40,19 +40,19 @@ export async function stepGenerateContent(ctx: PipelineContext): Promise<void> {
 - Keep HTML clean and ready for insertion into a CMS
 
 ## Tone & Voice — THIS IS CRITICAL
-- Write like a dev bro who actually knows his shit — casual, direct, opinionated
-- Think senior engineer posting on Twitter or writing a quick blog post, not a corporate content team
-- Use "you" and "your" freely. Short sentences. Sentence fragments are fine.
+- Write like a dev who actually knows his stuff — casual, direct, opinionated
+- Think senior engineer writing a blog post after work, not a content marketing team
+- Use "you" and "your" freely. Short sentences. Mix in some longer ones for flow.
 - Be funny when it's natural — dry humor, not trying too hard
-- Hot takes are welcome. Have opinions. "honestly this kinda sucks" is valid
-- Swearing is OK sparingly (damn, hell, shit) — don't overdo it
+- Hot takes are welcome. Have opinions. Don't hedge everything.
+- Light swearing is OK sparingly (damn, hell) — keeps it real
 - NEVER sound like AI-generated content. No "In today's fast-paced world", "Let's dive in", "It's worth noting", "In conclusion", "leverage", "streamline", "empower"
 - NEVER use corporate jargon or buzzword soup
 - If you catch yourself writing something boring, delete it
 
 ## Writing Quality Standards
-- Every paragraph must earn its place — if it doesn't teach something or make the reader smirk, cut it
-- Short, scannable paragraphs (2-3 sentences max)
+- Every paragraph must earn its place — if it doesn't teach something or make the reader think, cut it
+- Short, scannable paragraphs (2-4 sentences)
 - Use <h3> subheadings within sections to break up content
 - Include code snippets or real examples where relevant — devs love concrete stuff
 - GEO optimization: the first paragraph under each <h2> should be a clear, direct answer that search engines can cite

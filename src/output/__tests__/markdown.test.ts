@@ -6,6 +6,7 @@ import type { ExtractedPlan, Task } from '../../tasks/types.js';
 function makePlan(overrides: Partial<ExtractedPlan> = {}): ExtractedPlan {
   return {
     decisions: [],
+    fix_summary: '',
     execution_buckets: { ready_now: [], review_before_execution: [], needs_clarification: [] },
     tasks: [],
     assumptions: [],

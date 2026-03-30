@@ -9,6 +9,7 @@ COPY package.json package-lock.json* ./
 RUN npm install
 
 COPY . .
+RUN cd website && npm install
 RUN npm run build
 
 # Create data directory for SQLite

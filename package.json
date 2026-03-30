@@ -26,11 +26,14 @@
     "cli"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsx bin/contextprompt.ts",
+    "build": "tsup && npm run build:web",
+    "build:server": "tsup",
+    "build:web": "cd website && npm run build",
+    "dev": "npx concurrently -n server,web -c blue,green \"tsx bin/contextprompt.ts dashboard\" \"cd website && npm run dev\"",
     "start": "node dist/bin/contextprompt.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "check": "npm test && npm run build",
     "prepublishOnly": "npm run build && npm test"
   },
   "engines": {

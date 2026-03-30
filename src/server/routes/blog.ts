@@ -10,7 +10,7 @@ function escapeHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function sharedHead(title: string, description: string, canonicalPath: string): string {
+function sharedHead(title: string, description: string, canonicalPath: string, extraStyles = ''): string {
   const canonical = `${DOMAIN}${canonicalPath}`;
   return `<!DOCTYPE html>
 <html lang="en">
@@ -37,7 +37,7 @@ function sharedHead(title: string, description: string, canonicalPath: string): 
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${DOMAIN}/og-image.png">
 
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a0a0a">
@@ -84,6 +84,7 @@ function sharedHead(title: string, description: string, canonicalPath: string): 
       .footer-grid { grid-template-columns: 1fr; }
     }
   </style>
+  ${extraStyles}
 </head>`;
 }
 
@@ -91,7 +92,7 @@ function nav(): string {
   return `
   <nav class="nav">
     <div class="nav-inner container">
-      <a href="/" class="nav-logo"><img src="/logo-icon.svg" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
       <div class="nav-links">
         <a href="/#how-it-works">How it works</a>
         <a href="/#features">Features</a>
@@ -108,7 +109,7 @@ function footer(): string {
   <footer class="footer">
     <div class="container footer-grid">
       <div class="footer-col">
-        <span class="footer-logo"><img src="/logo-icon.svg" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
         <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
       </div>
       <div class="footer-col">
@@ -169,7 +170,26 @@ blogRouter.get('/', (_req, res) => {
     </div>
   ` : '';
 
-  const html = `${sharedHead('Blog — contextprompt', 'Articles about AI-powered meeting tools, developer productivity, repo-aware task extraction, and engineering team workflows.', '/blog/')}
+  const blogIndexStyles = `<style>
+    .blog-index { padding-top: calc(56px + 64px); padding-bottom: 48px; }
+    .blog-index-title { font-family: 'JetBrains Mono', monospace; font-size: 2.75rem; font-weight: 700; text-align: center; margin-bottom: 12px; }
+    .blog-index-sub { text-align: center; color: #999; font-size: 0.875rem; max-width: 560px; margin: 0 auto 48px; line-height: 1.6; }
+    .blog-empty { text-align: center; color: #555; font-size: 1rem; padding: 48px 0; }
+
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+    .blog-card { background: #111113; border: 1px solid #21262d; border-radius: 12px; padding: 24px; transition: border-color 0.15s; }
+    .blog-card:hover { border-color: #3fb950; }
+    .blog-card-title { font-size: 1.125rem; font-weight: 600; line-height: 1.4; margin-bottom: 8px; }
+    .blog-card-desc { font-size: 0.875rem; color: #999; line-height: 1.5; margin-bottom: 12px; }
+    .blog-card-meta { display: flex; gap: 16px; font-size: 0.75rem; color: #555; }
+
+    .blog-pagination { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 48px; }
+    .blog-page-link { color: #3fb950; font-size: 0.875rem; font-weight: 500; }
+    .blog-page-link:hover { text-decoration: underline; }
+    .blog-page-info { color: #555; font-size: 0.875rem; }
+  </style>`;
+
+  const html = `${sharedHead('Blog — contextprompt', 'Articles about AI-powered meeting tools, developer productivity, repo-aware task extraction, and engineering team workflows.', '/blog/', blogIndexStyles)}
 <body>
   ${nav()}
 
@@ -195,25 +215,6 @@ blogRouter.get('/', (_req, res) => {
   </section>
 
   ${footer()}
-
-  <style>
-    .blog-index { padding-top: calc(56px + 64px); padding-bottom: 48px; }
-    .blog-index-title { font-family: 'JetBrains Mono', monospace; font-size: 2.75rem; font-weight: 700; text-align: center; margin-bottom: 12px; }
-    .blog-index-sub { text-align: center; color: #999; font-size: 0.875rem; max-width: 560px; margin: 0 auto 48px; line-height: 1.6; }
-    .blog-empty { text-align: center; color: #555; font-size: 1rem; padding: 48px 0; }
-
-    .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
-    .blog-card { background: #111113; border: 1px solid #21262d; border-radius: 12px; padding: 24px; transition: border-color 0.15s; }
-    .blog-card:hover { border-color: #3fb950; }
-    .blog-card-title { font-size: 1.125rem; font-weight: 600; line-height: 1.4; margin-bottom: 8px; }
-    .blog-card-desc { font-size: 0.875rem; color: #999; line-height: 1.5; margin-bottom: 12px; }
-    .blog-card-meta { display: flex; gap: 16px; font-size: 0.75rem; color: #555; }
-
-    .blog-pagination { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 48px; }
-    .blog-page-link { color: #3fb950; font-size: 0.875rem; font-weight: 500; }
-    .blog-page-link:hover { text-decoration: underline; }
-    .blog-page-info { color: #555; font-size: 0.875rem; }
-  </style>
 </body>
 </html>`;
 
@@ -280,40 +281,7 @@ blogRouter.get('/:slug/', (req, res) => {
     'mainEntityOfPage': `${DOMAIN}/blog/${post.slug}/`,
   });
 
-  const html = `${sharedHead(`${post.title} — contextprompt`, post.meta_description || post.title, `/blog/${post.slug}/`)}
-<body>
-  ${nav()}
-
-  <article class="post">
-    <div class="container post-container">
-      <header class="post-header">
-        <a href="/blog/" class="post-back">&larr; Blog</a>
-        <h1 class="post-title">${escapeHtml(post.title)}</h1>
-        <div class="post-meta">
-          ${publishedDate ? `<time>${publishedDate}</time>` : ''}
-          ${post.reading_time_minutes ? `<span>${post.reading_time_minutes} min read</span>` : ''}
-        </div>
-      </header>
-
-      <div class="post-body">
-        ${post.content_html}
-      </div>
-
-      <div class="post-cta">
-        <h2>Ready to turn your meetings into tasks?</h2>
-        <p>contextprompt joins your call, transcribes, scans your repos, and extracts structured coding tasks.</p>
-        <a href="/app/" class="post-cta-btn">Get started free</a>
-      </div>
-    </div>
-  </article>
-
-  ${relatedHtml}
-
-  ${footer()}
-
-  <script type="application/ld+json">${jsonLd}</script>
-
-  <style>
+  const postStyles = `<style>
     .post { padding-top: calc(56px + 48px); padding-bottom: 48px; }
     .post-container { max-width: 780px; }
     .post-back { display: inline-block; font-size: 0.875rem; color: #3fb950; margin-bottom: 24px; }
@@ -352,7 +320,40 @@ blogRouter.get('/:slug/', (req, res) => {
     @media (max-width: 768px) {
       .post-title { font-size: 1.75rem; }
     }
-  </style>
+  </style>`;
+
+  const html = `${sharedHead(`${post.title} — contextprompt`, post.meta_description || post.title, `/blog/${post.slug}/`, postStyles)}
+<body>
+  ${nav()}
+
+  <article class="post">
+    <div class="container post-container">
+      <header class="post-header">
+        <a href="/blog/" class="post-back">&larr; Blog</a>
+        <h1 class="post-title">${escapeHtml(post.title)}</h1>
+        <div class="post-meta">
+          ${publishedDate ? `<time>${publishedDate}</time>` : ''}
+          ${post.reading_time_minutes ? `<span>${post.reading_time_minutes} min read</span>` : ''}
+        </div>
+      </header>
+
+      <div class="post-body">
+        ${post.content_html}
+      </div>
+
+      <div class="post-cta">
+        <h2>Ready to turn your meetings into tasks?</h2>
+        <p>contextprompt joins your call, transcribes, scans your repos, and extracts structured coding tasks.</p>
+        <a href="/app/" class="post-cta-btn">Get started free</a>
+      </div>
+    </div>
+  </article>
+
+  ${relatedHtml}
+
+  ${footer()}
+
+  <script type="application/ld+json">${jsonLd}</script>
 </body>
 </html>`;
 

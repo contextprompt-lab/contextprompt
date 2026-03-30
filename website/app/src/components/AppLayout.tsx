@@ -127,7 +127,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   const drawer = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Toolbar>
+      <Toolbar sx={{ gap: 1 }}>
+        <Box component="img" src="/logo-icon.png" alt="contextprompt" sx={{ width: 28, height: 28, borderRadius: '6px' }} />
         <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
           contextprompt
         </Typography>

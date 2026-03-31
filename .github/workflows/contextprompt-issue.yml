@@ -15,7 +15,7 @@ jobs:
           node-version: 22
 
       - name: Install dependencies and build
-        run: npm ci && npm run build
+        run: npm ci && cd website && npm ci && cd .. && npm run build
 
       - name: Generate execution plan
         run: node dist/bin/contextprompt.js issue ${{ github.event.issue.number }} --repo . --output plan.md

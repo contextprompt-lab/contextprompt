@@ -2,6 +2,19 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-04-01 — Product Health Agent (Wednesday)
+
+- **Day:** Wednesday — health monitoring + conversion improvement
+- **TypeScript:** PASS — 0 errors
+- **Tests:** PASS — 107/107
+- **GitHub:** 0 open issues, 0 open PRs (at run start)
+- **Conversion shipped:** Login page value props + how-it-works + trust signals
+  - Branch: `agent/convert/login-value-props` — pushed, awaiting manual PR creation (gh CLI unavailable)
+  - File: `website/app/src/pages/Login.tsx` — 64 lines added
+  - Rationale: Homepage at pos 2 with 33% CTR; login page was a conversion dead-end with no value props
+- **Bugs found:** None
+- **Reports:** `reports/product-health/2026-04-01.md`, `reports/product-improvement/2026-04-01.md`
+
 ## 2026-03-31 — Product Health Agent (Tuesday)
 
 - **Day:** Tuesday — health monitoring only

@@ -1,4 +1,17 @@
-import { Box, Card, CardContent, Typography, Button } from '@mui/material';
+import { Box, Card, CardContent, Typography, Button, Divider, Stack } from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+
+const VALUE_PROPS = [
+  'Bot joins your meeting and records automatically',
+  'Scans your repos to understand your codebase',
+  'Extracts actionable coding tasks from the conversation',
+];
+
+const HOW_IT_WORKS = [
+  { step: '1', label: 'Paste a meeting link' },
+  { step: '2', label: 'Bot joins and records' },
+  { step: '3', label: 'Get structured coding tasks' },
+];
 
 export function Login() {
   const handleLogin = () => {
@@ -20,8 +33,8 @@ export function Login() {
           <Typography variant="h5" sx={{ mb: 1, fontWeight: 700, color: 'primary.main' }}>
             contextprompt
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-            Turn meetings into repo-aware coding tasks
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Stop writing meeting notes. Start shipping code.
           </Typography>
 
           <Button
@@ -47,6 +60,54 @@ export function Login() {
           >
             Sign in with Google
           </Button>
+
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5 }}>
+            Free to start · No credit card required
+          </Typography>
+
+          <Divider sx={{ my: 3 }} />
+
+          <Stack spacing={1.5} sx={{ textAlign: 'left' }}>
+            {VALUE_PROPS.map((prop) => (
+              <Stack key={prop} direction="row" spacing={1.5} alignItems="flex-start">
+                <CheckCircleOutlineIcon sx={{ fontSize: 18, color: 'success.main', mt: 0.2, flexShrink: 0 }} />
+                <Typography variant="body2" color="text.secondary">{prop}</Typography>
+              </Stack>
+            ))}
+          </Stack>
+
+          <Divider sx={{ my: 3 }} />
+
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            How it works
+          </Typography>
+          <Stack direction="row" justifyContent="space-between" spacing={1}>
+            {HOW_IT_WORKS.map(({ step, label }) => (
+              <Box key={step} sx={{ flex: 1, textAlign: 'center' }}>
+                <Box
+                  sx={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    bgcolor: 'primary.main',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    mx: 'auto',
+                    mb: 0.75,
+                  }}
+                >
+                  {step}
+                </Box>
+                <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.3, display: 'block' }}>
+                  {label}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
         </CardContent>
       </Card>
     </Box>

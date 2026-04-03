@@ -94,4 +94,11 @@ export const seoTopics: SeoTopic[] = [
   { query: 'reducing meeting load for engineering teams', slug: 'reducing-meeting-load-engineering', cluster: 'problem', contentType: 'high-intent', postStyle: 'editorial' },
   { query: 'AI code generation tools compared 2026', slug: 'ai-code-generation-tools-compared-2026', cluster: 'trends', contentType: 'pillar', postStyle: 'editorial' },
   { query: 'building a developer experience team', slug: 'building-developer-experience-team', cluster: 'trends', contentType: 'supporting', postStyle: 'editorial' },
+
+  // --- Search Console opportunities (high impressions, low CTR) ---
+  { query: 'best software to reduce engineering status meetings', slug: 'best-software-reduce-engineering-meetings', cluster: 'comparison', contentType: 'pillar', postStyle: 'editorial' },
+  { query: 'best internal Q&A tools for engineering teams 2026', slug: 'best-internal-qa-tools-engineering-teams', cluster: 'comparison', contentType: 'pillar', postStyle: 'editorial' },
+  { query: 'how to streamline meeting follow-ups with automated task assignments', slug: 'streamline-meeting-followups-automated-tasks', cluster: 'workflow', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'engineering manager tools for reducing status meetings', slug: 'engineering-manager-reduce-status-meetings', cluster: 'use-case', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'AI meeting bot API for developers', slug: 'ai-meeting-bot-api-developers', cluster: 'technical', contentType: 'high-intent', postStyle: 'product' },
 ];

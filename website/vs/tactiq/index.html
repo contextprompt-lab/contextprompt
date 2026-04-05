@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>contextprompt vs Granola (2026) — AI Meeting Notes for Developers</title>
-  <meta name="description" content="Granola is an AI notepad for meetings. contextprompt is an AI coding task extractor that scans your repos. Compare features, pricing, and use cases for engineering teams.">
+  <title>contextprompt vs Tactiq (2026) — AI Meeting Notes for Engineering Teams</title>
+  <meta name="description" content="Tactiq is a browser extension that transcribes meetings. contextprompt goes further — it scans your repos and extracts structured coding tasks with real file paths. Compare pricing, features, and use cases for dev teams.">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://contextprompt.app/vs/granola/">
+  <link rel="canonical" href="https://contextprompt.app/vs/tactiq/">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="contextprompt vs Granola (2026) — AI Meeting Notes for Developers">
-  <meta property="og:description" content="Granola enhances your meeting notes. contextprompt extracts structured coding tasks from your meetings, mapped to real file paths in your repos.">
+  <meta property="og:title" content="contextprompt vs Tactiq (2026) — AI Meeting Notes for Engineering Teams">
+  <meta property="og:description" content="Tactiq transcribes your meetings via browser extension. contextprompt turns engineering meetings into repo-aware coding tasks. See which is right for dev teams.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://contextprompt.app/vs/granola/">
+  <meta property="og:url" content="https://contextprompt.app/vs/tactiq/">
   <meta property="og:site_name" content="contextprompt">
   <meta property="og:locale" content="en_US">
   <meta property="og:image" content="https://contextprompt.app/og-image.png">
@@ -21,8 +21,8 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="contextprompt vs Granola (2026)">
-  <meta name="twitter:description" content="Granola polishes your notes. contextprompt extracts repo-aware coding tasks. See which is right for engineering teams.">
+  <meta name="twitter:title" content="contextprompt vs Tactiq (2026)">
+  <meta name="twitter:description" content="Tactiq captures meeting transcripts via browser extension. contextprompt turns engineering meetings into repo-aware coding tasks. Best meeting AI for dev teams.">
   <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
 
   <!-- Favicon -->
@@ -46,22 +46,25 @@
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "contextprompt vs Granola (2026)",
-    "description": "Comparing contextprompt and Granola for software engineering teams. Granola is a local AI notepad; contextprompt is a bot-based coding task extractor with repo scanning.",
-    "url": "https://contextprompt.app/vs/granola/",
+    "name": "contextprompt vs Tactiq (2026)",
+    "description": "Detailed comparison of contextprompt and Tactiq for software engineering teams. contextprompt adds repo-aware coding task extraction that Tactiq's browser extension approach cannot offer.",
+    "url": "https://contextprompt.app/vs/tactiq/",
     "breadcrumb": {
       "@type": "BreadcrumbList",
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "contextprompt", "item": "https://contextprompt.app/"},
         {"@type": "ListItem", "position": 2, "name": "Comparisons", "item": "https://contextprompt.app/vs/"},
-        {"@type": "ListItem", "position": 3, "name": "vs Granola", "item": "https://contextprompt.app/vs/granola/"}
+        {"@type": "ListItem", "position": 3, "name": "vs Tactiq", "item": "https://contextprompt.app/vs/tactiq/"}
       ]
     }
   }
   </script>
 
   <style>
-    .vs-hero { padding: 5rem 0 3.5rem; text-align: center; }
+    .vs-hero {
+      padding: 5rem 0 3.5rem;
+      text-align: center;
+    }
     .vs-badge {
       display: inline-block;
       font-family: 'JetBrains Mono', monospace;
@@ -92,7 +95,13 @@
       margin: 0 auto 2.5rem;
       line-height: 1.7;
     }
-    .vs-cta-group { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .vs-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
     .vs-cta {
       display: inline-block;
       background: #3fb950;
@@ -106,7 +115,11 @@
       transition: opacity 0.2s;
     }
     .vs-cta:hover { opacity: 0.85; }
-    .vs-cta-note { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #555; }
+    .vs-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+    }
     .vs-verdict {
       background: #111;
       border: 1px solid #21262d;
@@ -125,9 +138,18 @@
       letter-spacing: 0.08em;
       margin-bottom: 0.6rem;
     }
-    .vs-verdict p { font-family: 'Inter', sans-serif; font-size: 1rem; color: #ccc; line-height: 1.7; margin: 0; }
+    .vs-verdict p {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 1.7;
+      margin: 0;
+    }
     .vs-verdict strong { color: #e6e6e6; }
-    .vs-section { padding: 4rem 0; border-top: 1px solid #21262d; }
+    .vs-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
     .vs-section h2 {
       font-family: 'JetBrains Mono', monospace;
       font-size: clamp(1.3rem, 2.5vw, 1.8rem);
@@ -145,8 +167,18 @@
       margin: 0 auto 3rem;
       line-height: 1.6;
     }
-    .vs-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 900px; margin: 0 auto; }
-    .vs-table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; font-size: 0.9rem; }
+    .vs-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .vs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+    }
     .vs-table th {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.85rem;
@@ -203,10 +235,26 @@
       color: #e6e6e6;
       margin-bottom: 0.5rem;
     }
-    .vs-diff-card p { font-family: 'Inter', sans-serif; font-size: 0.875rem; color: #999; line-height: 1.6; }
-    .vs-winners { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 820px; margin: 0 auto; }
+    .vs-diff-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: #999;
+      line-height: 1.6;
+    }
+    .vs-winners {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 820px;
+      margin: 0 auto;
+    }
     @media (max-width: 640px) { .vs-winners { grid-template-columns: 1fr; } }
-    .vs-winner-card { background: #111; border: 1px solid #21262d; border-radius: 12px; padding: 1.5rem; }
+    .vs-winner-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
     .vs-winner-card.us { border-top: 3px solid #3fb950; }
     .vs-winner-card.them { border-top: 3px solid #444; }
     .vs-winner-label {
@@ -219,7 +267,12 @@
     }
     .us .vs-winner-label { color: #3fb950; }
     .them .vs-winner-label { color: #888; }
-    .vs-winner-card h3 { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: #e6e6e6; margin-bottom: 0.75rem; }
+    .vs-winner-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: #e6e6e6;
+      margin-bottom: 0.75rem;
+    }
     .vs-winner-list { list-style: none; padding: 0; margin: 0; }
     .vs-winner-list li {
       font-family: 'Inter', sans-serif;
@@ -232,7 +285,11 @@
       line-height: 1.5;
     }
     .vs-winner-list li::before { content: "›"; color: #555; flex-shrink: 0; margin-top: 0.05rem; }
-    .vs-bottom-cta { padding: 5rem 0; border-top: 1px solid #21262d; text-align: center; }
+    .vs-bottom-cta {
+      padding: 5rem 0;
+      border-top: 1px solid #21262d;
+      text-align: center;
+    }
     .vs-bottom-cta h2 {
       font-family: 'JetBrains Mono', monospace;
       font-size: clamp(1.5rem, 3vw, 2.2rem);
@@ -294,8 +351,8 @@
   <section class="vs-hero">
     <div class="container">
       <div class="vs-badge">Comparison · 2026</div>
-      <h1>contextprompt vs Granola<br><span class="highlight">for engineering teams</span></h1>
-      <p class="vs-hero-sub">Granola is a beloved AI notepad that enhances your hand-typed meeting notes. contextprompt is a bot that joins your call and extracts structured coding tasks mapped to your actual codebase.</p>
+      <h1>contextprompt vs Tactiq<br><span class="highlight">for engineering teams</span></h1>
+      <p class="vs-hero-sub">Tactiq is a lightweight browser extension that transcribes your meetings in real time. If your meetings produce code rather than generic notes, there's a tool built for exactly that.</p>
       <div class="vs-cta-group">
         <a href="/app/" class="vs-cta">Try contextprompt free</a>
         <span class="vs-cta-note">Free plan · No credit card required</span>
@@ -307,7 +364,7 @@
   <section class="container">
     <div class="vs-verdict">
       <div class="vs-verdict-label">TL;DR</div>
-      <p><strong>Granola</strong> is an excellent AI notepad for personal productivity — it listens to your meetings and enhances the notes you type, producing beautiful summaries. It runs locally on Mac, is fast, and has a polished UX. <strong>contextprompt</strong> does something different: it's a cloud bot that joins your meeting, scans your repos, and produces structured coding tasks with implementation steps and real file paths. If you want better notes, Granola is great. If you want to go from meeting to <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;">git commit</code>, pick contextprompt.</p>
+      <p><strong>Tactiq</strong> is a fast, lightweight Chrome extension for live meeting transcription in 60+ languages — no bot, no audio driver, just real-time captions overlaid on your screen. It's great for quick transcripts and compliance-sensitive orgs. <strong>contextprompt</strong> is purpose-built for engineering teams: it sends a bot to your meeting, scans your connected repos, and outputs structured coding tasks mapped to real file paths. If you need "transcript now" Tactiq delivers. If you need "what do we build next and in which files," contextprompt is the answer.</p>
     </div>
   </section>
 
@@ -315,46 +372,56 @@
   <section class="vs-section">
     <div class="container">
       <h2>Feature comparison</h2>
-      <p class="vs-section-sub">A direct look at what each tool does — and doesn't — offer for developers.</p>
+      <p class="vs-section-sub">What Tactiq and contextprompt offer for software development teams.</p>
       <div class="vs-table-wrap">
         <table class="vs-table">
           <thead>
             <tr>
               <th>Feature</th>
               <th class="col-us">contextprompt</th>
-              <th class="col-them">Granola</th>
+              <th class="col-them">Tactiq</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Meeting transcription</td>
-              <td class="win"><span class="vs-check">✓</span> Cloud bot joins the call</td>
-              <td class="neutral"><span class="vs-check">✓</span> Local audio capture (Mac)</td>
+              <td class="win"><span class="vs-check">✓</span> Bot-based, post-meeting</td>
+              <td class="neutral"><span class="vs-check">✓</span> Real-time, browser extension</td>
             </tr>
             <tr>
-              <td>Platform support</td>
-              <td class="win">Zoom, Meet, Slack, Teams</td>
-              <td class="neutral">Any meeting (via mic/system audio)</td>
+              <td>Live captions overlay</td>
+              <td class="lose"><span class="vs-dash">–</span> Not available</td>
+              <td class="neutral"><span class="vs-check">✓</span> Real-time during meeting</td>
             </tr>
             <tr>
-              <td>Requires desktop install</td>
-              <td class="win"><span class="vs-cross">✗</span> Bot-based, no install</td>
-              <td class="lose"><span class="vs-check">✓</span> Mac app required</td>
+              <td>No bot in the meeting</td>
+              <td class="lose"><span class="vs-dash">–</span> Uses Recall.ai bot</td>
+              <td class="win"><span class="vs-check">✓</span> Extension only, no bot</td>
             </tr>
             <tr>
-              <td>Windows support</td>
-              <td class="win"><span class="vs-check">✓</span> Cloud-based, any OS + Linux</td>
-              <td class="neutral">macOS + Windows (iOS/Android coming)</td>
-            </tr>
-            <tr>
-              <td>AI meeting summary</td>
+              <td>Speaker identification</td>
+              <td class="win"><span class="vs-check">✓</span> With attribution</td>
               <td class="neutral"><span class="vs-check">✓</span> Included</td>
-              <td class="neutral"><span class="vs-check">✓</span> Polished, editable</td>
             </tr>
             <tr>
-              <td>Note-taking enhancement</td>
-              <td class="lose"><span class="vs-dash">–</span> Not the focus</td>
-              <td class="neutral"><span class="vs-check">✓</span> Core feature</td>
+              <td>Language support</td>
+              <td class="neutral">Multi-language via Recall.ai</td>
+              <td class="neutral"><span class="vs-check">✓</span> 60+ languages</td>
+            </tr>
+            <tr>
+              <td>AI-generated summary</td>
+              <td class="neutral"><span class="vs-check">✓</span> Included</td>
+              <td class="neutral"><span class="vs-check">✓</span> 5 AI credits/mo free</td>
+            </tr>
+            <tr>
+              <td>Action items</td>
+              <td class="win"><span class="vs-check">✓</span> Code-aware, structured</td>
+              <td class="neutral"><span class="vs-check">✓</span> Generic text</td>
+            </tr>
+            <tr>
+              <td>Meeting recording / storage</td>
+              <td class="win"><span class="vs-check">✓</span> Audio + transcript stored</td>
+              <td class="lose"><span class="vs-cross">✗</span> Transcript only, no recording</td>
             </tr>
             <tr>
               <td>Repo / codebase scanning</td>
@@ -362,13 +429,13 @@
               <td class="lose"><span class="vs-cross">✗</span> Not available</td>
             </tr>
             <tr>
-              <td>Coding tasks with file paths</td>
-              <td class="win"><span class="vs-check">✓</span> Mapped to your repo</td>
+              <td>Tasks with real file paths</td>
+              <td class="win"><span class="vs-check">✓</span> Mapped to your code</td>
               <td class="lose"><span class="vs-cross">✗</span> Not available</td>
             </tr>
             <tr>
-              <td>Implementation steps</td>
-              <td class="win"><span class="vs-check">✓</span> Per extracted task</td>
+              <td>Implementation steps per task</td>
+              <td class="win"><span class="vs-check">✓</span> Per task</td>
               <td class="lose"><span class="vs-cross">✗</span> Not available</td>
             </tr>
             <tr>
@@ -382,24 +449,65 @@
               <td class="lose"><span class="vs-cross">✗</span> Not available</td>
             </tr>
             <tr>
-              <td>Team sharing</td>
-              <td class="win"><span class="vs-check">✓</span> Dashboard, shared history</td>
-              <td class="neutral"><span class="vs-check">✓</span> Team workspaces</td>
+              <td>SOC 2 / HIPAA compliance</td>
+              <td class="lose"><span class="vs-dash">–</span></td>
+              <td class="neutral"><span class="vs-check">✓</span> ISO 27001, SOC 2 Type II</td>
             </tr>
             <tr>
               <td>Free tier</td>
-              <td class="win">1 hr / month</td>
-              <td class="neutral">25 meetings</td>
+              <td class="win">1 hr recording / month</td>
+              <td class="neutral">10 transcripts/mo, 5 AI credits/mo</td>
             </tr>
             <tr>
               <td>Pro pricing</td>
-              <td class="win">$30 / mo (per account)</td>
-              <td class="neutral">$14 / user / mo (Business)</td>
+              <td class="win">$30 / mo (flat per account)</td>
+              <td class="neutral">$12 / user / mo (Pro)</td>
             </tr>
             <tr>
-              <td>Privacy: local processing</td>
-              <td class="lose">Cloud processing</td>
-              <td class="neutral"><span class="vs-check">✓</span> Local on device</td>
+              <td>Developer-focused output</td>
+              <td class="win"><span class="vs-check">✓</span> Built for engineers</td>
+              <td class="lose">General purpose transcription</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PRICING ====== -->
+  <section class="vs-section">
+    <div class="container">
+      <h2>Pricing comparison</h2>
+      <p class="vs-section-sub">Tactiq's free plan caps at 10 transcripts/month. contextprompt caps by recording time — better for teams with frequent short meetings.</p>
+      <div class="vs-table-wrap">
+        <table class="vs-table">
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th class="col-us">contextprompt</th>
+              <th class="col-them">Tactiq</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Free</td>
+              <td class="neutral">1 hr recording / month</td>
+              <td class="neutral">10 transcripts/mo + 5 AI credits/mo</td>
+            </tr>
+            <tr>
+              <td>Pro</td>
+              <td class="win">$30 / mo (whole account)</td>
+              <td class="neutral">$12 / user / mo</td>
+            </tr>
+            <tr>
+              <td>Team</td>
+              <td class="win">$30 / mo (still flat)</td>
+              <td class="neutral">$20 / user / mo</td>
+            </tr>
+            <tr>
+              <td>5-person team cost</td>
+              <td class="win">$30 / mo</td>
+              <td class="neutral">$60–100 / mo</td>
             </tr>
           </tbody>
         </table>
@@ -410,44 +518,44 @@
   <!-- ====== KEY DIFFERENCES ====== -->
   <section class="vs-section">
     <div class="container">
-      <h2>Different tools, different jobs</h2>
-      <p class="vs-section-sub">Granola makes you a better note-taker. contextprompt eliminates the note-taking step entirely for engineering teams.</p>
+      <h2>Where contextprompt pulls ahead</h2>
+      <p class="vs-section-sub">Tactiq gives you a transcript. contextprompt gives you a sprint backlog item with file paths.</p>
 
       <div class="vs-diff-grid">
         <div class="vs-diff-card win">
-          <div class="vs-diff-icon">🔧</div>
-          <h3>contextprompt: zero personal setup</h3>
-          <p>Paste a meeting URL. A bot joins and records. You don't install anything, configure audio drivers, or even attend if the meeting is async. Granola requires a Mac app running on your machine during the call.</p>
+          <div class="vs-diff-icon">📁</div>
+          <h3>Your repo is part of the analysis</h3>
+          <p>contextprompt scans your connected repositories before analyzing the transcript. When your team says "refactor the database layer," it finds <code style="font-family:'JetBrains Mono',monospace;font-size:0.8em;color:#58a6ff;">src/server/db.ts</code> automatically. Tactiq outputs the same words everyone said — your codebase doesn't enter the picture.</p>
         </div>
 
         <div class="vs-diff-card win">
-          <div class="vs-diff-icon">🗂️</div>
-          <h3>contextprompt: knows your codebase</h3>
-          <p>contextprompt connects to your repos before the meeting. After the call, it maps every discussed feature or bug to actual file paths, exports, and function signatures in your code. Granola knows nothing about your repo.</p>
+          <div class="vs-diff-icon">🤖</div>
+          <h3>Output designed for AI coding agents</h3>
+          <p>Every extracted task includes the file paths, implementation steps, and transcript evidence that an AI coding assistant needs. Paste into Claude Code, Cursor, or Copilot and start implementing immediately. Tactiq outputs a text transcript you still have to parse yourself.</p>
         </div>
 
         <div class="vs-diff-card win">
-          <div class="vs-diff-icon">💻</div>
-          <h3>contextprompt: any OS, any machine</h3>
-          <p>Because contextprompt is cloud-based, it works on Windows, Linux, and Mac. It works when you're on the go, in a browser-only environment, or when a teammate needs to review tasks from a different machine.</p>
+          <div class="vs-diff-icon">💾</div>
+          <h3>Meeting recordings are stored</h3>
+          <p>contextprompt stores your meeting audio and transcript for later review and reprocessing. Tactiq captures transcript-only — no recording. If you missed a standup, contextprompt has the whole audio. Tactiq has nothing unless you were in the tab.</p>
+        </div>
+
+        <div class="vs-diff-card win">
+          <div class="vs-diff-icon">💰</div>
+          <h3>Flat account pricing — not per seat</h3>
+          <p>contextprompt is $30/mo for your whole engineering team. Tactiq charges $12-20 per user per month. A 5-person team pays $30 vs $60-100. The savings compound as your team grows.</p>
         </div>
 
         <div class="vs-diff-card lose">
-          <div class="vs-diff-icon">📝</div>
-          <h3>Granola wins: note-taking UX</h3>
-          <p>Granola's core loop — type bullet notes while listening, AI enhances them into a polished document — is genuinely excellent. If you value your own notes and want AI to make them better, Granola's UX is superior.</p>
+          <div class="vs-diff-icon">⚡</div>
+          <h3>Tactiq wins: real-time captions</h3>
+          <p>Tactiq's browser extension overlays live captions during your meeting — no waiting for a bot to join, no post-processing delay. Great for note-taking in real time and for participants with hearing needs. contextprompt is post-meeting only.</p>
         </div>
 
         <div class="vs-diff-card lose">
           <div class="vs-diff-icon">🔒</div>
-          <h3>Granola wins: local privacy</h3>
-          <p>Granola processes audio locally on your device. For teams with strict data-handling requirements, not sending audio to the cloud is a real advantage. contextprompt sends transcripts to its cloud for analysis.</p>
-        </div>
-
-        <div class="vs-diff-card win">
-          <div class="vs-diff-icon">🌍</div>
-          <h3>contextprompt wins: team history</h3>
-          <p>All meetings and extracted tasks live in the contextprompt dashboard, accessible to anyone on the team. Past tasks link back to the transcript moment that created them. Granola's sharing is more personal-notebook oriented.</p>
+          <h3>Tactiq wins: no bot in the room</h3>
+          <p>Some clients and partners are uncomfortable with AI bots appearing in meetings. Tactiq's extension works invisibly in your browser — no bot participant shows up. contextprompt requires a Recall.ai bot that appears in the attendee list.</p>
         </div>
       </div>
     </div>
@@ -456,31 +564,32 @@
   <!-- ====== WHO WINS ====== -->
   <section class="vs-section">
     <div class="container">
-      <h2>Which tool fits you</h2>
-      <p class="vs-section-sub">Both are great products. The choice comes down to what "output" means to you.</p>
+      <h2>Who should pick which</h2>
+      <p class="vs-section-sub">Pick the tool that matches what happens after the meeting ends.</p>
       <div class="vs-winners">
         <div class="vs-winner-card us">
           <div class="vs-winner-label">Choose contextprompt if you…</div>
-          <h3>You want shipping tasks</h3>
+          <h3>You ship software</h3>
           <ul class="vs-winner-list">
-            <li>Your meetings end with: "we need to change X file"</li>
-            <li>You use Claude Code, Cursor, or Copilot to implement</li>
-            <li>You want team-shared task history from every meeting</li>
-            <li>You run on Linux (Granola is macOS + Windows only)</li>
-            <li>You don't want to install anything on your computer</li>
-            <li>You do sprint planning, retros, or architecture reviews</li>
+            <li>Sprint planning or architecture meetings → coding tasks</li>
+            <li>Use Claude Code, Cursor, GitHub Copilot, or similar</li>
+            <li>Need tasks that reference real files, not "the auth thing"</li>
+            <li>Run engineering standups, design reviews, or retros</li>
+            <li>Want flat-rate pricing for your whole team</li>
+            <li>Need meeting recordings stored for async review</li>
           </ul>
         </div>
 
         <div class="vs-winner-card them">
-          <div class="vs-winner-label">Choose Granola if you…</div>
-          <h3>You want better notes</h3>
+          <div class="vs-winner-label">Choose Tactiq if you…</div>
+          <h3>You want a lightweight transcript</h3>
           <ul class="vs-winner-list">
-            <li>You like taking your own notes and want AI to polish them</li>
-            <li>You're on a Mac and prefer a native app experience</li>
-            <li>Data privacy is critical and you want local processing</li>
-            <li>You attend many varied meeting types (not just eng standups)</li>
-            <li>You want a personal AI assistant for all your calls</li>
+            <li>Need real-time captions during the meeting itself</li>
+            <li>Can't or won't have a bot appear in your meetings</li>
+            <li>Work in a compliance-sensitive org (HIPAA, SOC 2)</li>
+            <li>Primarily need international language support (60+)</li>
+            <li>Want a free tier with no recording time limits</li>
+            <li>Don't need coding task extraction or repo scanning</li>
           </ul>
         </div>
       </div>
@@ -490,8 +599,8 @@
   <!-- ====== BOTTOM CTA ====== -->
   <section class="vs-bottom-cta">
     <div class="container">
-      <h2>From meeting to code commit — without the gap.</h2>
-      <p>contextprompt joins your call, scans your repos, and extracts structured tasks with real file paths. Paste into Claude Code and ship. Free plan, no credit card, no install.</p>
+      <h2>A transcript isn't a task list.</h2>
+      <p>contextprompt joins your call, scans your repos, and extracts coding tasks with real file paths — ready to hand to Claude Code. Free plan, no credit card.</p>
       <a href="/app/" class="vs-cta">Try contextprompt free</a>
     </div>
   </section>
@@ -501,8 +610,9 @@
     <div class="container">
       <h3>Also compare</h3>
       <div class="vs-also-links">
-        <a href="/vs/fireflies-ai/" class="vs-also-link">contextprompt vs Fireflies.ai</a>
         <a href="/vs/otter-ai/" class="vs-also-link">contextprompt vs Otter.ai</a>
+        <a href="/vs/fireflies-ai/" class="vs-also-link">contextprompt vs Fireflies.ai</a>
+        <a href="/vs/granola/" class="vs-also-link">contextprompt vs Granola</a>
         <a href="/vs/tldv/" class="vs-also-link">contextprompt vs tl;dv</a>
         <a href="/vs/fathom/" class="vs-also-link">contextprompt vs Fathom</a>
       </div>

@@ -2,6 +2,13 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-04-06 — Growth Agent (Monday)
+
+- **Branch:** `agent/growth/use-cases-code-review-retro` (pushed, ready for PR)
+- **Shipped:** `/use-cases/code-review/` and `/use-cases/retrospective/` — completes all 6 priority use-case pages
+- **Target queries:** meeting to code review tasks, code review automation, code review meeting follow-up, retrospective action items, sprint retro automation, retro action items codebase
+- **Internal links:** both pages cross-link to each other + standup + sprint-planning; full use-case cross-link mesh now complete
+
 ## 2026-04-05 — Growth Agent (Sunday)
 
 - **Branch:** `agent/growth/vs-tldv-tactiq-fathom` (pushed, ready for PR)

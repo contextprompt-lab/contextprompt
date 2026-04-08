@@ -380,6 +380,52 @@ export function Recording() {
         </Card>
       )}
 
+      {/* First-meeting prompt — shown only when repos are connected but no meetings recorded yet */}
+      {!isActive && hasRepos && meetings.length === 0 && (
+        <>
+          <Divider sx={{ my: 3 }} />
+          <Box sx={{ textAlign: 'center', py: 3 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              Your first meeting is one paste away
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 420, mx: 'auto' }}>
+              Paste a meeting link above. The bot joins, records, and delivers structured coding tasks — mapped to your repos — within minutes of the call ending.
+            </Typography>
+            <Stack direction="row" spacing={4} justifyContent="center" sx={{ mb: 3 }}>
+              <Box sx={{ textAlign: 'center' }}>
+                <SmartToyIcon sx={{ color: 'primary.main', fontSize: 32, mb: 0.5 }} />
+                <Typography variant="caption" display="block" color="text.secondary">Bot joins &amp; records</Typography>
+              </Box>
+              <Box sx={{ textAlign: 'center' }}>
+                <AccessTimeIcon sx={{ color: 'warning.main', fontSize: 32, mb: 0.5 }} />
+                <Typography variant="caption" display="block" color="text.secondary">Transcript generated</Typography>
+              </Box>
+              <Box sx={{ textAlign: 'center' }}>
+                <TaskAltIcon sx={{ color: 'success.main', fontSize: 32, mb: 0.5 }} />
+                <Typography variant="caption" display="block" color="text.secondary">Tasks appear here</Typography>
+              </Box>
+            </Stack>
+            {/* Preview of what a task looks like */}
+            <Card variant="outlined" sx={{ maxWidth: 480, mx: 'auto', textAlign: 'left', opacity: 0.6 }}>
+              <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
+                  <Typography variant="subtitle2" fontWeight={600} fontSize="0.8rem">
+                    T1: Replace session tokens with JWT
+                  </Typography>
+                  <Chip label="high confidence" size="small" color="success" variant="outlined" />
+                </Stack>
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                  src/middleware/auth.ts · src/types/session.ts
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Example of a task extracted from your next meeting
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        </>
+      )}
+
       {/* Past meetings */}
       {meetings.length > 0 && (
         <>

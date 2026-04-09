@@ -1,77 +1,51 @@
-# Product Health Report — 2026-04-08 (Wednesday)
+# Product Health Report — 2026-04-09
 
-## Summary
-- **TypeScript:** PASS — 0 errors
-- **Tests:** PASS — 107/107 across 8 test files
-- **GitHub:** 0 open issues; 1 open PR (#4 — SEO agent engineering managers page, created 2026-04-03)
-- **Dependency Audit:** Skipped (Wednesday); 3 high severity vulns outstanding (path-to-regexp, picomatch) — 9 days
-- **Conversion work:** YES — first-meeting empty state added to Recording.tsx (branch pushed)
-- **Bugs found:** None
+**Day:** Thursday — health monitoring only
 
----
+## Application Status
+- Landing page: UNKNOWN — outbound HTTP blocked in sandbox
+- Health endpoint: UNKNOWN — same sandbox restriction
 
-## 1. CI & GitHub Status
+## CI / GitHub Status
+- GitHub MCP tools unavailable in this sandbox (no `gh` CLI, MCP tools not responding)
+- Remote has **1 open PR: #4** (`[seo-agent] Engineering managers landing page + 5 new blog topics`, branch `agent/seo/for-engineering-managers`, created 2026-04-03) — not stale
+- Two conversion branches pushed but no PRs created (tooling blocked):
+  - `agent/convert/login-value-props` (2026-04-01)
+  - `agent/convert/first-meeting-empty-state` (2026-04-08)
 
-**Recent commits on main:**
-- `3b3f766` — `[search-console]` Daily report 2026-04-07 *(latest)*
-- `102b736` — `[seo-agent]` Report 2026-04-07
-- `c66b4d0` — `[seo-agent]` Report 2026-04-07
-- `e28f1d6` — `[health-agent]` Daily report 2026-04-07
+## TypeScript
+- Status: **PASS — 0 errors**
 
-**Open PRs:** 1
-- PR #4: `[seo-agent] Engineering managers landing page + 5 new blog topics` — branch `agent/seo/for-engineering-managers`, created 2026-04-03, not stale
+## Test Suite
+- Status: **PASS** — 107/107 tests across 8 test files (1.91s)
 
-**Open Issues:** 0
+## Build
+- Status: **PASS** — Vite build succeeded (617 kB app chunk — existing warning)
+- Note: `website/` has a separate `package.json`; `npm install` must be run in `website/` before `npm run build` succeeds in a fresh sandbox
 
----
-
-## 2. Code Quality
-
-**TypeScript:** PASS
-```
-npx tsc --noEmit → 0 errors
-```
-
-**Tests:** PASS
-```
-Test Files  8 passed (8)
-     Tests  107 passed (107)
-  Duration  1.59s
-```
-
-All suites green: transcript, chunker, extractor, markdown, indexer, scanner, github client, issue-extractor.
-
----
-
-## 3. Dependency Audit
-
-Skipped (Wednesday). Outstanding vulnerabilities carried forward:
+## Dependency Audit
+- Skipped today (Thursday). Outstanding vulnerabilities:
 
 | Package | Severity | Issue | Days Outstanding |
 |---------|----------|-------|-----------------|
-| path-to-regexp | High | ReDoS via backtracking | 9 days |
-| picomatch | High | ReDoS + method injection | 9 days |
+| path-to-regexp | High | ReDoS via backtracking | ~10 days |
+| picomatch | High | ReDoS + method injection | ~10 days |
 
-Both are transitive dependencies. Fix available via `npm audit fix`.
+Both are transitive dependencies. Fix available via `npm audit fix` in root and `cd website && npm audit fix`. **Still pending — recommend addressing on next Monday.**
 
----
+## Search Console Summary (data through 2026-03-30)
+- Total impressions: 78 | Clicks: 2 (/ and /privacy/) | 0% average CTR
+- Top underperforming pages (impressions, 0% CTR):
+  - `/blog/best-meeting-tools-for-engineering-teams-2026-3/` — 71 impressions, pos 9.5 ← highest volume
+  - `/blog/ai-meeting-bot-for-engineering-teams-2/` — 34 impressions, pos 54.7
+  - `/blog/best-meeting-tools-for-engineering-teams-2026-2/` — 28 impressions, pos 8.8
+  - `/blog/how-to-automate-standup-meeting-follow-ups/` — 16 impressions, pos 6.4
+- Homepage `/`: 1 click, 33.3% CTR, position 2.0 — performing well
 
-## 4. Search Console
+## Bugs Found
+- None
 
-From `reports/search-console/latest.md` (period: 2026-03-07 to 2026-04-04):
-
-- **Total clicks:** 2 (homepage 1, privacy 1)
-- **Total impressions:** 91
-- **Top opportunity:** `/blog/best-meeting-tools-for-engineering-teams-2026-3/` — 99 impressions, position 10.4, 0% CTR
-
-Homepage (`/`) at position 2 with 33% CTR — performing well. Blog pages have impressions but 0 clicks; SEO agent is addressing this.
-
----
-
-## 5. Conversion Work (Wednesday)
-
-See `reports/product-improvement/latest.md` for full details.
-
-**Change:** Added first-meeting empty state to `website/app/src/pages/Recording.tsx`  
-**Branch:** `agent/convert/first-meeting-empty-state` — pushed to origin  
-**PR:** `gh` CLI unavailable and GitHub MCP tools not present; branch pushed for manual PR creation.
+## Recommendations
+1. **Create PRs manually** for pushed conversion branches — `gh` CLI and MCP GitHub tools unavailable in sandbox
+2. **`npm audit fix`** — 3 high-severity vulns outstanding for ~10 days; run in both root and `website/` on Monday
+3. **Next Wednesday conversion target:** Blog page `/blog/best-meeting-tools-for-engineering-teams-2026-3/` (71 impressions, pos 9.5) is the highest-traffic page with 0% CTR — add in-article CTA or improve title/meta to increase clicks

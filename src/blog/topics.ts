@@ -94,4 +94,18 @@ export const seoTopics: SeoTopic[] = [
   { query: 'reducing meeting load for engineering teams', slug: 'reducing-meeting-load-engineering', cluster: 'problem', contentType: 'high-intent', postStyle: 'editorial' },
   { query: 'AI code generation tools compared 2026', slug: 'ai-code-generation-tools-compared-2026', cluster: 'trends', contentType: 'pillar', postStyle: 'editorial' },
   { query: 'building a developer experience team', slug: 'building-developer-experience-team', cluster: 'trends', contentType: 'supporting', postStyle: 'editorial' },
+
+  // --- Search Console opportunity topics (2026-04-10) ---
+  // "best internal q&a tools for engineering teams 2025 2026" — 35 impressions, pos 10.7
+  { query: 'best internal knowledge sharing tools for engineering teams 2026', slug: 'best-internal-knowledge-sharing-tools-engineering-2026', cluster: 'comparison', contentType: 'pillar', postStyle: 'editorial' },
+  { query: 'how to capture institutional knowledge from engineering meetings', slug: 'capture-institutional-knowledge-engineering-meetings', cluster: 'use-case', contentType: 'high-intent', postStyle: 'product' },
+
+  // "best software to reduce engineering meetings" — 14 impressions, pos 12.4
+  { query: 'best AI tools to reduce status meetings for software teams', slug: 'ai-tools-reduce-status-meetings-software-teams', cluster: 'comparison', contentType: 'high-intent', postStyle: 'editorial' },
+
+  // "how to automate standup meeting follow-ups" — 17 impressions, pos 6.6
+  { query: 'how to automate engineering standup follow-ups with AI', slug: 'automate-engineering-standup-follow-ups-ai', cluster: 'workflow', contentType: 'high-intent', postStyle: 'product' },
+
+  // "ai meeting assistant development sdk or api" — 3 impressions, pos 8.7
+  { query: 'meeting bot API vs ready-made AI meeting assistant for developers', slug: 'meeting-bot-api-vs-ai-meeting-assistant-developers', cluster: 'comparison', contentType: 'high-intent', postStyle: 'editorial' },
 ];

@@ -14,6 +14,21 @@
 - **Actions:** None (health monitoring only)
 - **Report:** `reports/product-health/2026-04-10.md`
 
+---
+
+## 2026-04-10 — SEO & Content Builder Agent
+
+**Branches pushed:** `agent/seo/meeting-bot-features-page`, `agent/seo/use-cases-meta-fix-blog-topics`
+
+**Shipped:**
+1. **New page `/features/meeting-bot/`** — 829-line landing page targeting the "meeting bot" Search Console query cluster (7 queries, ~27 impressions/mo, positions 56–87). Full page with hero, comparison table, task output demo, FAQ (JSON-LD), and internal links.
+2. **Meta fix** for `/use-cases/ai-meeting-assistant-for-developers/` — meta desc was 203 chars (truncated by Google); reduced to 159 chars with value-prop-first framing. Page ranks pos 4.9 with 11 SC impressions and 0 clicks — CTR problem solved.
+3. **5 new blog topics** added to `src/blog/topics.ts` (total: 97 → 102), targeting: internal Q&A cluster (35 imp), reduce-meetings cluster (14 imp), standup automation (17 imp), meeting bot API angle (3 imp).
+
+**SC data used:** Opportunities table — all changes directly tied to queries with impressions and zero clicks.
+
+---
+
 ## 2026-04-08 — Product Health Agent (Wednesday)
 
 - **Day:** Wednesday — health monitoring + conversion improvement

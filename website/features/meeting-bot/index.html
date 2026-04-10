@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Bot for Developers — contextprompt</title>
+  <meta name="description" content="Send a meeting bot to Zoom, Google Meet, or Teams in one click. contextprompt's bot transcribes your call and extracts repo-aware coding tasks automatically. Free plan included.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/features/meeting-bot/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Meeting Bot for Developers — contextprompt">
+  <meta property="og:description" content="Paste a meeting link. contextprompt sends a bot, transcribes your call with speaker IDs, and extracts structured coding tasks mapped to real file paths in your repo.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/features/meeting-bot/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Meeting Bot for Developers — contextprompt">
+  <meta name="twitter:description" content="Send a meeting bot to any call. contextprompt transcribes your meetings and extracts structured coding tasks with real file references.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/css/reset.css">
+  <link rel="stylesheet" href="/src/css/tokens.css">
+  <link rel="stylesheet" href="/src/css/layout.css">
+  <link rel="stylesheet" href="/src/css/components.css">
+
+  <style>
+    .uc-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .uc-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 800px;
+      margin: 0 auto 1.5rem;
+    }
+    .uc-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .uc-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .uc-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .uc-cta:hover { opacity: 0.85; }
+    .uc-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+    .uc-platform-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 2.5rem;
+    }
+    .uc-platform-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #999;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 20px;
+      padding: 0.4rem 1rem;
+    }
+
+    .uc-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .uc-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .uc-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    .uc-problems {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-problem-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .uc-problem-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #3fb950;
+      margin-bottom: 0.75rem;
+    }
+    .uc-problem-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .uc-problem-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-solution-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .uc-solution-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .uc-solution-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-stat-row {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: 700px;
+      margin: 0 auto 3rem;
+    }
+    .uc-stat {
+      text-align: center;
+    }
+    .uc-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #3fb950;
+      line-height: 1;
+    }
+    .uc-stat-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
+    /* Terminal output demo */
+    .uc-demo-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-width: 760px;
+      margin: 0 auto;
+      overflow-x: auto;
+    }
+    .uc-demo-block pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #e6e6e6;
+      line-height: 1.7;
+      margin: 0;
+      white-space: pre;
+    }
+    .demo-prompt { color: #555; }
+    .demo-task   { color: #3fb950; font-weight: 700; }
+    .demo-file   { color: #58a6ff; }
+    .demo-pri    { color: #f0c000; }
+    .demo-step   { color: #999; }
+    .demo-speaker { color: #bc8cff; }
+
+    /* Comparison table */
+    .uc-compare-table {
+      max-width: 760px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #21262d;
+    }
+    .uc-compare-row {
+      display: grid;
+      grid-template-columns: 2fr 1.5fr 1.5fr;
+      gap: 0;
+    }
+    .uc-compare-row.header {
+      background: #161b22;
+    }
+    .uc-compare-cell {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #21262d;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .uc-compare-row.header .uc-compare-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e6e6e6;
+    }
+    .uc-compare-cell + .uc-compare-cell {
+      border-left: 1px solid #21262d;
+    }
+    .uc-compare-row:last-child .uc-compare-cell {
+      border-bottom: none;
+    }
+    .check { color: #3fb950; font-weight: 600; }
+    .cross { color: #f85149; }
+    .uc-compare-cell.feature { color: #e6e6e6; }
+
+    /* FAQ */
+    .uc-faq {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .uc-faq-item {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .uc-faq-item h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.6rem;
+    }
+    .uc-faq-item p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .uc-testimonial {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .uc-testimonial-stars {
+      color: #f0c000;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .uc-testimonial blockquote {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      color: #e6e6e6;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .uc-testimonial-author {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .uc-testimonial-name {
+      color: #e6e6e6;
+      font-weight: 500;
+    }
+
+    .uc-pricing-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .uc-pricing-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex: 1;
+      min-width: 220px;
+    }
+    .uc-pricing-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.25rem;
+    }
+    .uc-pricing-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .uc-pricing-detail {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    .uc-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .uc-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+
+    .uc-breadcrumb {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      text-align: center;
+      padding: 1.5rem 0 0;
+    }
+    .uc-breadcrumb a {
+      color: #555;
+      text-decoration: none;
+    }
+    .uc-breadcrumb a:hover { color: #999; }
+    .uc-breadcrumb span { margin: 0 0.4rem; }
+
+    .uc-related {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .uc-related-link {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #3fb950;
+      text-decoration: none;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 0.6rem 1.1rem;
+      transition: border-color 0.2s;
+    }
+    .uc-related-link:hover { border-color: #3fb950; }
+  </style>
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "contextprompt Meeting Bot",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "description": "Send a meeting bot to Zoom, Google Meet, Slack, or Teams. contextprompt's AI bot joins your call, transcribes the conversation, scans your code repos, and extracts structured coding tasks with real file paths.",
+        "url": "https://contextprompt.app/features/meeting-bot/",
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Free",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro",
+            "price": "30",
+            "priceCurrency": "USD",
+            "billingIncrement": "Month"
+          }
+        ],
+        "featureList": [
+          "Joins Zoom, Google Meet, Slack, and Teams meetings",
+          "Speaker-attributed transcription in 12 languages",
+          "Repo-aware structured task extraction with real file paths",
+          "Webhook-based processing — tasks ready within minutes of meeting end",
+          "No browser extension or desktop app required"
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://contextprompt.app/" },
+          { "@type": "ListItem", "position": 2, "name": "Features", "item": "https://contextprompt.app/features/" },
+          { "@type": "ListItem", "position": 3, "name": "Meeting Bot", "item": "https://contextprompt.app/features/meeting-bot/" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How does the contextprompt meeting bot join my call?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Paste your Zoom, Google Meet, Slack, or Teams meeting link into the contextprompt dashboard. The bot is dispatched automatically and joins as a named participant within seconds. No browser extension, no desktop app, no calendar integration required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which meeting platforms does the bot support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "contextprompt's meeting bot supports Zoom, Google Meet, Slack Huddles, and Microsoft Teams. All platforms are included on both the free and Pro plans."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is contextprompt different from other meeting bots?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Most meeting bots produce a text summary or a list of generic action items. contextprompt goes further: it scans your connected code repositories and maps every coding task back to real file paths, function names, and implementation steps. The output is structured for use with AI coding assistants like Claude Code or Cursor."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use contextprompt as a meeting bot API?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "contextprompt is a ready-to-use product, not a raw API. If you need meeting bot infrastructure to build your own application, services like Recall.ai or Meeting BaaS provide that. contextprompt gives engineering teams the finished result: repo-aware coding tasks extracted from meeting transcripts, with no integration work required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the meeting bot record audio?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The bot records and transcribes your meeting with speaker identification. Recordings are processed to generate the transcript and task output, then deleted according to our retention policy. We do not use your meeting content to train AI models."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- BREADCRUMB -->
+  <div class="uc-breadcrumb container">
+    <a href="/">Home</a><span>/</span><a href="/features/">Features</a><span>/</span>Meeting Bot
+  </div>
+
+  <!-- HERO -->
+  <section class="uc-hero">
+    <div class="container">
+      <h1>Send a <u>meeting bot</u> to any call.<br>Get repo-aware coding tasks.</h1>
+      <p class="uc-hero-sub">Paste a Zoom, Google Meet, Slack, or Teams link. contextprompt dispatches a bot that joins, records, and transcribes your meeting — then scans your connected repos and extracts structured coding tasks with real file paths. No extensions. No setup.</p>
+      <a href="/app/" class="uc-cta">Send your first bot free</a>
+      <p class="uc-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+      <div class="uc-platform-bar">
+        <span class="uc-platform-pill">Zoom</span>
+        <span class="uc-platform-pill">Google Meet</span>
+        <span class="uc-platform-pill">Microsoft Teams</span>
+        <span class="uc-platform-pill">Slack Huddles</span>
+        <span class="uc-platform-pill">12 languages</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW THE BOT WORKS -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>What our meeting bot does</h2>
+      <p class="uc-section-sub">Most meeting bots stop at transcription. contextprompt's bot understands your codebase.</p>
+
+      <div class="uc-problems">
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">01</div>
+          <h3>Joins as a named participant</h3>
+          <p>Paste the meeting link in the dashboard. The bot joins within seconds as "contextprompt" — no calendar integration, no browser extension, no desktop client. Works on Zoom, Google Meet, Teams, and Slack Huddles.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">02</div>
+          <h3>Records with speaker attribution</h3>
+          <p>The bot captures the full meeting audio and generates a transcript with speaker labels. Every statement is attributed to the right person — essential for accurate task ownership and meeting context.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">03</div>
+          <h3>Extracts tasks mapped to your code</h3>
+          <p>When the call ends, contextprompt cross-references the transcript against your connected repos. It identifies every coding task discussed and maps each one to real file paths, function names, and implementation steps — not generic summaries.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="uc-section">
+    <div class="container">
+      <div class="uc-stat-row">
+        <div class="uc-stat">
+          <div class="uc-stat-value">4</div>
+          <p class="uc-stat-label">meeting platforms supported</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">12</div>
+          <p class="uc-stat-label">spoken languages</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">&lt;5m</div>
+          <p class="uc-stat-label">meeting end to tasks ready</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">0</div>
+          <p class="uc-stat-label">integrations required</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO OUTPUT -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>What comes out of the bot</h2>
+      <p class="uc-section-sub">The output isn't a transcript dump. It's structured tasks your AI coding assistant can act on immediately.</p>
+
+      <div class="uc-demo-block">
+        <pre><span class="demo-prompt">$ contextprompt dashboard  →  meeting-2026-04-10</span>
+
+<span class="demo-task">[task]</span> Refactor auth middleware to extract JWT validation
+  <span class="demo-file">file:     src/server/middleware/auth.ts:34</span>
+  <span class="demo-pri">priority: high</span>
+  <span class="demo-step">steps:
+    1. Extract validateJWT() into separate function
+    2. Add rate-limit guard for failed login attempts
+    3. Update unit tests in __tests__/auth.test.ts</span>
+  <span class="demo-speaker">speaker:  Marcus (Lead) @ 14:32 — "the JWT check is baked in,
+            we need to pull it out before we add the rate limiter"</span>
+
+<span class="demo-task">[task]</span> Fix WebSocket connection memory leak
+  <span class="demo-file">file:     src/server/ws.ts:89</span>
+  <span class="demo-pri">priority: critical</span>
+  <span class="demo-step">steps:
+    1. Clear setInterval on WebSocket close event
+    2. Add 30s connection timeout with cleanup handler</span>
+  <span class="demo-speaker">speaker:  Priya (Backend) @ 31:08 — "we're seeing memory grow
+            after disconnections, probably the interval not clearing"</span>
+
+<span class="demo-task">[task]</span> Add repo scanning progress indicator to dashboard
+  <span class="demo-file">file:     website/app/src/pages/Repos.tsx:156</span>
+  <span class="demo-pri">priority: medium</span>
+  <span class="demo-step">steps:
+    1. Add scanning state to RepoCard component
+    2. Poll /api/repos/:id/status every 2s during scan</span>
+  <span class="demo-speaker">speaker:  Marcus (Lead) @ 47:15 — "users don't know the scan
+            is running, they just see nothing happening"</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Not just another recording bot</h2>
+      <p class="uc-section-sub">Generic meeting bots give you text. contextprompt gives you tasks your team can build from.</p>
+
+      <div class="uc-compare-table">
+        <div class="uc-compare-row header">
+          <div class="uc-compare-cell">Feature</div>
+          <div class="uc-compare-cell">Generic meeting bot</div>
+          <div class="uc-compare-cell">contextprompt</div>
+        </div>
+        <div class="uc-compare-row">
+          <div class="uc-compare-cell feature">Joins Zoom, Meet, Teams, Slack</div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+        </div>
+        <div class="uc-compare-row">
+          <div class="uc-compare-cell feature">Meeting transcript</div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+        </div>
+        <div class="uc-compare-row">
+          <div class="uc-compare-cell feature">Speaker attribution</div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+        </div>
+        <div class="uc-compare-row">
+          <div class="uc-compare-cell feature">Generic action item summary</div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+          <div class="uc-compare-cell"><span class="cross">&#10007; structured tasks instead</span></div>
+        </div>
+        <div class="uc-compare-row">
+          <div class="uc-compare-cell feature">Scans your code repositories</div>
+          <div class="uc-compare-cell"><span class="cross">&#10007;</span></div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+        </div>
+        <div class="uc-compare-row">
+          <div class="uc-compare-cell feature">Tasks with real file paths</div>
+          <div class="uc-compare-cell"><span class="cross">&#10007;</span></div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+        </div>
+        <div class="uc-compare-row">
+          <div class="uc-compare-cell feature">AI coding assistant ready output</div>
+          <div class="uc-compare-cell"><span class="cross">&#10007;</span></div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+        </div>
+        <div class="uc-compare-row">
+          <div class="uc-compare-cell feature">No API integration required</div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+          <div class="uc-compare-cell"><span class="check">&#10003;</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO SEND THE BOT -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>How to send a meeting bot in 3 steps</h2>
+      <p class="uc-section-sub">No configuration. No calendar sync. No API keys.</p>
+
+      <div class="uc-solution-grid" style="max-width:760px">
+        <div class="uc-solution-card">
+          <h3>1. Connect your repos</h3>
+          <p>One-time setup: add your project repos from the contextprompt dashboard. The scanner indexes your file tree and exports — it never stores your source code, only the map.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>2. Paste the meeting link</h3>
+          <p>Copy the Zoom, Google Meet, Teams, or Slack meeting URL and paste it into contextprompt. Hit Send. The bot joins within seconds.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>3. Get tasks from the dashboard</h3>
+          <p>When the call ends, contextprompt processes the transcript and delivers structured coding tasks to your dashboard — usually within 5 minutes. Copy any task into Claude Code, Cursor, or your AI assistant of choice.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="uc-section">
+    <div class="container">
+      <div class="uc-testimonial">
+        <div class="uc-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <blockquote>&ldquo;I've tried Otter, Fireflies, everything. They all give you a wall of text. contextprompt gives you tasks with the actual file paths. I paste it straight into Claude Code and start building.&rdquo;</blockquote>
+        <div class="uc-testimonial-author">
+          <span class="uc-testimonial-name">Sasha K.</span> &mdash; Senior Engineer, fintech startup
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Meeting bot FAQ</h2>
+      <p class="uc-section-sub">Common questions about how the meeting bot works.</p>
+
+      <div class="uc-faq">
+        <div class="uc-faq-item">
+          <h3>How does the contextprompt meeting bot join my call?</h3>
+          <p>Paste your meeting link into the contextprompt dashboard and click Send. The bot is dispatched automatically and joins your meeting as a participant named "contextprompt" — no calendar integration, no browser extension, no desktop app required.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>Which meeting platforms are supported?</h3>
+          <p>Zoom, Google Meet, Microsoft Teams, and Slack Huddles are all supported on both free and Pro plans. Paste any of these meeting links into contextprompt and the bot will join.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>How is this different from other meeting bots like Otter or Fireflies?</h3>
+          <p>Otter, Fireflies, and similar tools transcribe meetings and generate generic summaries or action item lists. contextprompt scans your connected code repos and maps each task back to real file paths, function names, and implementation steps — output specifically structured for AI coding assistants. See the <a href="/use-cases/ai-meeting-assistant-for-developers/" style="color:#3fb950">AI meeting assistant for developers</a> page for a full comparison.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>Can I use this as a meeting bot API for my own app?</h3>
+          <p>contextprompt is a ready-to-use product for engineering teams, not a raw meeting bot API. If you're building an application that needs bot-in-meeting infrastructure, check out Recall.ai or Meeting BaaS. If your goal is extracting repo-aware coding tasks from your team's meetings, contextprompt is the fastest path there — no API integration needed.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>Is my meeting recording stored permanently?</h3>
+          <p>Meeting audio is processed to generate the transcript and task output, then deleted per our data retention policy. Your meeting content is never used to train AI models. Only the extracted tasks and transcript are stored in your contextprompt account.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Simple pricing for any team size</h2>
+      <p class="uc-section-sub">Start for free. Upgrade when your team needs more meeting hours.</p>
+
+      <div class="uc-pricing-row">
+        <div class="uc-pricing-card">
+          <h3>Free</h3>
+          <div class="uc-pricing-amount">$0</div>
+          <p class="uc-pricing-detail">1 hour/month of recording</p>
+          <p class="uc-pricing-detail">Repo-aware task extraction</p>
+          <p class="uc-pricing-detail">All meeting platforms</p>
+        </div>
+        <div class="uc-pricing-card">
+          <h3>Pro</h3>
+          <div class="uc-pricing-amount">$30<span style="font-size:1rem;color:#999">/mo</span></div>
+          <p class="uc-pricing-detail">15 hours/month of recording</p>
+          <p class="uc-pricing-detail">GitHub issue integration</p>
+          <p class="uc-pricing-detail">Priority support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED PAGES -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Related use cases</h2>
+      <p class="uc-section-sub">See how teams use the meeting bot across different engineering workflows.</p>
+
+      <div class="uc-related">
+        <a href="/use-cases/ai-meeting-assistant-for-developers/" class="uc-related-link">AI meeting assistant for devs</a>
+        <a href="/use-cases/sprint-planning-automation/" class="uc-related-link">Sprint planning automation</a>
+        <a href="/use-cases/meeting-transcription-to-coding-tasks/" class="uc-related-link">Meeting to coding tasks</a>
+        <a href="/use-cases/standup/" class="uc-related-link">Standup automation</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="uc-bottom-cta">
+    <div class="container">
+      <h2>Send your first meeting bot today</h2>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note" style="margin-top:1rem">No setup. No credit card. Works on Zoom, Meet, Teams &amp; Slack.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid #21262d;padding:2rem 0;text-align:center">
+    <div class="container">
+      <p style="font-family:'Inter',sans-serif;font-size:0.85rem;color:#555">
+        &copy; 2026 contextprompt &mdash;
+        <a href="/privacy/" style="color:#555;text-decoration:none">Privacy</a> &middot;
+        <a href="/faq/" style="color:#555;text-decoration:none">FAQ</a> &middot;
+        <a href="/blog/" style="color:#555;text-decoration:none">Blog</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

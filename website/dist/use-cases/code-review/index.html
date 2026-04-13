@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Review Meeting to Actionable Tasks — contextprompt</title>
+  <meta name="description" content="contextprompt joins your code review meetings, transcribes every comment and decision, scans your repos, and extracts structured tasks with real file paths. Turn design discussions into implementable work items instantly.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/use-cases/code-review/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Code Review Meeting to Actionable Tasks — contextprompt">
+  <meta property="og:description" content="Stop losing code review feedback in meeting notes. contextprompt captures every suggestion and maps it to real file paths so engineers can act immediately.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/use-cases/code-review/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Code Review Meeting to Actionable Tasks — contextprompt">
+  <meta name="twitter:description" content="Stop losing code review feedback in meeting notes. contextprompt captures every suggestion and maps it to real file paths.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Code Review Meeting to Actionable Tasks — contextprompt",
+    "description": "contextprompt joins your code review meetings, transcribes every comment and decision, scans your repos, and extracts structured tasks with real file paths.",
+    "url": "https://contextprompt.app/use-cases/code-review/",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://contextprompt.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Use Cases", "item": "https://contextprompt.app/use-cases/" },
+        { "@type": "ListItem", "position": 3, "name": "Code Review", "item": "https://contextprompt.app/use-cases/code-review/" }
+      ]
+    }
+  }
+  </script>
+
+  <style>
+    .uc-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .uc-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 800px;
+      margin: 0 auto 1.5rem;
+    }
+    .uc-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .uc-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .uc-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .uc-cta:hover { opacity: 0.85; }
+    .uc-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+
+    .uc-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .uc-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .uc-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    .uc-problems {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-problem-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .uc-problem-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #f85149;
+      margin-bottom: 0.75rem;
+    }
+    .uc-problem-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .uc-problem-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-solution-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .uc-solution-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .uc-solution-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-timeline {
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .uc-timeline::before {
+      content: "";
+      position: absolute;
+      left: 19px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #21262d;
+    }
+    .uc-timeline-item {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .uc-timeline-item:last-child { margin-bottom: 0; }
+    .uc-timeline-dot {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #161b22;
+      border: 2px solid #3fb950;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .uc-timeline-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #555;
+      margin-bottom: 0.25rem;
+    }
+    .uc-timeline-content h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.35rem;
+    }
+    .uc-timeline-content p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-stat-row {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: 700px;
+      margin: 0 auto 3rem;
+    }
+    .uc-stat {
+      text-align: center;
+    }
+    .uc-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #3fb950;
+      line-height: 1;
+    }
+    .uc-stat-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
+    .uc-testimonial {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .uc-testimonial-stars {
+      color: #f0c000;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .uc-testimonial blockquote {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      color: #e6e6e6;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .uc-testimonial-author {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .uc-testimonial-name {
+      color: #e6e6e6;
+      font-weight: 500;
+    }
+
+    .uc-pricing-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .uc-pricing-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex: 1;
+      min-width: 220px;
+    }
+    .uc-pricing-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.25rem;
+    }
+    .uc-pricing-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .uc-pricing-detail {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    .uc-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .uc-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+
+    .uc-code-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #e6e6e6;
+      max-width: 640px;
+      margin: 0 auto 3rem;
+      text-align: left;
+      overflow-x: auto;
+    }
+    .uc-code-block .code-comment { color: #555; }
+    .uc-code-block .code-key { color: #79c0ff; }
+    .uc-code-block .code-val { color: #a5d6ff; }
+    .uc-code-block .code-path { color: #3fb950; }
+    .uc-code-block .code-label { color: #ffa657; }
+  </style>
+  <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
+  <link rel="stylesheet" crossorigin href="/assets/components-BERnqvIl.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="uc-hero">
+    <div class="container">
+      <h1>Code review meetings that produce <u>tasks, not notes</u></h1>
+      <p class="uc-hero-sub">Every comment made in a code review session deserves a ticket. contextprompt joins your call on Zoom, Google Meet, Slack, or Teams, transcribes every suggestion, and maps each one to the exact file and function it targets. Walk out of the review with a ready-to-execute task list, not a pile of scattered notes.</p>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">No API keys needed. Free plan includes 1 hour/month.</p>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Why code review feedback gets lost</h2>
+      <p class="uc-section-sub">Code review discussions are rich with technical detail. That detail rarely survives the journey to a ticket tracker.</p>
+
+      <div class="uc-problems">
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">//</div>
+          <h3>Verbal feedback has no paper trail</h3>
+          <p>A reviewer says &ldquo;we should extract that validation logic into its own helper before we ship&rdquo;. Nobody writes it down. Two weeks later, the PR merges without it. Verbal code review feedback that lives only in someone&rsquo;s memory has a low survival rate.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">?!</div>
+          <h3>Action items lack context when filed later</h3>
+          <p>When someone does attempt to capture review feedback as tickets, it happens after the meeting when details are fuzzy. The ticket says &ldquo;refactor auth module&rdquo; but the meeting discussed four specific methods in two specific files. That nuance is gone.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">~></div>
+          <h3>No link between feedback and codebase</h3>
+          <p>Even diligent note-takers can&rsquo;t include the actual file paths and function signatures referenced in the discussion. Engineers receiving the ticket have to go spelunking through the repo to reconstruct what was obvious in the review session.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Code review tasks that are actually actionable</h2>
+      <p class="uc-section-sub">contextprompt doesn&rsquo;t just transcribe &mdash; it cross-references what was said against your repo to produce tasks an engineer can start immediately.</p>
+
+      <div class="uc-stat-row">
+        <div class="uc-stat">
+          <div class="uc-stat-value">100%</div>
+          <p class="uc-stat-label">of verbal feedback captured</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">0</div>
+          <p class="uc-stat-label">manual ticket creation</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">&lt;5m</div>
+          <p class="uc-stat-label">review-to-task pipeline</p>
+        </div>
+      </div>
+
+      <div class="uc-solution-grid">
+        <div class="uc-solution-card">
+          <h3>Every comment becomes a task</h3>
+          <p>contextprompt identifies each actionable suggestion in the transcript &mdash; refactors, bug fixes, performance improvements, test gaps &mdash; and converts them into discrete, structured tasks. Nothing slips through because it was said off-hand at the end of the call.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Real file paths, not vague descriptions</h3>
+          <p>Because contextprompt has scanned your connected repos, it can map &ldquo;the user service auth handler&rdquo; to <code>src/services/user/auth.ts:handleLogin()</code>. Tasks include the exact file paths, line ranges, and export names referenced in the discussion.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Ready for Claude Code or Cursor</h3>
+          <p>Each task includes the source quote, mapped file paths, implementation steps, and a confidence score. Paste into Claude Code and it has everything it needs to make the change. No back-and-forth, no repo archaeology.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT A TASK LOOKS LIKE -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>What a review task looks like</h2>
+      <p class="uc-section-sub">This is the structured output contextprompt generates from a single verbal code review comment.</p>
+
+      <div class="uc-code-block">
+        <span class="code-comment">// contextprompt extracted task from code review — 2026-04-13</span><br>
+        <br>
+        <span class="code-key">task:</span> <span class="code-val">Extract validation logic into reusable helper</span><br>
+        <span class="code-key">confidence:</span> <span class="code-label">high</span><br>
+        <br>
+        <span class="code-key">files:</span><br>
+        &nbsp;&nbsp;<span class="code-path">src/api/routes/users.ts</span> <span class="code-comment">(lines 42-67, validateUserPayload)</span><br>
+        &nbsp;&nbsp;<span class="code-path">src/utils/validation.ts</span> <span class="code-comment">(create new helper here)</span><br>
+        <br>
+        <span class="code-key">source quote:</span><br>
+        &nbsp;&nbsp;<span class="code-val">"that validation block in the users route is duplicated in three places,</span><br>
+        &nbsp;&nbsp;<span class="code-val">we should pull it into a shared helper before merging"</span><br>
+        &nbsp;&nbsp;<span class="code-comment">— Sarah K., 14:23</span><br>
+        <br>
+        <span class="code-key">steps:</span><br>
+        &nbsp;&nbsp;<span class="code-val">1. Create validateUserPayload() in src/utils/validation.ts</span><br>
+        &nbsp;&nbsp;<span class="code-val">2. Replace inline validation in users.ts, posts.ts, comments.ts</span><br>
+        &nbsp;&nbsp;<span class="code-val">3. Add unit tests in src/utils/__tests__/validation.test.ts</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS - TIMELINE -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Your code review session, automated</h2>
+      <p class="uc-section-sub">Here is what a code review meeting looks like with contextprompt handling the follow-up.</p>
+
+      <div class="uc-timeline">
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">1</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">One-time setup</div>
+            <h3>Connect your repos</h3>
+            <p>Add the repository being reviewed from the contextprompt dashboard. The tool indexes your file tree, export signatures, and types &mdash; giving it the context it needs to map verbal references to real code locations. Takes seconds.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">2</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Review starts</div>
+            <h3>Paste the meeting link</h3>
+            <p>Drop the Zoom, Google Meet, Slack, or Teams link into contextprompt. The AI bot joins the review session as a silent participant and captures every comment with speaker attribution and timestamp.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">3</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Review ends</div>
+            <h3>AI extracts every action item</h3>
+            <p>contextprompt processes the full transcript against your repo map. It identifies every refactor suggestion, bug fix, test gap, and architectural feedback &mdash; each mapped to the specific files and functions discussed.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">4</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Minutes later</div>
+            <h3>Structured tasks, ready to ship</h3>
+            <p>Tasks appear in the contextprompt dashboard with full context, file paths, and implementation steps. Assign directly, copy into your tracker, or paste into Claude Code to start implementing immediately.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="uc-section">
+    <div class="container">
+      <div class="uc-testimonial">
+        <div class="uc-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <blockquote>&ldquo;We used to lose half our code review feedback between the meeting and the ticket. Now contextprompt catches everything and I paste the tasks straight into Claude Code. The file paths it generates are spot on.&rdquo;</blockquote>
+        <div class="uc-testimonial-author">
+          <span class="uc-testimonial-name">Priya M.</span> &mdash; Senior Engineer, fintech startup
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Simple pricing</h2>
+      <p class="uc-section-sub">Start capturing code review feedback for free. Upgrade when your team needs more monthly recording hours.</p>
+
+      <div class="uc-pricing-row">
+        <div class="uc-pricing-card">
+          <h3>Free</h3>
+          <div class="uc-pricing-amount">$0</div>
+          <p class="uc-pricing-detail">1 hour/month of recording</p>
+          <p class="uc-pricing-detail">Repo-aware task extraction</p>
+          <p class="uc-pricing-detail">All meeting platforms</p>
+        </div>
+        <div class="uc-pricing-card">
+          <h3>Pro</h3>
+          <div class="uc-pricing-amount">$30<span style="font-size:1rem;color:#999">/mo</span></div>
+          <p class="uc-pricing-detail">15 hours/month of recording</p>
+          <p class="uc-pricing-detail">GitHub issue integration</p>
+          <p class="uc-pricing-detail">Priority support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="uc-bottom-cta">
+    <div class="container">
+      <h2>Your next code review ends with<br>a task list, not meeting notes.</h2>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Use Cases</h4>
+        <a href="/use-cases/sprint-planning-automation/">Sprint Planning</a>
+        <a href="/use-cases/standup/">Standups</a>
+        <a href="/use-cases/code-review/">Code Review</a>
+        <a href="/use-cases/retrospective/">Retrospectives</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+</body>
+</html>

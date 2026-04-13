@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automated Standup Summaries with Code References — contextprompt</title>
+  <meta name="description" content="Stop wasting engineering time on repetitive status meetings. contextprompt automatically generates standup summaries with real file paths and code context — so your team ships faster and meets less.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/use-cases/standup/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Automated Standup Summaries with Code References — contextprompt">
+  <meta property="og:description" content="Reduce repetitive engineering status meetings. contextprompt joins your standup, transcribes it, and surfaces code-aware summaries with real file paths automatically.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/use-cases/standup/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Automated Standup Summaries with Code References — contextprompt">
+  <meta name="twitter:description" content="Reduce repetitive engineering meetings. AI standup summaries with code references — shipped automatically, zero prep required.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+
+  <style>
+    .uc-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .uc-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 800px;
+      margin: 0 auto 1.5rem;
+    }
+    .uc-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .uc-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .uc-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .uc-cta:hover { opacity: 0.85; }
+    .uc-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+
+    .uc-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .uc-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .uc-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    .uc-problems {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-problem-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .uc-problem-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #f85149;
+      margin-bottom: 0.75rem;
+    }
+    .uc-problem-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .uc-problem-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-solution-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .uc-solution-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .uc-solution-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    /* Sample output block */
+    .uc-output-demo {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: #e6e6e6;
+    }
+    .uc-output-demo .demo-label {
+      font-size: 0.7rem;
+      color: #555;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .uc-output-demo .demo-person {
+      color: #58a6ff;
+      font-weight: 600;
+    }
+    .uc-output-demo .demo-file {
+      color: #3fb950;
+    }
+    .uc-output-demo .demo-task {
+      color: #f0c000;
+    }
+    .uc-output-demo .demo-divider {
+      border: none;
+      border-top: 1px solid #21262d;
+      margin: 1rem 0;
+    }
+
+    .uc-timeline {
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .uc-timeline::before {
+      content: "";
+      position: absolute;
+      left: 19px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #21262d;
+    }
+    .uc-timeline-item {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .uc-timeline-item:last-child { margin-bottom: 0; }
+    .uc-timeline-dot {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #161b22;
+      border: 2px solid #3fb950;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .uc-timeline-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #555;
+      margin-bottom: 0.25rem;
+    }
+    .uc-timeline-content h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.35rem;
+    }
+    .uc-timeline-content p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-stat-row {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: 700px;
+      margin: 0 auto 3rem;
+    }
+    .uc-stat {
+      text-align: center;
+    }
+    .uc-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #3fb950;
+      line-height: 1;
+    }
+    .uc-stat-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
+    .uc-testimonial {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .uc-testimonial-stars {
+      color: #f0c000;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .uc-testimonial blockquote {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      color: #e6e6e6;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .uc-testimonial-author {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .uc-testimonial-name {
+      color: #e6e6e6;
+      font-weight: 500;
+    }
+
+    .uc-pricing-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .uc-pricing-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex: 1;
+      min-width: 220px;
+    }
+    .uc-pricing-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.25rem;
+    }
+    .uc-pricing-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .uc-pricing-detail {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    .uc-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .uc-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+
+    .uc-faq {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .uc-faq-item {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+    }
+    .uc-faq-item h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .uc-faq-item p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+  </style>
+  <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
+  <link rel="stylesheet" crossorigin href="/assets/components-BERnqvIl.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="uc-hero">
+    <div class="container">
+      <h1>Cut engineering <u>status meetings</u> in half with AI standup summaries</h1>
+      <p class="uc-hero-sub">Every standup costs 15&ndash;30 minutes of your team's most focused hours. contextprompt joins the call, transcribes every update, and generates code-aware summaries with real file paths — so your team always knows what changed, what's blocked, and what needs attention. No prep. No repetition.</p>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Why standups drain engineering teams</h2>
+      <p class="uc-section-sub">The standup was supposed to be a quick sync. Somewhere it became the meeting that eats the morning.</p>
+
+      <div class="uc-problems">
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">//</div>
+          <h3>Standup prep steals deep work time</h3>
+          <p>Engineers interrupt their flow every morning to remember what they worked on, gather context from scattered Slack threads and PRs, and structure three sentences for the team. For a 10-person team that is 20&ndash;30 minutes of interrupted focus per day before the meeting even starts.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">?!</div>
+          <h3>Status updates vanish after the call</h3>
+          <p>Everything shared in a standup lives only in memory and fragmented notes. Engineers who were heads-down miss the sync. PMs trying to track progress have no record. Blockers raised in Tuesday's standup get re-raised Thursday because no one logged them.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">~></div>
+          <h3>No code context means no actionable follow-up</h3>
+          <p>Generic status updates — "working on the auth refactor" — tell the team nothing about what file is changing, which function is broken, or what PR to review. Stand-ups in plain language disconnect from the actual codebase, so blockers stay abstract and help never arrives.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAMPLE OUTPUT -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>What a contextprompt standup summary looks like</h2>
+      <p class="uc-section-sub">Code-aware summaries link every status update to real files and open tasks — automatically.</p>
+
+      <div class="uc-output-demo">
+        <div class="demo-label">standup summary &mdash; 2026-03-30 &bull; 9:14 AM</div>
+
+        <div><span class="demo-person">Sarah (backend)</span></div>
+        <div>Done: JWT refresh flow, <span class="demo-file">src/server/middleware/auth.ts:84</span></div>
+        <div>Today: rate-limit middleware &mdash; <span class="demo-file">src/server/routes/auth.ts</span></div>
+        <div>Blocked: needs Redis instance in staging &mdash; <span class="demo-task">&#x25B6; task created</span></div>
+
+        <hr class="demo-divider">
+
+        <div><span class="demo-person">Marcus (frontend)</span></div>
+        <div>Done: MUI data grid in <span class="demo-file">website/app/src/pages/MeetingDetail/index.tsx</span></div>
+        <div>Today: pagination + row expansion</div>
+        <div>Blocked: &mdash;</div>
+
+        <hr class="demo-divider">
+
+        <div><span class="demo-person">Priya (infra)</span></div>
+        <div>Done: Docker Compose staging setup</div>
+        <div>Today: wire Redis &rarr; unblocks Sarah <span class="demo-task">&#x25B6; linked blocker resolved</span></div>
+        <div>Blocked: &mdash;</div>
+
+        <hr class="demo-divider">
+
+        <div style="color:#555;font-size:0.78rem;margin-top:0.5rem;">2 tasks extracted &bull; 1 blocker flagged &bull; 1 dependency linked</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Less meeting overhead. More shipped code.</h2>
+      <p class="uc-section-sub">contextprompt handles the administrative layer of standup so your team can focus on building.</p>
+
+      <div class="uc-stat-row">
+        <div class="uc-stat">
+          <div class="uc-stat-value">0m</div>
+          <p class="uc-stat-label">standup prep time required</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">100%</div>
+          <p class="uc-stat-label">of blockers logged automatically</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">&lt;2m</div>
+          <p class="uc-stat-label">summary delivered after call ends</p>
+        </div>
+      </div>
+
+      <div class="uc-solution-grid">
+        <div class="uc-solution-card">
+          <h3>Zero prep for engineers</h3>
+          <p>contextprompt builds the standup summary from the transcript — no one needs to prep talking points or structure their update. Engineers talk naturally, the AI extracts what matters and maps it to files in your repos.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Persistent, searchable record</h3>
+          <p>Every standup is logged and searchable in the contextprompt dashboard. PMs and leads can review progress across standups, see how blockers evolved, and share summaries with stakeholders without digging through Slack.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Blockers become tasks automatically</h3>
+          <p>When an engineer mentions a blocker, contextprompt creates a structured task: what is blocked, who owns the dependency, and which file or component is involved. Blockers stop getting lost between standups.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS - TIMELINE -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>How it works</h2>
+      <p class="uc-section-sub">From standing up to summary in under two minutes. No new workflow required.</p>
+
+      <div class="uc-timeline">
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">1</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">One-time setup</div>
+            <h3>Connect your repos</h3>
+            <p>Add your project repositories from the contextprompt dashboard. The tool indexes your file tree, exports, and function signatures. Takes under a minute. Runs once per repo.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">2</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Standup starts</div>
+            <h3>Paste the meeting link</h3>
+            <p>Drop your Zoom, Google Meet, Slack, or Teams standup link into contextprompt before the call. The AI bot joins as a participant and records the session with per-speaker attribution.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">3</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Standup ends</div>
+            <h3>AI generates the summary</h3>
+            <p>contextprompt cross-references the transcript against your repo map. It identifies what each engineer worked on, what they plan to do, and any blockers — then maps each update to real file paths.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">4</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Under 2 minutes later</div>
+            <h3>Summary posted, tasks created</h3>
+            <p>The standup summary lands in your dashboard with file references, extracted tasks, and flagged blockers. Share it to Slack or export to your PM tool. Nothing needs to be manually written up.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="uc-section">
+    <div class="container">
+      <div class="uc-testimonial">
+        <div class="uc-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <blockquote>&ldquo;We used to spend the first 20 minutes of every standup trying to remember what we did yesterday. Now the summary just shows up with file paths. Our standups take 8 minutes now.&rdquo;</blockquote>
+        <div class="uc-testimonial-author">
+          <span class="uc-testimonial-name">Ravi T.</span> &mdash; Engineering Lead, B2B SaaS
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Common questions</h2>
+      <p class="uc-section-sub">Everything you need to know about running standups with contextprompt.</p>
+
+      <div class="uc-faq">
+        <div class="uc-faq-item">
+          <h3>Does contextprompt work with async standups?</h3>
+          <p>Yes. If your team runs async standups via a scheduled Slack huddle or a recorded Loom, you can point contextprompt at the recording or meeting link. The same transcript-to-summary pipeline applies.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>How does it know which files are relevant?</h3>
+          <p>contextprompt scans your connected repositories — respecting .gitignore — and builds a code map of your file tree, function signatures, and exports. When the standup mentions a component or service by name, the AI matches it to the real path in your codebase.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>Can it summarize standups for multiple teams or projects?</h3>
+          <p>Yes. You can connect multiple repositories and run separate standup summaries per team or project. Each summary is scoped to the repos you associate with that meeting.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>Does the bot disrupt the standup?</h3>
+          <p>No. The contextprompt bot joins as a silent participant — it does not speak, react, or interrupt. Participants see it listed as a meeting attendee, nothing more.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>What platforms are supported?</h3>
+          <p>contextprompt supports Zoom, Google Meet, Slack huddles, and Microsoft Teams — the four platforms that cover the vast majority of engineering standups.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Simple pricing</h2>
+      <p class="uc-section-sub">Start eliminating standup overhead for free. Upgrade when your team needs more monthly hours.</p>
+
+      <div class="uc-pricing-row">
+        <div class="uc-pricing-card">
+          <h3>Free</h3>
+          <div class="uc-pricing-amount">$0</div>
+          <p class="uc-pricing-detail">1 hour/month of recording</p>
+          <p class="uc-pricing-detail">Repo-aware task extraction</p>
+          <p class="uc-pricing-detail">All meeting platforms</p>
+        </div>
+        <div class="uc-pricing-card">
+          <h3>Pro</h3>
+          <div class="uc-pricing-amount">$30<span style="font-size:1rem;color:#999">/mo</span></div>
+          <p class="uc-pricing-detail">15 hours/month of recording</p>
+          <p class="uc-pricing-detail">GitHub issue integration</p>
+          <p class="uc-pricing-detail">Priority support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED USE CASES -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>More use cases</h2>
+      <p class="uc-section-sub">contextprompt works across your entire engineering meeting workflow.</p>
+
+      <div class="uc-solution-grid">
+        <div class="uc-solution-card">
+          <h3><a href="/use-cases/sprint-planning-automation/" style="color:#3fb950;text-decoration:none;">Sprint planning automation</a></h3>
+          <p>Turn sprint planning discussions into a structured backlog with file-referenced tasks before the meeting room empties.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3><a href="/use-cases/code-review/" style="color:#3fb950;text-decoration:none;">Code review tasks</a></h3>
+          <p>Every verbal code review comment becomes a structured task with the exact file path and function it targets. Nothing slips through.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3><a href="/use-cases/retrospective/" style="color:#3fb950;text-decoration:none;">Retrospective action items</a></h3>
+          <p>Retro improvements that actually get done — each action item linked to the specific file or system that needs to change.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="uc-bottom-cta">
+    <div class="container">
+      <h2>Your next standup is already generating<br>tasks. Let contextprompt capture them.</h2>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Legal</h4>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "contextprompt",
+    "description": "AI standup automation tool that joins engineering standup meetings, transcribes updates with speaker attribution, and generates code-aware summaries linking status updates to real file paths in your repositories.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "url": "https://contextprompt.app",
+    "offers": [
+      { "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free" },
+      { "@type": "Offer", "price": "30", "priceCurrency": "USD", "name": "Pro", "billingIncrement": "P1M" }
+    ],
+    "featureList": [
+      "Automated standup summaries",
+      "Code-aware status updates with real file paths",
+      "Automatic blocker detection and task creation",
+      "Per-speaker attribution",
+      "Support for Zoom, Google Meet, Slack, and Teams",
+      "Searchable standup history"
+    ]
+  }
+  </script>
+
+  <!-- BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://contextprompt.app/" },
+      { "@type": "ListItem", "position": 2, "name": "Use Cases", "item": "https://contextprompt.app/use-cases/" },
+      { "@type": "ListItem", "position": 3, "name": "Standup Automation", "item": "https://contextprompt.app/use-cases/standup/" }
+    ]
+  }
+  </script>
+</body>
+</html>

@@ -2,6 +2,15 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-04-13 — Growth Agent (Monday)
+
+- **Day:** Monday — use-case landing pages
+- **Branch:** `agent/growth/use-cases-code-review-retro`
+- **Shipped:** 2 new use-case pages (`/use-cases/code-review/`, `/use-cases/retrospective/`)
+- **Also:** Registered new pages in `vite.config.js`; updated standup cross-links
+- **Use case hub:** 6/6 core pages now complete
+- **Build:** PASS
+
 ## 2026-04-13 — Product Health Agent (Monday)
 
 - **Day:** Monday — health monitoring + dependency audit

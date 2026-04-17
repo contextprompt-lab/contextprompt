@@ -20,6 +20,7 @@ export default defineConfig({
         'use-case-assistant': 'use-cases/ai-meeting-assistant-for-developers/index.html',
         'use-case-sprint': 'use-cases/sprint-planning-automation/index.html',
         '404': '404.html',
+        'for-engineering-managers': 'for-engineering-managers/index.html',
       },
     },
   },

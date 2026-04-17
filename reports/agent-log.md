@@ -332,3 +332,13 @@
 - **Bugs found:** None
 - **Actions:** None (health monitoring only)
 - **Report:** `reports/product-health/2026-04-06.md`
+
+## 2026-04-17 — SEO Agent
+
+**PRs:** #10, #11
+
+**Shipped:**
+- PR #10: New `/for-engineering-managers/` landing page targeting "reduce engineering meetings" cluster (19 impressions, pos 13.7). Full persona page with FAQ + FAQPage JSON-LD schema. Registered in vite.config.js.
+- PR #11: 5 new blog topics in `src/blog/topics.ts` targeting Search Console queries with impressions and 0 CTR — "best internal tools for engineering teams" (35 impressions), "reduce engineering meetings", "best AI notetaker for engineering teams", "leading AI meeting assistants for developers", "Jira/GitHub AI tools".
+
+**Source:** `reports/seo-performance/2026-04-17.md`

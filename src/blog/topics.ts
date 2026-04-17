@@ -83,6 +83,18 @@ export const seoTopics: SeoTopic[] = [
   { query: 'product owner developer communication AI', slug: 'product-owner-developer-communication-ai', cluster: 'use-case', contentType: 'high-intent', postStyle: 'product' },
   { query: 'onboarding new developers with meeting context', slug: 'onboarding-developers-meeting-context', cluster: 'use-case', contentType: 'supporting', postStyle: 'product' },
 
+  // --- Search Console opportunity topics (2026-04-17) ---
+  // "best internal q&a tools for engineering teams 2025 2026" — 35 impressions, pos 10.7
+  { query: 'best internal tools for software engineering teams 2026', slug: 'best-internal-tools-engineering-teams-2026', cluster: 'comparison', contentType: 'pillar', postStyle: 'editorial' },
+  // "best software to reduce engineering meetings" — 19 impressions, pos 13.7
+  { query: 'best software to reduce engineering status meetings', slug: 'best-software-reduce-engineering-meetings', cluster: 'problem', contentType: 'high-intent', postStyle: 'editorial' },
+  // "engineering ai notetaker" — 9 impressions, pos 32.9
+  { query: 'best AI notetaker for engineering teams', slug: 'best-ai-notetaker-engineering-teams', cluster: 'comparison', contentType: 'high-intent', postStyle: 'editorial' },
+  // "leading AI meeting assistants for developers" — pos 7.0 with impressions
+  { query: 'leading AI meeting assistants for developers compared', slug: 'leading-ai-meeting-assistants-developers', cluster: 'comparison', contentType: 'high-intent', postStyle: 'editorial' },
+  // "best prompt engineering tools with jira github integration" — pos 7.0
+  { query: 'best AI tools for developers with Jira and GitHub integration 2026', slug: 'best-ai-tools-jira-github-integration-2026', cluster: 'integration', contentType: 'high-intent', postStyle: 'editorial' },
+
   // --- Editorial: general developer productivity ---
   { query: 'how to write better technical meeting agendas', slug: 'better-technical-meeting-agendas', cluster: 'workflow', contentType: 'supporting', postStyle: 'editorial' },
   { query: 'async vs sync communication for engineering teams', slug: 'async-vs-sync-communication-engineering', cluster: 'thought-leadership', contentType: 'high-intent', postStyle: 'editorial' },

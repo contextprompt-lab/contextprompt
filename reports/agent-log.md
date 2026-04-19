@@ -2,6 +2,16 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-04-19 — Growth Agent (Sunday)
+
+- **Day:** Sunday — competitor research + comparison pages
+- **PR:** [#12 — vs Read.ai and vs Fellow comparison pages](https://github.com/contextprompt-lab/contextprompt/pull/12)
+- **Pages shipped:** `/vs/read-ai/` and `/vs/fellow/`
+- **Build:** PASS — `npm run build` succeeds, both pages in dist
+- **Comparison hub:** 8 pages total (3 on main, 3 in PR #7, 2 in PR #12)
+- **Competitors researched:** Read.ai (engagement scores, $19.75/user/mo), Fellow (meeting mgmt, $7/user/mo)
+- **Key angle:** contextprompt wins on repo-aware task extraction + per-account pricing on both
+
 ## 2026-04-19 — Product Health Agent (Sunday)
 
 - **Day:** Sunday — health monitoring only (no conversion improvement, no dependency audit)

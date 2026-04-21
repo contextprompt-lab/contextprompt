@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Meeting Assistant Built for Developers — contextprompt</title>
-  <meta name="description" content="contextprompt is an AI meeting assistant designed specifically for developers. It joins your calls, transcribes discussions, scans your repos, and extracts structured coding tasks with real file paths.">
+  <title>AI Meeting Assistant for Developers — contextprompt</title>
+  <meta name="description" content="The AI meeting assistant built for engineering teams. Joins Zoom, Meet &amp; Teams, scans your repos, and extracts coding tasks with real file paths. Free plan.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://contextprompt.app/use-cases/ai-meeting-assistant-for-developers/">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="AI Meeting Assistant Built for Developers — contextprompt">
-  <meta property="og:description" content="Generic meeting assistants don't understand code. contextprompt is built for engineering teams — it scans your repos and extracts structured coding tasks from meeting transcripts.">
+  <meta property="og:title" content="AI Meeting Assistant for Developers — contextprompt">
+  <meta property="og:description" content="Generic meeting assistants don't understand code. contextprompt scans your repos and extracts structured coding tasks with real file paths from every meeting.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://contextprompt.app/use-cases/ai-meeting-assistant-for-developers/">
   <meta property="og:site_name" content="contextprompt">
@@ -21,8 +21,8 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AI Meeting Assistant Built for Developers — contextprompt">
-  <meta name="twitter:description" content="Generic meeting assistants don't understand code. contextprompt is built for engineering teams — it extracts structured coding tasks from meeting transcripts.">
+  <meta name="twitter:title" content="AI Meeting Assistant for Developers — contextprompt">
+  <meta name="twitter:description" content="Generic meeting assistants don't understand code. contextprompt scans your repos and extracts structured coding tasks with real file paths from every meeting.">
   <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
 
   <!-- Favicon -->
@@ -542,6 +542,36 @@
     </div>
   </section>
 
+  <!-- FAQ -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Frequently asked questions</h2>
+      <p class="uc-section-sub">Everything you need to know about contextprompt as an AI meeting assistant for developers.</p>
+      <div class="uc-faq" style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem;">
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">What makes contextprompt different from other AI meeting assistants?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">Most AI meeting assistants produce text summaries designed for managers. contextprompt is built specifically for engineering teams. It scans your connected repositories after each meeting, maps discussed features and bugs to real file paths in your codebase, and outputs structured coding tasks with implementation steps that AI coding assistants like Claude Code or Cursor can execute immediately.</p>
+        </div>
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">How does contextprompt extract coding tasks from meeting recordings?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">contextprompt sends a bot to your Zoom, Google Meet, Slack, or Teams call. Once the meeting ends, it downloads the transcript and runs a multi-stage extraction: it scans your repos for relevant files using bigram and keyword matching, then passes the transcript and matched source code to Claude for structured task extraction. Each task gets a file path, implementation steps, and a confidence level.</p>
+        </div>
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">Which meeting platforms does the AI meeting assistant support?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">contextprompt supports Zoom, Google Meet, Slack huddles, and Microsoft Teams via the Recall.ai bot infrastructure. You paste the meeting URL into the dashboard and the bot joins automatically. No plugin or browser extension required — it works with any meeting link on any device.</p>
+        </div>
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">Is there a free plan for the AI meeting assistant?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">Yes. The free plan includes 1 hour of meeting recording per month — enough for 1–2 team meetings. No credit card required to sign up. The Pro plan ($30/month) includes 15 hours per month, GitHub issue integration, and priority support. Both plans include full repo-aware task extraction.</p>
+        </div>
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">Can contextprompt connect to my GitHub repositories?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">Yes. You can connect any number of local or remote repos through the dashboard. contextprompt scans repos using a .gitignore-aware file walker capped at ~30k tokens per repo for efficient processing. On the Pro plan, extracted tasks can be pushed directly as GitHub issues with implementation steps pre-filled.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- BOTTOM CTA -->
   <section class="uc-bottom-cta">
     <div class="container">
@@ -581,7 +611,57 @@
     </div>
   </footer>
 
-  <!-- JSON-LD -->
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What makes contextprompt different from other AI meeting assistants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most AI meeting assistants produce text summaries designed for managers. contextprompt is built specifically for engineering teams. It scans your connected repositories after each meeting, maps discussed features and bugs to real file paths in your codebase, and outputs structured coding tasks with implementation steps that AI coding assistants like Claude Code or Cursor can execute immediately."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does contextprompt extract coding tasks from meeting recordings?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt sends a bot to your Zoom, Google Meet, Slack, or Teams call. Once the meeting ends, it downloads the transcript and runs a multi-stage extraction: it scans your repos for relevant files using bigram and keyword matching, then passes the transcript and matched source code to Claude for structured task extraction. Each task gets a file path, implementation steps, and a confidence level."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which meeting platforms does the AI meeting assistant support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt supports Zoom, Google Meet, Slack huddles, and Microsoft Teams. You paste the meeting URL into the dashboard and the bot joins automatically. No plugin or browser extension required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is there a free plan for the AI meeting assistant?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The free plan includes 1 hour of meeting recording per month — enough for 1–2 team meetings. No credit card required to sign up. The Pro plan ($30/month) includes 15 hours per month, GitHub issue integration, and priority support."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can contextprompt connect to my GitHub repositories?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. You can connect any number of local or remote repos through the dashboard. On the Pro plan, extracted tasks can be pushed directly as GitHub issues with implementation steps pre-filled."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD: SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",

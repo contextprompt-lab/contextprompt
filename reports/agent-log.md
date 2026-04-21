@@ -2,6 +2,16 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-04-21 — SEO Agent (Monday)
+
+**PRs created:** #13, #14
+
+**PR #13** (`agent/seo/fix-use-case-ctrs`): Fixed overlong meta descriptions (201–220 chars → 150–170 chars) on all 4 use-case pages. Pages at positions 4-8 with 9-29 SC impressions and 0 CTR — truncated descriptions were the root cause. Added FAQ sections + FAQPage JSON-LD to the two highest-traffic pages (/use-cases/ai-meeting-assistant-for-developers/ and /use-cases/meeting-transcription-to-coding-tasks/).
+
+**PR #14** (`agent/seo/for-tech-leads-page`): New `/for-tech-leads/` persona landing page targeting tech lead ICP. Targets "leading AI meeting assistants for developers" (SC pos 7.0). FAQPage + WebPage JSON-LD, 4 internal links to use-case hub, registered in vite.config.js.
+
+**Search Console signals used:** positions 4.6 and 5.0 with 0 CTR (meta truncation fix); position 7.0 query with no dedicated page (new persona page).
+
 ## 2026-04-21 — Product Health Agent (Tuesday)
 
 - **Day:** Tuesday — health monitoring only (no conversion improvement, no dependency audit)

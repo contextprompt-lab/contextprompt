@@ -40,9 +40,11 @@ import {
   rerunMeeting,
   buildRepoMaps,
   updateBotRepoMaps,
+  createCheckoutSession,
   type Repo,
   type Meeting,
 } from '../api';
+import { useAuth } from '../hooks/useAuth';
 
 // Friendly labels for Recall.ai bot status codes
 const STATUS_LABELS: Record<string, string> = {
@@ -79,6 +81,28 @@ export function Recording() {
   const isActive = !!activeBotId;
   const isRecording = botStatus === 'in_call_recording';
   const isDone = botStatus === 'done' || botStatus === 'call_ended';
+
+  const { user } = useAuth();
+  const isFree = user?.plan === 'free';
+  const usagePct = user?.usage
+    ? Math.min(100, Math.round((user.usage.recording_seconds_used / user.usage.recording_seconds_limit) * 100))
+    : 0;
+  const minsUsed = user?.usage ? Math.round(user.usage.recording_seconds_used / 60) : 0;
+  const minsLimit = user?.usage ? Math.round(user.usage.recording_seconds_limit / 60) : 0;
+  const minsLeft = Math.max(0, minsLimit - minsUsed);
+  const showUsageWarning = isFree && usagePct >= 75;
+  const isLimitReached = isFree && usagePct >= 100;
+  const [upgrading, setUpgrading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setUpgrading(true);
+    try {
+      const { url } = await createCheckoutSession();
+      if (url) window.location.href = url;
+    } catch {
+      setUpgrading(false);
+    }
+  };
 
   const loadMeetings = useCallback(() => {
     getMeetings().then(setMeetings).catch(() => {});
@@ -252,6 +276,24 @@ export function Recording() {
       <Typography variant="h4" sx={{ mb: 3 }}>Meetings</Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
+
+      {/* Usage warning for free users approaching/at limit */}
+      {showUsageWarning && (
+        <Alert
+          severity={isLimitReached ? 'error' : 'warning'}
+          action={
+            <Button color="inherit" size="small" onClick={handleUpgrade} disabled={upgrading} sx={{ whiteSpace: 'nowrap' }}>
+              {upgrading ? 'Redirecting...' : 'Upgrade to Pro'}
+            </Button>
+          }
+          sx={{ mb: 2 }}
+        >
+          {isLimitReached
+            ? `You've used all ${minsLimit} min of your free plan this month — new meetings won't be recorded. Upgrade to Pro for 15 hours/month.`
+            : `${minsLeft} min of recording left this month (${minsUsed}/${minsLimit} min used). Upgrade to Pro for 15 hours/month ($30/mo).`
+          }
+        </Alert>
+      )}
 
       {/* Active bot status */}
       {isActive && (

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Turn Meeting Transcriptions into Coding Tasks — contextprompt</title>
-  <meta name="description" content="contextprompt automatically converts meeting transcriptions into structured coding tasks with real file paths, implementation steps, and confidence levels. Works with Zoom, Google Meet, Slack, and Teams.">
+  <meta name="description" content="Turn meeting transcriptions into structured coding tasks with real file paths. contextprompt scans your repos and maps each action item to code. Try free.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://contextprompt.app/use-cases/meeting-transcription-to-coding-tasks/">
 
@@ -444,6 +444,36 @@
     </div>
   </section>
 
+  <!-- FAQ -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Frequently asked questions</h2>
+      <p class="uc-section-sub">How meeting transcription to coding tasks actually works.</p>
+      <div class="uc-faq" style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:1.25rem;">
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">How does meeting transcription to coding tasks work?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">contextprompt sends a bot to your meeting, records and transcribes the conversation, then runs a multi-stage extraction pipeline. It scans your connected repos for files mentioned or implied in the transcript, then uses Claude to extract structured coding tasks — each with a title, file path, implementation steps, and confidence level. The whole process takes a few minutes after your meeting ends.</p>
+        </div>
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">What makes contextprompt different from other meeting transcription tools?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">Other meeting transcription tools stop at the text. contextprompt goes further: it understands your codebase. Instead of producing a wall of transcript text, it extracts discrete tasks mapped to real file paths — output that a developer or AI coding assistant can act on immediately without further translation.</p>
+        </div>
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">How accurate is the task extraction from meeting transcriptions?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">Each extracted task includes a confidence level so you can see how certain the system is about each mapping. Tasks are validated with schema checking and the system retries on parse failures. Accuracy improves significantly when repos are connected — contextprompt can match vague references like "the auth middleware" to the actual file <code>src/middleware/auth.ts</code>.</p>
+        </div>
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">Can I push extracted tasks to GitHub Issues or Jira?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">The Pro plan ($30/month) includes GitHub Issues integration. You can push extracted tasks directly as GitHub Issues with implementation steps and file references pre-filled. For AI coding tools like Claude Code or Cursor, you can copy the full structured output with one click from the dashboard.</p>
+        </div>
+        <div class="uc-faq-item" style="background:#111;border:1px solid #21262d;border-radius:10px;padding:1.5rem;">
+          <h3 style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:#e6e6e6;margin-bottom:0.6rem;">Which meeting platforms support transcription to coding tasks?</h3>
+          <p style="font-family:'Inter',sans-serif;font-size:0.9rem;color:#999;line-height:1.65;margin:0;">contextprompt works with Zoom, Google Meet, Slack huddles, and Microsoft Teams. Paste the meeting URL into the dashboard before or during your call and the bot joins automatically. It also supports local audio capture via CLI for offline or recorded sessions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- BOTTOM CTA -->
   <section class="uc-bottom-cta">
     <div class="container">
@@ -483,7 +513,57 @@
     </div>
   </footer>
 
-  <!-- JSON-LD -->
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does meeting transcription to coding tasks work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt sends a bot to your meeting, records and transcribes the conversation, then runs a multi-stage extraction pipeline. It scans your connected repos for files mentioned or implied in the transcript, then uses Claude to extract structured coding tasks — each with a title, file path, implementation steps, and confidence level."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What makes contextprompt different from other meeting transcription tools?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Other meeting transcription tools stop at the text. contextprompt goes further: it understands your codebase. Instead of producing a wall of transcript text, it extracts discrete tasks mapped to real file paths — output that a developer or AI coding assistant can act on immediately."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How accurate is the task extraction from meeting transcriptions?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Each extracted task includes a confidence level. Accuracy improves significantly when repos are connected — contextprompt can match vague references like 'the auth middleware' to the actual file src/middleware/auth.ts."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I push extracted tasks to GitHub Issues or Jira?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Pro plan ($30/month) includes GitHub Issues integration. You can push extracted tasks directly as GitHub Issues with implementation steps and file references pre-filled."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which meeting platforms support transcription to coding tasks?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt works with Zoom, Google Meet, Slack huddles, and Microsoft Teams. Paste the meeting URL into the dashboard before or during your call and the bot joins automatically."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- JSON-LD: SoftwareApplication -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",

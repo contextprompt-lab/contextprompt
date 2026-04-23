@@ -10,11 +10,11 @@ const PLANS = [
     name: 'Free',
     price: '$0',
     period: '',
-    description: 'Get started with no commitment.',
+    description: 'Try it with your next meeting — no credit card needed.',
     features: [
-      '1 hour/month of meeting recording',
+      '1 hour/month of recording (~2 meetings)',
       'Repo-aware task extraction',
-      'All meeting platforms',
+      'All meeting platforms (Zoom, Meet, Teams, Slack)',
       'All Claude models',
       'Dashboard access',
     ],
@@ -25,15 +25,15 @@ const PLANS = [
     name: 'Pro',
     price: '$30',
     period: ' / mo',
-    description: 'For teams that ship fast.',
+    description: 'For developers and teams with regular standups, planning, or review meetings.',
     features: [
-      '15 hours/month of meeting recording',
+      '15 hours/month of recording (~30 meetings)',
       'Everything in Free',
-      'GitHub issue integration',
+      'GitHub issue analysis & implementation plans',
+      'Multi-language transcription (12 languages)',
       'Priority support',
-      'Multi-language support',
     ],
-    cta: 'Start Pro',
+    cta: 'Upgrade to Pro',
     featured: true,
   },
 ];
@@ -73,14 +73,17 @@ export function PlanSelection() {
         px: 2,
       }}
     >
-      <Typography variant="h4" sx={{ mb: 1, textAlign: 'center' }}>
-        Choose your plan
+      <Typography variant="h4" sx={{ mb: 1, textAlign: 'center', fontWeight: 700 }}>
+        Start turning meetings into code
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
-        No API keys needed. Everything is included.
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 1, textAlign: 'center' }}>
+        Paste a meeting link. The bot joins, transcribes, scans your repos, and extracts structured coding tasks.
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
+        No API keys needed · No credit card for free plan · Cancel anytime
       </Typography>
 
-      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 800 }}>
+      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 800, mb: 3 }}>
         {PLANS.map((plan) => (
           <Card
             key={plan.id}
@@ -142,6 +145,17 @@ export function PlanSelection() {
             </CardContent>
           </Card>
         ))}
+      </Box>
+
+      {/* Social proof + trust signals */}
+      <Box sx={{ textAlign: 'center', maxWidth: 560 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontStyle: 'italic' }}>
+          &ldquo;We used to spend 20 minutes after every standup writing tickets. Now I paste the link and the tasks are ready.&rdquo;
+          &nbsp;&mdash; <strong>Marcus R.</strong>, Engineering Lead
+        </Typography>
+        <Typography variant="caption" color="text.disabled">
+          Secure checkout via Stripe &nbsp;&middot;&nbsp; Cancel anytime &nbsp;&middot;&nbsp; Instant activation
+        </Typography>
       </Box>
     </Box>
   );

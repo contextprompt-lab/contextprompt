@@ -94,4 +94,31 @@ export const seoTopics: SeoTopic[] = [
   { query: 'reducing meeting load for engineering teams', slug: 'reducing-meeting-load-engineering', cluster: 'problem', contentType: 'high-intent', postStyle: 'editorial' },
   { query: 'AI code generation tools compared 2026', slug: 'ai-code-generation-tools-compared-2026', cluster: 'trends', contentType: 'pillar', postStyle: 'editorial' },
   { query: 'building a developer experience team', slug: 'building-developer-experience-team', cluster: 'trends', contentType: 'supporting', postStyle: 'editorial' },
+
+  // --- Search Console opportunities (2026-04) ---
+  // "best internal q&a tools for engineering teams 2025 2026" — 35 impressions, position 10.7
+  { query: 'best internal knowledge sharing tools for engineering teams 2026', slug: 'best-internal-knowledge-sharing-tools-engineering-2026', cluster: 'comparison', contentType: 'pillar', postStyle: 'editorial' },
+  { query: 'how to reduce knowledge silos in engineering teams', slug: 'reduce-knowledge-silos-engineering-teams', cluster: 'problem', contentType: 'high-intent', postStyle: 'editorial' },
+  { query: 'engineering team documentation tools compared 2026', slug: 'engineering-team-documentation-tools-2026', cluster: 'comparison', contentType: 'high-intent', postStyle: 'editorial' },
+
+  // "best software to reduce engineering meetings" — 14 impressions, position 12.4
+  { query: 'best software to reduce engineering meetings 2026', slug: 'best-software-reduce-engineering-meetings-2026', cluster: 'comparison', contentType: 'pillar', postStyle: 'product' },
+  { query: 'how to run fewer status meetings with AI tools', slug: 'fewer-status-meetings-ai-tools', cluster: 'workflow', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'tools to replace engineering status meetings', slug: 'tools-replace-engineering-status-meetings', cluster: 'comparison', contentType: 'high-intent', postStyle: 'product' },
+
+  // "how to streamline meeting follow-ups with automated task assignments" — position 9.0
+  { query: 'how to automate meeting follow-up task assignments for engineering teams', slug: 'automate-meeting-follow-up-task-assignments', cluster: 'workflow', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'automated meeting action items for software teams', slug: 'automated-meeting-action-items-software-teams', cluster: 'workflow', contentType: 'high-intent', postStyle: 'product' },
+
+  // "ai meeting assistant development sdk or api" — position 8.7
+  { query: 'best meeting transcription API for developers 2026', slug: 'meeting-transcription-api-developers-2026', cluster: 'integration', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'how to build a meeting bot with AI transcription', slug: 'build-meeting-bot-ai-transcription', cluster: 'technical', contentType: 'high-intent', postStyle: 'editorial' },
+
+  // "best prompt engineering tools with jira github integration 2025 2026" — position 7.0
+  { query: 'best AI tools with GitHub integration for engineering teams', slug: 'ai-tools-github-integration-engineering-teams', cluster: 'comparison', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'meeting to GitHub issues workflow for developers', slug: 'meeting-to-github-issues-workflow', cluster: 'integration', contentType: 'high-intent', postStyle: 'product' },
+
+  // "best software to reduce or limit engineering status meetings" — position 8.8
+  { query: 'engineering manager guide to fewer recurring meetings', slug: 'engineering-manager-fewer-recurring-meetings', cluster: 'use-case', contentType: 'high-intent', postStyle: 'editorial' },
+  { query: 'async-first engineering team communication tools 2026', slug: 'async-first-engineering-communication-tools-2026', cluster: 'trends', contentType: 'pillar', postStyle: 'editorial' },
 ];

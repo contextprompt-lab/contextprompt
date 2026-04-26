@@ -60,6 +60,56 @@
   }
   </script>
 
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is contextprompt a replacement for Otter.ai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not exactly — they serve different purposes. Otter.ai is a general transcription tool good for lectures, interviews, and broad meeting capture. contextprompt is purpose-built for engineering teams: it scans connected repos and extracts structured coding tasks with real file paths. If your meetings produce code, contextprompt replaces Otter. If you also need live captions or mobile transcription, Otter fills gaps contextprompt doesn't cover."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does contextprompt have live captions like Otter.ai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. contextprompt is post-meeting: the bot joins your call, records it, and processes the transcript after the meeting ends. Otter.ai provides real-time live captions during the call, which is a genuine advantage for in-person meetings or participants who need live transcription while the meeting is happening."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does contextprompt extract coding tasks from meetings?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt uses a multi-stage Claude API pipeline: it first scans your connected repositories to build a file map, then analyzes the meeting transcript against that map to identify mentioned files, functions, and modules. It extracts structured tasks with file paths, implementation steps, confidence levels, and the exact transcript quote that triggered each task."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use contextprompt with Zoom and Google Meet?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. contextprompt sends a Recall.ai bot to your meeting URL, so it works with Zoom, Google Meet, Microsoft Teams, and any other platform that supports bot participants. You paste the meeting link into the contextprompt dashboard and the bot joins automatically — no browser extension or desktop app required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does repo-aware mean for meeting tasks?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Repo-aware means contextprompt scans your actual GitHub repositories before analyzing the meeting transcript. Instead of a generic action item like 'fix the auth issue,' contextprompt maps that discussion to the specific file — for example src/middleware/auth.ts — and generates an implementation step referencing that real path in your codebase."
+        }
+      }
+    ]
+  }
+  </script>
+
   <style>
     .vs-hero {
       padding: 5rem 0 3.5rem;
@@ -329,6 +379,45 @@
       transition: border-color 0.2s, color 0.2s;
     }
     .vs-also-link:hover { border-color: #3fb950; color: #3fb950; }
+    .vs-faq { padding: 4rem 0; border-top: 1px solid #21262d; }
+    .vs-faq h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    .vs-faq-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .faq-list { max-width: 740px; margin: 0 auto; }
+    .faq-item {
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .faq-q {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      padding: 1.25rem 1.5rem;
+      background: #111;
+    }
+    .faq-a {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      padding: 0 1.5rem 1.25rem;
+      background: #0d1117;
+      line-height: 1.7;
+    }
   </style>
 </head>
 <body>
@@ -539,6 +628,36 @@
             <li>Need collaborative note-taking with your whole team</li>
             <li>Run a non-engineering team (sales, product, HR)</li>
           </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FAQ ====== -->
+  <section class="vs-faq">
+    <div class="container">
+      <h2>Common questions</h2>
+      <p class="vs-faq-sub">What engineering teams ask when comparing Otter.ai and contextprompt.</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">Is contextprompt a replacement for Otter.ai?</div>
+          <div class="faq-a">Not exactly — they serve different purposes. Otter.ai is a general transcription tool good for lectures, interviews, and broad meeting capture. contextprompt is purpose-built for engineering teams: it scans your connected repos and extracts structured coding tasks with real file paths. If your meetings produce code, contextprompt replaces Otter. If you also need live captions or mobile transcription, Otter fills gaps contextprompt doesn't cover.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Does contextprompt have live captions like Otter.ai?</div>
+          <div class="faq-a">No. contextprompt is post-meeting: the Recall.ai bot joins your call, records it, and processes the transcript after the meeting ends. Otter.ai provides real-time live captions during the call, which is a genuine advantage for in-person meetings or for participants who need live transcription while the meeting is happening.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How does contextprompt extract coding tasks from meetings?</div>
+          <div class="faq-a">contextprompt uses a multi-stage Claude API pipeline: it first scans your connected repositories to build a file map, then analyzes the meeting transcript against that map to identify mentioned files, functions, and modules. It extracts structured tasks with file paths, implementation steps, confidence levels, and the exact transcript quote that triggered each task.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Can I use contextprompt with Zoom and Google Meet?</div>
+          <div class="faq-a">Yes. contextprompt sends a Recall.ai bot to your meeting URL, so it works with Zoom, Google Meet, Microsoft Teams, and any other platform that supports bot participants. You paste the meeting link into the contextprompt dashboard and the bot joins automatically — no browser extension or desktop app required.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What does "repo-aware" mean for meeting tasks?</div>
+          <div class="faq-a">Repo-aware means that contextprompt scans your actual GitHub repositories before analyzing the meeting transcript. Instead of producing a generic action item like "fix the auth issue," contextprompt maps that discussion to the specific file — for example, <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;color:#58a6ff;">src/middleware/auth.ts</code> — and generates an implementation step referencing that real path in your codebase.</div>
         </div>
       </div>
     </div>

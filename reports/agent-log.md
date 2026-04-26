@@ -2,6 +2,15 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-04-26 — Growth Agent (Sunday)
+
+- **Day:** Sunday — competitor research + comparison pages
+- **PR:** [#16](https://github.com/contextprompt-lab/contextprompt/pull/16) `agent/growth/vs-avoma-krisp-faq`
+- **New pages:** `/vs/avoma/` (vs Avoma), `/vs/krisp/` (vs Krisp) — both with full feature tables, FAQ sections, FAQPage JSON-LD
+- **Improved:** `/vs/otter-ai/`, `/vs/fireflies-ai/`, `/vs/granola/` — added 5-question FAQ section + FAQPage JSON-LD to each (People Also Ask targets)
+- **Comparison hub:** 10 total vs pages now in PRs/main covering all major meeting AI competitors
+- **Build:** ✅ passes (`npm run build`)
+
 ## 2026-04-26 — Product Health Agent (Sunday)
 
 - **Day:** Sunday — health monitoring only (no conversion improvement, no dependency audit)

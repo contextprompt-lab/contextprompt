@@ -2,6 +2,16 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-04-27 — Growth Agent (Monday)
+
+- **Day:** Monday — landing pages + conversion assets
+- **PR:** #17 `agent/growth/integration-pages-github-jira-linear`
+- **Shipped:** 3 new integration landing pages — `/integrations/github/`, `/integrations/jira/`, `/integrations/linear/`
+- **Design:** Matches existing use-case page design; includes unique sample output blocks showing realistic GitHub issue, Jira story, and Linear issue formats with file paths + steps
+- **SEO:** `FAQPage` JSON-LD on all three pages; targets "meeting notes to github issues", "automate jira tickets from meetings", "linear meeting integration ai" keyword clusters
+- **Build:** ✅ All three pages output to `dist/integrations/`; `npm run build` passes
+- **Report:** `reports/growth/2026-04-27.md`
+
 ## 2026-04-26 — Product Health Agent (Sunday)
 
 - **Day:** Sunday — health monitoring only (no conversion improvement, no dependency audit)

@@ -12,6 +12,30 @@
 - **Build:** ✅ All three pages output to `dist/integrations/`; `npm run build` passes
 - **Report:** `reports/growth/2026-04-27.md`
 
+## 2026-04-27 — Health Agent (Monday)
+
+- **Day:** Monday — health monitoring + dependency audit
+- **TypeScript:** PASS — 0 errors
+- **Tests:** PASS — 107/107 across 8 test files (1.61s)
+- **GitHub:** 13 open PRs (+1 from yesterday: PR #16 growth); 0 open issues
+- **Stale PRs:** #4 (24 days) and #5 (20 days) — duplicates of #10; flagged for closure again
+- **Pending review:** PR #9 (plan selection, 12 days), PR #15 (free-limit banner, 5 days) — both conversion PRs unreviewed
+- **Dependency audit (Monday):** 7 vulnerabilities — 3 HIGH (path-to-regexp, picomatch, vite — all fixable via `npm audit fix`), 4 moderate (postcss fixable; resend/svix/uuid require major bump); 14+ days outstanding
+- **Search Console:** 99 impressions, 0 clicks, avg pos 41.3; top blog at 112 impressions/pos 12.5; two use-case pages pos 4–5 with 0 CTR (PR #13 targets these)
+- **Conversion work:** N/A (Monday)
+- **Bugs found:** None
+- **Actions:** Health report written only
+- **Report:** `reports/product-health/2026-04-27.md`
+
+## 2026-04-26 — Growth Agent (Sunday)
+
+- **Day:** Sunday — competitor research + comparison pages
+- **PR:** [#16](https://github.com/contextprompt-lab/contextprompt/pull/16) `agent/growth/vs-avoma-krisp-faq`
+- **New pages:** `/vs/avoma/` (vs Avoma), `/vs/krisp/` (vs Krisp) — both with full feature tables, FAQ sections, FAQPage JSON-LD
+- **Improved:** `/vs/otter-ai/`, `/vs/fireflies-ai/`, `/vs/granola/` — added 5-question FAQ section + FAQPage JSON-LD to each (People Also Ask targets)
+- **Comparison hub:** 10 total vs pages now in PRs/main covering all major meeting AI competitors
+- **Build:** ✅ passes (`npm run build`)
+
 ## 2026-04-26 — Product Health Agent (Sunday)
 
 - **Day:** Sunday — health monitoring only (no conversion improvement, no dependency audit)

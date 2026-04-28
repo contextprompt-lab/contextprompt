@@ -19,6 +19,7 @@ export default defineConfig({
         'use-case-transcription': 'use-cases/meeting-transcription-to-coding-tasks/index.html',
         'use-case-assistant': 'use-cases/ai-meeting-assistant-for-developers/index.html',
         'use-case-sprint': 'use-cases/sprint-planning-automation/index.html',
+        'for-developers': 'for-developers/index.html',
         '404': '404.html',
       },
     },

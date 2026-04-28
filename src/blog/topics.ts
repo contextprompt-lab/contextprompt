@@ -94,4 +94,13 @@ export const seoTopics: SeoTopic[] = [
   { query: 'reducing meeting load for engineering teams', slug: 'reducing-meeting-load-engineering', cluster: 'problem', contentType: 'high-intent', postStyle: 'editorial' },
   { query: 'AI code generation tools compared 2026', slug: 'ai-code-generation-tools-compared-2026', cluster: 'trends', contentType: 'pillar', postStyle: 'editorial' },
   { query: 'building a developer experience team', slug: 'building-developer-experience-team', cluster: 'trends', contentType: 'supporting', postStyle: 'editorial' },
+
+  // --- Meeting bot API queries (SC data: multiple "meeting bot" queries 2-4 impressions each) ---
+  { query: 'best meeting bot API for developers 2026', slug: 'best-meeting-bot-api-developers-2026', cluster: 'integration', contentType: 'high-intent', postStyle: 'editorial' },
+  { query: 'how to make a meeting bot', slug: 'how-to-make-a-meeting-bot', cluster: 'technical', contentType: 'high-intent', postStyle: 'editorial' },
+  { query: 'meeting bot as a service for engineering teams', slug: 'meeting-bot-as-a-service-engineering', cluster: 'integration', contentType: 'supporting', postStyle: 'editorial' },
+  { query: 'how to send a bot to a Zoom or Google Meet meeting', slug: 'send-bot-to-zoom-google-meet', cluster: 'integration', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'best meeting bot API for incident management', slug: 'meeting-bot-api-incident-management', cluster: 'use-case', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'AI notetaker for engineering teams 2026', slug: 'ai-notetaker-engineering-teams-2026', cluster: 'product', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'best AI meeting tool for solo developers', slug: 'best-ai-meeting-tool-solo-developers', cluster: 'product', contentType: 'high-intent', postStyle: 'product' },
 ];

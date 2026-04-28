@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repo-Aware Task Extraction — How It Works | contextprompt</title>
+  <meta name="description" content="contextprompt scans your repositories to map meeting discussions to real file paths. See how AST parsing, gitignore-aware file scanning, and keyword matching produce tasks your AI tools can actually use.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/features/repo-scanning/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Repo-Aware Task Extraction — How contextprompt Scans Your Code">
+  <meta property="og:description" content="contextprompt maps meeting discussions to real file paths by scanning your repositories. See the technical details: AST parsing, gitignore handling, token budgeting, and keyword matching.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/features/repo-scanning/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Repo-Aware Task Extraction — How contextprompt Scans Your Code">
+  <meta name="twitter:description" content="contextprompt maps meeting discussions to real file paths. See how AST parsing and keyword matching produce structured tasks with real file references.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+
+  <style>
+    .feat-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .feat-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 820px;
+      margin: 0 auto 1.5rem;
+    }
+    .feat-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .feat-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .feat-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .feat-cta:hover { opacity: 0.85; }
+    .feat-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+
+    .feat-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .feat-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .feat-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    /* Breadcrumb */
+    .feat-breadcrumb {
+      padding: 1rem 0 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+    }
+    .feat-breadcrumb a {
+      color: #555;
+      text-decoration: none;
+    }
+    .feat-breadcrumb a:hover { color: #3fb950; }
+    .feat-breadcrumb span { margin: 0 0.4rem; }
+
+    /* How it works pipeline */
+    .feat-pipeline {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .feat-pipe-step {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+    .feat-pipe-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .feat-pipe-num {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #161b22;
+      border: 1px solid #3fb950;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .feat-pipe-line {
+      width: 2px;
+      flex: 1;
+      background: #21262d;
+      margin: 0.5rem 0;
+    }
+    .feat-pipe-last .feat-pipe-line { display: none; }
+    .feat-pipe-content {
+      padding-bottom: 2.5rem;
+    }
+    .feat-pipe-content h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .feat-pipe-content p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.65;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Code block */
+    .feat-code {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #8b949e;
+      overflow-x: auto;
+      margin-top: 0.75rem;
+    }
+    .feat-code .kw { color: #ff7b72; }
+    .feat-code .str { color: #a5d6ff; }
+    .feat-code .comment { color: #6e7681; }
+    .feat-code .fn { color: #d2a8ff; }
+    .feat-code .num { color: #79c0ff; }
+
+    /* Feature cards */
+    .feat-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .feat-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .feat-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .feat-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    /* Compare */
+    .feat-compare {
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 640px) { .feat-compare { grid-template-columns: 1fr; } }
+    .feat-compare-col {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .feat-compare-col--them { border-top: 3px solid #f85149; }
+    .feat-compare-col--us { border-top: 3px solid #3fb950; }
+    .feat-compare-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+    .feat-compare-col--them .feat-compare-label { color: #f85149; }
+    .feat-compare-col--us .feat-compare-label { color: #3fb950; }
+    .feat-compare-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .feat-compare-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      color: #999;
+      line-height: 1.5;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .feat-compare-col--them .feat-compare-list li::before {
+      content: "x"; position: absolute; left: 0; color: #f85149;
+      font-family: 'JetBrains Mono', monospace; font-weight: 700;
+    }
+    .feat-compare-col--us .feat-compare-list li::before {
+      content: ">"; position: absolute; left: 0; color: #3fb950;
+      font-family: 'JetBrains Mono', monospace; font-weight: 700;
+    }
+
+    /* Internal links */
+    .feat-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .feat-link-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .feat-link-card:hover { border-color: #3fb950; }
+    .feat-link-card h4 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.35rem;
+    }
+    .feat-link-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      color: #999;
+      line-height: 1.5;
+    }
+
+    /* FAQ */
+    .feat-faq {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .feat-faq-item {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+    }
+    .feat-faq-item h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.6rem;
+    }
+    .feat-faq-item p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    /* Bottom CTA */
+    .feat-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .feat-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+  <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
+  <link rel="stylesheet" crossorigin href="/assets/components-BERnqvIl.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- BREADCRUMB -->
+  <div class="container">
+    <nav class="feat-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a><span>/</span>
+      <a href="/#features">Features</a><span>/</span>
+      <span>Repo scanning</span>
+    </nav>
+  </div>
+
+  <!-- HERO -->
+  <section class="feat-hero">
+    <div class="container">
+      <h1>How contextprompt maps meeting discussions<br><u>to real file paths in your code</u></h1>
+      <p class="feat-hero-sub">Repo-aware task extraction is what separates contextprompt from every other meeting tool. When your PM says "update the auth middleware," contextprompt already knows the file is <code>src/middleware/auth.ts</code> — because it read your codebase first.</p>
+      <a href="/app/" class="feat-cta">Try it free</a>
+      <p class="feat-cta-note">Free plan: 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- WHY IT MATTERS -->
+  <section class="feat-section">
+    <div class="container">
+      <h2>Why file paths matter for AI coding tools</h2>
+      <p class="feat-section-sub">AI coding assistants like Claude Code and Cursor need a task description, the specific files to work in, and concrete steps. Generic meeting summaries provide none of these.</p>
+
+      <div class="feat-compare">
+        <div class="feat-compare-col feat-compare-col--them">
+          <div class="feat-compare-label">Generic meeting tools</div>
+          <ul class="feat-compare-list">
+            <li>"Update the auth flow" — no file paths</li>
+            <li>"Fix the performance issue" — no context</li>
+            <li>Action items are vague prose</li>
+            <li>No awareness of your project structure</li>
+            <li>Paste into Claude Code → vague response</li>
+          </ul>
+        </div>
+        <div class="feat-compare-col feat-compare-col--us">
+          <div class="feat-compare-label">contextprompt</div>
+          <ul class="feat-compare-list">
+            <li>Task: "Replace session tokens with JWT"</li>
+            <li>Files: <code>src/middleware/auth.ts</code>, <code>src/types/session.ts</code></li>
+            <li>Steps: ordered, concrete implementation plan</li>
+            <li>Confidence level + transcript source quote</li>
+            <li>Paste into Claude Code → starts implementing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW REPO SCANNING WORKS -->
+  <section class="feat-section">
+    <div class="container">
+      <h2>How repo scanning works</h2>
+      <p class="feat-section-sub">A four-stage pipeline that builds your codebase map before any meeting runs, then cross-references it against the transcript in real time.</p>
+
+      <div class="feat-pipeline">
+
+        <div class="feat-pipe-step">
+          <div class="feat-pipe-left">
+            <div class="feat-pipe-num">1</div>
+            <div class="feat-pipe-line"></div>
+          </div>
+          <div class="feat-pipe-content">
+            <h3>File tree walk — gitignore-aware</h3>
+            <p>contextprompt walks your repository from the root, respecting every <code>.gitignore</code> rule it finds. It automatically skips <code>node_modules/</code>, <code>dist/</code>, <code>build/</code>, and any other directories your project excludes. Only the files a developer would actually modify are indexed.</p>
+            <p>This prevents noise: no build artifacts, no vendored dependencies, no generated code polluting the file map that gets matched against your meeting transcript.</p>
+            <div class="feat-code"><span class="comment">// Automatically skipped</span>
+node_modules/        <span class="comment">← .gitignore rule</span>
+dist/                <span class="comment">← .gitignore rule</span>
+.git/                <span class="comment">← always excluded</span>
+<span class="comment">
+// Indexed for matching</span>
+src/middleware/auth.ts
+src/routes/bots.ts
+src/server/db.ts</div>
+          </div>
+        </div>
+
+        <div class="feat-pipe-step">
+          <div class="feat-pipe-left">
+            <div class="feat-pipe-num">2</div>
+            <div class="feat-pipe-line"></div>
+          </div>
+          <div class="feat-pipe-content">
+            <h3>AST parsing — exports, types, function names</h3>
+            <p>For TypeScript and JavaScript files, contextprompt uses the TypeScript compiler's AST parser (parse-only mode — no type checking) to extract exported identifiers: function names, class names, type aliases, and interface names.</p>
+            <p>This gives the extraction pipeline the vocabulary of your codebase. When someone says "update the <code>AuthContext</code>" in a meeting, the scanner already knows which file exports <code>AuthContext</code> — it doesn't need to guess.</p>
+            <div class="feat-code"><span class="comment">// src/middleware/auth.ts — extracted exports</span>
+<span class="kw">export function</span> <span class="fn">requireAuth</span>(req, res, next)
+<span class="kw">export function</span> <span class="fn">requirePro</span>(req, res, next)
+<span class="kw">export type</span> <span class="fn">JWTPayload</span> = { userId: string ... }
+<span class="kw">export const</span> <span class="fn">JWT_SECRET</span></div>
+          </div>
+        </div>
+
+        <div class="feat-pipe-step">
+          <div class="feat-pipe-left">
+            <div class="feat-pipe-num">3</div>
+            <div class="feat-pipe-line"></div>
+          </div>
+          <div class="feat-pipe-content">
+            <h3>Token budgeting — 30k tokens per repo</h3>
+            <p>Repository maps are capped at ~30,000 tokens to keep Claude API analysis fast and cost-efficient. When a repo exceeds this budget, progressive trimming applies: first dropping function signatures, then dropping deeply-nested files — preserving the highest-signal paths.</p>
+            <p>The result: your most important files (the ones closest to your project root, with the most exports) are always included. Deeply-buried utility files are dropped only when necessary.</p>
+          </div>
+        </div>
+
+        <div class="feat-pipe-step feat-pipe-last">
+          <div class="feat-pipe-left">
+            <div class="feat-pipe-num">4</div>
+            <div class="feat-pipe-line"></div>
+          </div>
+          <div class="feat-pipe-content">
+            <h3>Keyword matching — bigrams, trigrams, scoring</h3>
+            <p>When a task is extracted from a meeting transcript, contextprompt scores every file in your repo map using bigram and trigram matching against the task description. File paths, function names, type names, and directory names all contribute to the score.</p>
+            <p>High-scoring files appear as the task's affected files. The extraction prompt then sends those files' full signatures to Claude for the final implementation steps — giving it the real context it needs to produce accurate, specific output.</p>
+            <div class="feat-code"><span class="comment">// Transcript: "update the auth middleware to use JWT"</span>
+<span class="comment">// Keyword matches:</span>
+src/middleware/auth.ts         <span class="num">0.94</span>  <span class="comment">← "auth", "middleware"</span>
+src/types/session.ts           <span class="num">0.71</span>  <span class="comment">← "session" → JWT replacement</span>
+src/routes/auth.ts             <span class="num">0.68</span>  <span class="comment">← "auth" in path</span>
+src/server/index.ts            <span class="num">0.12</span>  <span class="comment">← low score, excluded</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY PROPERTIES -->
+  <section class="feat-section">
+    <div class="container">
+      <h2>Key properties of the scanner</h2>
+      <p class="feat-section-sub">Designed for real-world codebases — not toy examples.</p>
+
+      <div class="feat-cards">
+        <div class="feat-card">
+          <h3>Parse-only, no compilation</h3>
+          <p>contextprompt uses <code>ts.createSourceFile()</code> for AST parsing — not <code>ts.createProgram()</code>. There's no type checking, no import resolution, and no dependency on your <code>node_modules</code>. It works on any TypeScript or JavaScript project instantly, without a build step.</p>
+        </div>
+        <div class="feat-card">
+          <h3>Respects .gitignore at every level</h3>
+          <p>The walker processes <code>.gitignore</code> files at every directory level — not just the root. Monorepos with per-package ignore rules work correctly. Nested <code>node_modules</code> directories inside packages are automatically excluded.</p>
+        </div>
+        <div class="feat-card">
+          <h3>Works with browser File System API</h3>
+          <p>You can share your local repository via the browser's File System Access API — your source files never leave your machine. Only the file map (paths, function names, type signatures) is sent for analysis. For public repos, a GitHub URL also works.</p>
+        </div>
+        <div class="feat-card">
+          <h3>Multiple repos per meeting</h3>
+          <p>Connect a frontend repo and a backend repo simultaneously. contextprompt handles task attribution across both codebases — so "update the API endpoint and the React component that calls it" produces tasks in the right repo with the right file paths.</p>
+        </div>
+        <div class="feat-card">
+          <h3>Multi-language aware</h3>
+          <p>AST parsing applies to TypeScript and JavaScript files. For other languages (Python, Go, Java), contextprompt falls back to file path and directory name matching — still producing accurate results for common project structures.</p>
+        </div>
+        <div class="feat-card">
+          <h3>Progressive trimming under budget</h3>
+          <p>When a large repo hits the 30k token limit, the trimming algorithm preserves high-signal files: it drops function signatures first, then drops deeply-nested files. Root-level files with many exports are always kept, ensuring the most important context survives.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="feat-section">
+    <div class="container">
+      <h2>Technical questions about repo scanning</h2>
+      <p class="feat-section-sub">What developers ask about how the scanner works.</p>
+
+      <div class="feat-faq">
+        <div class="feat-faq-item">
+          <h3>Does contextprompt upload my source code?</h3>
+          <p>No. When you use the File System Access API (the browser-based path), contextprompt builds a repo map — file paths, function names, exported type signatures — and sends that map for analysis. Your actual source file contents stay in the browser. If you connect a public GitHub repository by URL, the public file content is fetched directly.</p>
+        </div>
+        <div class="feat-faq-item">
+          <h3>Does it work on private repositories?</h3>
+          <p>Yes, in two ways. The File System Access API lets you share any local directory — public or private — without uploading files. Alternatively, if you use the CLI mode (for local audio capture), contextprompt scans your repos directly from disk, fully offline.</p>
+        </div>
+        <div class="feat-faq-item">
+          <h3>How accurate is the file path matching?</h3>
+          <p>For codebases where function names and type names appear in transcript discussions, accuracy is very high — the bigram/trigram match of exported identifiers against the transcript is specific enough to identify the right file in most cases. Confidence levels in each extracted task reflect the match quality: high-confidence tasks have strong file matches; lower-confidence tasks may have fewer direct references in the transcript.</p>
+        </div>
+        <div class="feat-faq-item">
+          <h3>What languages does it support?</h3>
+          <p>contextprompt provides full AST-level extraction (exported functions, types, interfaces) for TypeScript and JavaScript. For Python, Go, Java, Ruby, and other languages, it uses file path and directory structure matching — which is still highly effective for discussions that reference component names or module names that appear in file paths.</p>
+        </div>
+        <div class="feat-faq-item">
+          <h3>How large can my repository be?</h3>
+          <p>There's no hard limit on repo size — the scanner is gitignore-aware and skips non-source files, so most production codebases fit well under the 30k token analysis budget. Very large monorepos may trigger progressive trimming (signatures dropped before deep files), but the most important files always remain in the map.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED LINKS -->
+  <section class="feat-section">
+    <div class="container">
+      <h2>See repo scanning in context</h2>
+      <p class="feat-section-sub">Repo scanning is the foundation. Here's how it powers the full workflow.</p>
+
+      <div class="feat-links">
+        <a href="/use-cases/meeting-transcription-to-coding-tasks/" class="feat-link-card">
+          <h4>Meeting to coding tasks</h4>
+          <p>The full pipeline: transcript → repo scan → structured task extraction.</p>
+        </a>
+        <a href="/use-cases/ai-meeting-assistant-for-developers/" class="feat-link-card">
+          <h4>AI meeting assistant</h4>
+          <p>How contextprompt differs from generic meeting tools that don't understand code.</p>
+        </a>
+        <a href="/for-developers/" class="feat-link-card">
+          <h4>For developers</h4>
+          <p>Using repo-aware task output with Claude Code, Cursor, and Copilot.</p>
+        </a>
+        <a href="/use-cases/sprint-planning-automation/" class="feat-link-card">
+          <h4>Sprint planning</h4>
+          <p>From planning meeting to sprint-ready tickets with real file references.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="feat-bottom-cta">
+    <div class="container">
+      <h2>Connect your repo. Try it on your next meeting.</h2>
+      <a href="/app/" class="feat-cta">Get started free</a>
+      <p class="feat-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Features</h4>
+        <a href="/features/repo-scanning/">Repo scanning</a>
+        <a href="/use-cases/meeting-transcription-to-coding-tasks/">Task extraction</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Use cases</h4>
+        <a href="/use-cases/sprint-planning-automation/">Sprint planning</a>
+        <a href="/use-cases/standup/">Daily standups</a>
+        <a href="/use-cases/ai-meeting-assistant-for-developers/">AI meeting assistant</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://contextprompt.app/features/repo-scanning/",
+        "url": "https://contextprompt.app/features/repo-scanning/",
+        "name": "Repo-Aware Task Extraction — How contextprompt Scans Your Code",
+        "description": "contextprompt scans your repositories to map meeting discussions to real file paths. See how AST parsing, gitignore-aware file scanning, and keyword matching produce tasks your AI tools can actually use.",
+        "isPartOf": { "@id": "https://contextprompt.app/" },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://contextprompt.app/" },
+            { "@type": "ListItem", "position": 2, "name": "Features", "item": "https://contextprompt.app/features/" },
+            { "@type": "ListItem", "position": 3, "name": "Repo Scanning", "item": "https://contextprompt.app/features/repo-scanning/" }
+          ]
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does contextprompt upload my source code?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. When you use the File System Access API, contextprompt builds a repo map (file paths, function names, exported type signatures) and sends that map for analysis. Your actual source file contents stay in the browser."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How accurate is the file path matching in repo scanning?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "For codebases where function names and type names appear in transcript discussions, accuracy is very high. Bigram/trigram matching of exported identifiers against the transcript identifies the right file in most cases. Confidence levels in each task reflect the match quality."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What programming languages does contextprompt's repo scanner support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Full AST-level extraction (exported functions, types, interfaces) is provided for TypeScript and JavaScript. For Python, Go, Java, Ruby, and other languages, file path and directory structure matching is used — still highly effective for discussions that reference component or module names."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does contextprompt handle large repositories?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Repository maps are capped at ~30,000 tokens. When a large repo exceeds this budget, progressive trimming applies: function signatures are dropped first, then deeply-nested files. Root-level files with many exports are always kept."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does contextprompt support monorepos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The file walker processes .gitignore files at every directory level, so monorepos with per-package ignore rules work correctly. You can also connect multiple repos per meeting — contextprompt attributes tasks to the right codebase automatically."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</body>
+</html>

@@ -2,6 +2,16 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-04-28 — SEO Agent (Tuesday)
+
+- **PRs created:** PR #18 (`/for-developers/` persona page), PR #19 (`/features/repo-scanning/` deep-dive + 7 blog topics)
+- **Search Console:** 78 impressions, 0 clicks, avg pos 47.3; top opportunities: "best software to reduce engineering meetings" (16 impressions, pos 14.5 — covered by PR #10), "engineering ai notetaker" (13 impressions, pos 32.0 — targeted by PR #18)
+- **PR #18:** New `/for-developers/` persona page — explicitly recommended by growth agent; targets "engineering AI notetaker" (13 impressions, pos 32), "leading AI meeting assistants for developers" (pos 7.0); includes sample output block with real file paths; FAQPage + SoftwareApplication JSON-LD; cross-links to 4 use-case pages and 2 persona pages
+- **PR #19:** `/features/repo-scanning/` deep-dive — technical page for repo-aware differentiator; 4-stage pipeline explanation (file walk → AST parse → token budget → keyword match) with code examples; FAQPage JSON-LD; 7 new blog topics added for uncovered "meeting bot API" query cluster (meeting bot API, how to make a meeting bot, meeting bot as a service, incident management angle at pos 17.8)
+- **Skipped (covered by open PRs):** meta description fixes (#13), for-engineering-managers (#10), blog topics (#6, #11)
+- **Content gaps flagged:** `/pricing/` page, sample output blocks on sprint/standup use-case pages, `/features/task-extraction/`
+- **Report:** `reports/seo-performance/2026-04-28.md`
+
 ## 2026-04-27 — Growth Agent (Monday)
 
 - **Day:** Monday — landing pages + conversion assets

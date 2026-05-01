@@ -2,6 +2,15 @@
 
 <!-- Agents append entries here in reverse chronological order -->
 
+## 2026-05-01 — SEO Agent
+
+- **PRs created:** 2 (PR #21, PR #22)
+- **PR #21:** 5 new blog topics in `src/blog/topics.ts` targeting SC queries with 4–13 impressions, 0 clicks — "best internal q&a tools for engineering teams" (pos 8.6), "engineering ai notetaker" (13 impr, pos 32.0), "best software to reduce engineering meetings" (pos 15.9), "best meeting bot api for incident management" (pos 17.8), "automate standups" (pos 29.0)
+- **PR #22:** New `/features/task-extraction/` page — sample output block, 4-stage pipeline explainer, 6-feature grid, before/after comparison, 6-question FAQ with FAQPage JSON-LD, BreadcrumbList; internal links to 7 related pages; registered in vite.config.js
+- **Search Console used:** 41 total impressions, 0 clicks, avg pos 28.8 — site is indexed but not converting; primary issue is content gaps for ranking queries
+- **Build:** PASS on both PRs
+- **Report:** `reports/seo-performance/2026-05-01.md`
+
 ## 2026-05-01 — Health Agent (Friday)
 
 - **Day:** Friday — health monitoring only

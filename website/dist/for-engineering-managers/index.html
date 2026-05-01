@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reduce Engineering Status Meetings With AI — contextprompt</title>
+  <meta name="description" content="Turn engineering meetings into structured coding tasks automatically. Reduce status meetings, eliminate manual ticket creation. Free plan for engineering managers.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/for-engineering-managers/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Reduce Engineering Status Meetings With AI — contextprompt">
+  <meta property="og:description" content="Engineering managers: contextprompt turns every team meeting into structured coding tasks with file paths. Eliminate manual ticket creation after standups, sprint planning, and design reviews.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/for-engineering-managers/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Reduce Engineering Status Meetings With AI — contextprompt">
+  <meta name="twitter:description" content="Turn every engineering team meeting into structured coding tasks automatically. Free to try.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+
+  <style>
+    .uc-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .uc-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 820px;
+      margin: 0 auto 1.5rem;
+    }
+    .uc-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .uc-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .uc-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .uc-cta:hover { opacity: 0.85; }
+    .uc-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+
+    .uc-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .uc-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .uc-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    .uc-stat-row {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .uc-stat {
+      text-align: center;
+    }
+    .uc-stat-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #3fb950;
+      line-height: 1;
+    }
+    .uc-stat-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      margin-top: 0.4rem;
+    }
+
+    .uc-problems {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-problem-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .uc-problem-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #f85149;
+      margin-bottom: 0.75rem;
+    }
+    .uc-problem-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .uc-problem-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-solution-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .uc-solution-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .uc-solution-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-steps {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .uc-step {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+    .uc-step-num {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #161b22;
+      border: 1px solid #3fb950;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .uc-step-content h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.35rem;
+    }
+    .uc-step-content p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-testimonial {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .uc-testimonial-stars {
+      color: #f0c000;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .uc-testimonial blockquote {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      color: #e6e6e6;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .uc-testimonial-author {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .uc-testimonial-name {
+      color: #e6e6e6;
+      font-weight: 500;
+    }
+
+    .uc-pricing-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .uc-pricing-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex: 1;
+      min-width: 220px;
+    }
+    .uc-pricing-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.25rem;
+    }
+    .uc-pricing-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .uc-pricing-detail {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    /* FAQ */
+    .uc-faq {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .uc-faq-item {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+    .uc-faq-item h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.75rem;
+    }
+    .uc-faq-item p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .uc-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+  <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
+  <link rel="stylesheet" crossorigin href="/assets/components-BERnqvIl.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="uc-hero">
+    <div class="container">
+      <h1>Reduce engineering status meetings.<br><u>Give your team clarity automatically.</u></h1>
+      <p class="uc-hero-sub">Engineering managers lose hours every week in status meetings that exist only to communicate decisions. contextprompt replaces that overhead by automatically extracting structured coding tasks from every meeting — with real file paths, implementation steps, and ownership. Your engineers leave every meeting knowing exactly what to build.</p>
+      <a href="/app/" class="uc-cta">Try free for your team</a>
+      <p class="uc-cta-note">Free plan includes 1 hour/month of meeting recording. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="uc-section">
+    <div class="container">
+      <div class="uc-stat-row">
+        <div class="uc-stat">
+          <div class="uc-stat-number">6h</div>
+          <div class="uc-stat-label">average engineer time lost<br>per week in status meetings</div>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-number">~90%</div>
+          <div class="uc-stat-label">of action items never<br>make it into the backlog</div>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-number">&lt;3min</div>
+          <div class="uc-stat-label">to send the bot and get<br>a full task extraction</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Why engineering status meetings keep multiplying</h2>
+      <p class="uc-section-sub">Status meetings exist because there is no reliable way to turn meeting decisions into developer tasks. contextprompt fixes that.</p>
+
+      <div class="uc-problems">
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">//</div>
+          <h3>Decisions die in the meeting</h3>
+          <p>Engineers leave planning and design sessions with a shared understanding. By the next day, context has faded. No one remembers which files were in scope, who owned what, or what the exact agreed-upon approach was. Another status meeting gets scheduled to re-sync.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">?!</div>
+          <h3>Tickets lag two days behind meetings</h3>
+          <p>Manual ticket creation from meeting notes is slow, lossy, and falls to whoever volunteered to write it up. By the time the Jira ticket appears, the engineer has already started guessing at the implementation — often incorrectly.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">~></div>
+          <h3>No link between discussion and code</h3>
+          <p>Meeting notes say "update the auth flow." But which files? Which service? Which edge cases were discussed? Generic meeting recaps do not understand your codebase, so the engineer still has to translate every action item before they can start working.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>How contextprompt reduces meeting overhead</h2>
+      <p class="uc-section-sub">contextprompt is the only meeting tool that scans your repositories. Every task it extracts includes the real files, functions, and implementation steps — so your engineers can start coding immediately after the meeting ends.</p>
+
+      <div class="uc-solution-grid">
+        <div class="uc-solution-card">
+          <h3>Repo-aware task extraction</h3>
+          <p>When someone says "update the authentication middleware," contextprompt maps that to <code>src/middleware/auth.ts</code> in your actual codebase. Tasks reference real file paths, exported functions, and types — not generic placeholders.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Instant task availability</h3>
+          <p>Within minutes of the meeting ending, structured tasks appear in your dashboard. Each task has a title, description, affected files, implementation steps, confidence level, and the exact transcript quotes that support it.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Speaker attribution and ownership</h3>
+          <p>Every task is linked to who said what in the meeting. When a deadline or approach is disputed, the evidence is one click away. No more "I don't remember agreeing to that" — the transcript context is preserved with every task.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Works with your meeting platform</h3>
+          <p>Paste a Zoom, Google Meet, Slack, or Microsoft Teams link. contextprompt sends a bot that joins as a participant, records, transcribes, and returns structured tasks — without needing a desktop app or screen recording.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Ready for AI coding assistants</h3>
+          <p>The structured task format is designed to be pasted directly into Claude Code, Cursor, or GitHub Copilot. Your engineers get AI-executable task specs instead of another paragraph of meeting notes to decipher.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Eliminate the recap email</h3>
+          <p>Stop spending 20 minutes after every meeting writing the recap. contextprompt produces the task list and transcript automatically. Send your team the dashboard link and let them pull what they need.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Set it up in one meeting</h2>
+      <p class="uc-section-sub">No integrations to configure, no plugins to install. If you have a meeting link, you can use contextprompt right now.</p>
+
+      <div class="uc-steps">
+        <div class="uc-step">
+          <div class="uc-step-num">1</div>
+          <div class="uc-step-content">
+            <h3>Connect your repositories</h3>
+            <p>Add your GitHub repos from the dashboard. contextprompt indexes your file tree, exported functions, types, and signatures to build a codebase map. Takes about two minutes per repo.</p>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-step-num">2</div>
+          <div class="uc-step-content">
+            <h3>Paste the meeting link</h3>
+            <p>Before your next standup, sprint planning, or design review, paste the Zoom, Google Meet, Slack, or Teams link into contextprompt. The bot joins as a participant within 30 seconds.</p>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-step-num">3</div>
+          <div class="uc-step-content">
+            <h3>Meet as normal</h3>
+            <p>Run your meeting the way you always do. The bot records and transcribes with speaker identification. You do not need to take notes or change how the meeting is structured.</p>
+          </div>
+        </div>
+        <div class="uc-step">
+          <div class="uc-step-num">4</div>
+          <div class="uc-step-content">
+            <h3>Tasks appear automatically</h3>
+            <p>After the meeting, contextprompt cross-references the transcript against your codebase and extracts structured coding tasks. Share the dashboard link with your team — no manual ticket creation required.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="uc-section">
+    <div class="container">
+      <div class="uc-testimonial">
+        <div class="uc-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <blockquote>&ldquo;We used to hold a 30-minute sync the day after every planning session just to make sure everyone had their tasks. Now the tasks are in the dashboard before the call ends. We cancelled three recurring status meetings in the first week.&rdquo;</blockquote>
+        <div class="uc-testimonial-author">
+          <span class="uc-testimonial-name">James R.</span> &mdash; Engineering Manager, Series B SaaS
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASE LINKS -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Works across all your engineering meetings</h2>
+      <p class="uc-section-sub">contextprompt extracts tasks from every meeting type your team runs.</p>
+      <div class="uc-solution-grid">
+        <div class="uc-solution-card">
+          <h3><a href="/use-cases/sprint-planning-automation/" style="color:#3fb950;text-decoration:none;">Sprint planning</a></h3>
+          <p>Extract every story, task, and decision from sprint planning. Engineers leave with file-level implementation tasks — not vague story descriptions.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3><a href="/use-cases/standup/" style="color:#3fb950;text-decoration:none;">Daily standups</a></h3>
+          <p>Log blockers, progress updates, and side-discussions as structured tasks. Keep your standup to 10 minutes and nothing falls through the cracks.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3><a href="/use-cases/meeting-transcription-to-coding-tasks/" style="color:#3fb950;text-decoration:none;">Design reviews</a></h3>
+          <p>Architecture decisions, API contracts, and implementation constraints extracted from design discussions and mapped to real files in your codebase.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Simple pricing for your team</h2>
+      <p class="uc-section-sub">Start free. Upgrade when your team is ready for more.</p>
+      <div class="uc-pricing-row">
+        <div class="uc-pricing-card">
+          <h3>Free</h3>
+          <div class="uc-pricing-amount">$0</div>
+          <p class="uc-pricing-detail">1 hour/month of recording</p>
+          <p class="uc-pricing-detail">Repo-aware task extraction</p>
+          <p class="uc-pricing-detail">All meeting platforms</p>
+        </div>
+        <div class="uc-pricing-card">
+          <h3>Pro</h3>
+          <div class="uc-pricing-amount">$30<span style="font-size:1rem;color:#999">/mo</span></div>
+          <p class="uc-pricing-detail">15 hours/month of recording</p>
+          <p class="uc-pricing-detail">GitHub issue integration</p>
+          <p class="uc-pricing-detail">Priority support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Frequently asked questions</h2>
+      <p class="uc-section-sub">Common questions from engineering managers evaluating contextprompt.</p>
+
+      <div class="uc-faq">
+        <div class="uc-faq-item">
+          <h3>How does contextprompt reduce engineering status meetings?</h3>
+          <p>Most status meetings exist because developers need to synchronize on what was decided and who owns what. contextprompt automates that synchronization by extracting structured tasks from every meeting automatically. When engineers can see their tasks within minutes of a meeting ending — with file paths and implementation steps — the need for a follow-up sync disappears. Teams typically cancel 2–4 recurring status meetings within the first two weeks.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>What makes contextprompt different from Otter.ai or Fireflies?</h3>
+          <p>Tools like Otter.ai and Fireflies produce meeting transcripts and summaries. contextprompt goes further: it scans your code repositories and maps meeting discussions to real files, functions, and implementation steps. The output is not a paragraph recap — it is a structured task that an engineer or AI coding assistant can execute immediately. See our <a href="/vs/otter-ai/" style="color:#3fb950">Otter.ai comparison</a> and <a href="/vs/fireflies-ai/" style="color:#3fb950">Fireflies comparison</a>.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>Does my team need to change how they run meetings?</h3>
+          <p>No. contextprompt joins your existing Zoom, Google Meet, Slack, or Teams calls as a bot. You paste the meeting link before the call and run the meeting exactly as you normally would. The task extraction happens automatically after the meeting ends. No templates, no structured agendas, and no behavior changes are required.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>Can contextprompt handle large codebases?</h3>
+          <p>Yes. contextprompt indexes your repositories with a token-aware scanner that respects <code>.gitignore</code> and skips <code>node_modules</code>, <code>dist</code>, and build directories. For large repos, it applies progressive trimming to stay within the analysis budget while keeping the most relevant files. You can connect multiple repos per project.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>How long does task extraction take after a meeting?</h3>
+          <p>Task extraction typically completes within 2–5 minutes after a meeting ends, depending on the length of the transcript. For long meetings (60+ minutes), expect up to 10 minutes for the chunked extraction and deduplication to complete. Tasks appear in your dashboard as they are processed.</p>
+        </div>
+        <div class="uc-faq-item">
+          <h3>Is there a free plan for engineering managers to evaluate contextprompt?</h3>
+          <p>Yes. The free plan includes 1 hour of meeting recording per month with full repo-aware task extraction. No credit card is required. This is enough to run two or three real team meetings and see exactly what the output looks like for your codebase before committing to a subscription.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="uc-bottom-cta">
+    <div class="container">
+      <h2>Your next meeting should produce tasks,<br>not another meeting.</h2>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">Free plan · 1 hour/month · No credit card needed</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">For your team</h4>
+        <a href="/use-cases/ai-meeting-assistant-for-developers/">For developers</a>
+        <a href="/use-cases/sprint-planning-automation/">Sprint planning</a>
+        <a href="/use-cases/standup/">Standup automation</a>
+        <a href="/for-engineering-managers/">For engineering managers</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Reduce Engineering Status Meetings With AI — contextprompt",
+    "description": "contextprompt automatically extracts structured coding tasks from engineering team meetings. Reduce status meetings by giving developers clear, repo-aware tasks within minutes of every meeting.",
+    "url": "https://contextprompt.app/for-engineering-managers/",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://contextprompt.app/" },
+        { "@type": "ListItem", "position": 2, "name": "For Engineering Managers", "item": "https://contextprompt.app/for-engineering-managers/" }
+      ]
+    },
+    "mainEntity": {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does contextprompt reduce engineering status meetings?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most status meetings exist because developers need to synchronize on what was decided and who owns what. contextprompt automates that synchronization by extracting structured tasks from every meeting automatically. When engineers can see their tasks within minutes of a meeting ending — with file paths and implementation steps — the need for a follow-up sync disappears. Teams typically cancel 2–4 recurring status meetings within the first two weeks."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What makes contextprompt different from Otter.ai or Fireflies?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Tools like Otter.ai and Fireflies produce meeting transcripts and summaries. contextprompt goes further: it scans your code repositories and maps meeting discussions to real files, functions, and implementation steps. The output is a structured task that an engineer or AI coding assistant can execute immediately."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does my team need to change how they run meetings?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. contextprompt joins your existing Zoom, Google Meet, Slack, or Teams calls as a bot. You paste the meeting link before the call and run the meeting exactly as you normally would. The task extraction happens automatically after the meeting ends."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a free plan for engineering managers to evaluate contextprompt?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The free plan includes 1 hour of meeting recording per month with full repo-aware task extraction. No credit card is required."
+          }
+        }
+      ]
+    }
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extract Coding Tasks from Meetings — contextprompt</title>
+  <meta name="description" content="contextprompt extracts structured coding tasks from meeting transcripts. Every task includes real file paths from your repos, implementation steps, and confidence levels — ready for Claude Code or Cursor.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/features/task-extraction/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Extract Coding Tasks from Meetings — contextprompt">
+  <meta property="og:description" content="Stop writing tickets by hand after meetings. contextprompt uses Claude API to extract structured coding tasks from your meeting transcripts, with real file paths and implementation steps.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/features/task-extraction/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Extract Coding Tasks from Meetings — contextprompt">
+  <meta name="twitter:description" content="Stop writing tickets by hand after meetings. contextprompt extracts structured coding tasks with real file paths and implementation steps — ready for AI coding assistants.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+
+  <style>
+    .ft-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .ft-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 820px;
+      margin: 0 auto 1.5rem;
+    }
+    .ft-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .ft-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .ft-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .ft-cta:hover { opacity: 0.85; }
+    .ft-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+
+    .ft-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .ft-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .ft-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    /* Sample output block */
+    .ft-output-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+    .ft-output-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .ft-output-block {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .ft-output-header {
+      background: #161b22;
+      border-bottom: 1px solid #21262d;
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .ft-output-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .ft-output-dot--red   { background: #f85149; }
+    .ft-output-dot--yellow{ background: #f0c000; }
+    .ft-output-dot--green { background: #3fb950; }
+    .ft-output-filename {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #666;
+      margin-left: 0.5rem;
+    }
+    .ft-output-body {
+      padding: 1.5rem 1.75rem;
+    }
+    .ft-task {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #21262d;
+    }
+    .ft-task:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .ft-task-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #666;
+      margin-bottom: 0.25rem;
+    }
+    .ft-task-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.75rem;
+    }
+    .ft-task-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      margin-bottom: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .ft-task-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #3fb950;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+    .ft-task-val {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #c9d1d9;
+      line-height: 1.5;
+    }
+    .ft-task-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #79c0ff;
+      background: #0d2644;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-right: 0.3rem;
+      display: inline-block;
+      margin-bottom: 0.2rem;
+    }
+    .ft-task-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0.25rem 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .ft-task-steps li {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #c9d1d9;
+      padding-left: 1.2rem;
+      position: relative;
+    }
+    .ft-task-steps li::before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+    .ft-task-confidence {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #3fb950;
+      font-weight: 600;
+    }
+    .ft-task-evidence {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      color: #8b949e;
+      font-style: italic;
+    }
+
+    /* How it works pipeline */
+    .ft-pipeline {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .ft-pipe-stage {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      position: relative;
+      padding-bottom: 2.5rem;
+    }
+    .ft-pipe-stage:last-child { padding-bottom: 0; }
+    .ft-pipe-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .ft-pipe-num {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #161b22;
+      border: 2px solid #3fb950;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ft-pipe-line {
+      width: 2px;
+      flex: 1;
+      background: #21262d;
+      margin-top: 4px;
+      min-height: 2rem;
+    }
+    .ft-pipe-stage:last-child .ft-pipe-line { display: none; }
+    .ft-pipe-content {
+      padding-top: 0.6rem;
+    }
+    .ft-pipe-content h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.4rem;
+    }
+    .ft-pipe-content p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+    .ft-pipe-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      border: 1px solid #21262d;
+      color: #8b949e;
+    }
+
+    /* Features grid */
+    .ft-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .ft-feature-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .ft-feature-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .ft-feature-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    /* Comparison */
+    .ft-compare {
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 640px) {
+      .ft-compare { grid-template-columns: 1fr; }
+    }
+    .ft-compare-col {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .ft-compare-col--before { border-top: 3px solid #f85149; }
+    .ft-compare-col--after  { border-top: 3px solid #3fb950; }
+    .ft-compare-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+    .ft-compare-col--before .ft-compare-label { color: #f85149; }
+    .ft-compare-col--after .ft-compare-label  { color: #3fb950; }
+    .ft-compare-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .ft-compare-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.5;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .ft-compare-col--before .ft-compare-list li::before {
+      content: "x";
+      position: absolute;
+      left: 0;
+      color: #f85149;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+    .ft-compare-col--after .ft-compare-list li::before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    /* FAQ */
+    .ft-faq {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .ft-faq-item {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+    }
+    .ft-faq-q {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.6rem;
+    }
+    .ft-faq-a {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.65;
+    }
+    .ft-faq-a a {
+      color: #3fb950;
+      text-decoration: none;
+    }
+    .ft-faq-a a:hover { text-decoration: underline; }
+
+    /* Pricing */
+    .ft-pricing-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .ft-pricing-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex: 1;
+      min-width: 220px;
+    }
+    .ft-pricing-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.25rem;
+    }
+    .ft-pricing-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .ft-pricing-detail {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    /* Bottom CTA */
+    .ft-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .ft-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Internal links row */
+    .ft-related {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+    .ft-related-link {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: #3fb950;
+      text-decoration: none;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 0.4rem 0.9rem;
+      transition: border-color 0.15s;
+    }
+    .ft-related-link:hover { border-color: #3fb950; }
+  </style>
+  <link rel="stylesheet" crossorigin href="/assets/tokens-BKIVRYWq.css">
+  <link rel="stylesheet" crossorigin href="/assets/components-BERnqvIl.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="ft-hero">
+    <div class="container">
+      <h1><u>Extract structured coding tasks</u> from meeting transcripts automatically</h1>
+      <p class="ft-hero-sub">contextprompt joins your meeting, transcribes the conversation, scans your connected repositories, and uses Claude API to extract precise coding tasks — each with real file paths, implementation steps, and a confidence score. No manual ticket writing. No lost context.</p>
+      <a href="/app/" class="ft-cta">Extract tasks from your next meeting</a>
+      <p class="ft-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- SAMPLE OUTPUT -->
+  <section class="ft-section">
+    <div class="container">
+      <h2>What a coding task actually looks like</h2>
+      <p class="ft-section-sub">Not a summary. Not a vague action item. A task your AI coding assistant can execute immediately.</p>
+
+      <div class="ft-output-wrap">
+        <div class="ft-output-label">// contextprompt output — sprint planning call 2026-05-01</div>
+        <div class="ft-output-block">
+          <div class="ft-output-header">
+            <span class="ft-output-dot ft-output-dot--red"></span>
+            <span class="ft-output-dot ft-output-dot--yellow"></span>
+            <span class="ft-output-dot ft-output-dot--green"></span>
+            <span class="ft-output-filename">tasks.json</span>
+          </div>
+          <div class="ft-output-body">
+
+            <div class="ft-task">
+              <div class="ft-task-id">// task 1 of 3</div>
+              <div class="ft-task-title">Implement JWT refresh token endpoint</div>
+              <div class="ft-task-row">
+                <span class="ft-task-key">files</span>
+                <span class="ft-task-val">
+                  <span class="ft-task-file">src/routes/auth.ts</span>
+                  <span class="ft-task-file">src/middleware/auth.ts</span>
+                </span>
+              </div>
+              <div class="ft-task-row">
+                <span class="ft-task-key">steps</span>
+                <span class="ft-task-val">
+                  <ul class="ft-task-steps">
+                    <li>Add POST /api/auth/refresh endpoint in src/routes/auth.ts</li>
+                    <li>Validate incoming refresh token against stored hash in SQLite</li>
+                    <li>Issue new access token with 15-minute expiry via existing signJwt()</li>
+                    <li>Rotate refresh token on each use, invalidate old one</li>
+                  </ul>
+                </span>
+              </div>
+              <div class="ft-task-row">
+                <span class="ft-task-key">confidence</span>
+                <span class="ft-task-val"><span class="ft-task-confidence">0.94</span></span>
+              </div>
+              <div class="ft-task-row">
+                <span class="ft-task-key">evidence</span>
+                <span class="ft-task-val"><span class="ft-task-evidence">"we need token refresh before Tuesday or the mobile team is blocked" — Alex, 14:23</span></span>
+              </div>
+            </div>
+
+            <div class="ft-task">
+              <div class="ft-task-id">// task 2 of 3</div>
+              <div class="ft-task-title">Add rate limiting to public API routes</div>
+              <div class="ft-task-row">
+                <span class="ft-task-key">files</span>
+                <span class="ft-task-val">
+                  <span class="ft-task-file">src/server/index.ts</span>
+                  <span class="ft-task-file">src/middleware/rateLimit.ts</span>
+                </span>
+              </div>
+              <div class="ft-task-row">
+                <span class="ft-task-key">steps</span>
+                <span class="ft-task-val">
+                  <ul class="ft-task-steps">
+                    <li>Create src/middleware/rateLimit.ts with sliding window counter</li>
+                    <li>Apply to /api/bots and /api/meetings routes in src/server/index.ts</li>
+                    <li>Return 429 with Retry-After header on limit exceeded</li>
+                  </ul>
+                </span>
+              </div>
+              <div class="ft-task-row">
+                <span class="ft-task-key">confidence</span>
+                <span class="ft-task-val"><span class="ft-task-confidence">0.88</span></span>
+              </div>
+              <div class="ft-task-row">
+                <span class="ft-task-key">evidence</span>
+                <span class="ft-task-val"><span class="ft-task-evidence">"someone is hammering the bots endpoint, we need rate limiting this sprint" — Jordan, 22:07</span></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW EXTRACTION WORKS -->
+  <section class="ft-section">
+    <div class="container">
+      <h2>How task extraction works</h2>
+      <p class="ft-section-sub">A multi-stage pipeline that turns raw conversation into implementation-ready output.</p>
+
+      <div class="ft-pipeline">
+        <div class="ft-pipe-stage">
+          <div class="ft-pipe-left">
+            <div class="ft-pipe-num">1</div>
+            <div class="ft-pipe-line"></div>
+          </div>
+          <div class="ft-pipe-content">
+            <h3>Transcript ingestion &amp; chunking</h3>
+            <p>The meeting recording is transcribed with speaker diarization. Long transcripts are automatically split into overlapping chunks so no discussion is lost at a boundary. Utterances from the same speaker within a 2-second window are merged to reduce noise.</p>
+            <span class="ft-pipe-badge">Whisper transcription · speaker merging · chunking</span>
+          </div>
+        </div>
+
+        <div class="ft-pipe-stage">
+          <div class="ft-pipe-left">
+            <div class="ft-pipe-num">2</div>
+            <div class="ft-pipe-line"></div>
+          </div>
+          <div class="ft-pipe-content">
+            <h3>Repo scan &amp; codebase indexing</h3>
+            <p>contextprompt walks your connected repositories, respecting <code>.gitignore</code>. It parses TypeScript and JavaScript files to extract exported functions, types, interfaces, and file paths — building a map your AI coding assistant can act on. The scan is capped at ~30k tokens per repo to keep extraction fast and focused.</p>
+            <span class="ft-pipe-badge">AST parsing · .gitignore-aware · 30k token budget</span>
+          </div>
+        </div>
+
+        <div class="ft-pipe-stage">
+          <div class="ft-pipe-left">
+            <div class="ft-pipe-num">3</div>
+            <div class="ft-pipe-line"></div>
+          </div>
+          <div class="ft-pipe-content">
+            <h3>Claude API multi-stage extraction</h3>
+            <p>The transcript and repo map are sent to Claude. Extraction runs in stages: project summary → file name search using bigrams and trigrams from the transcript → keyword scoring against repo symbols → content search for most relevant files → final task generation with full source context. Responses are validated with Zod schemas — if Claude returns invalid JSON, the pipeline retries rather than silently returning empty results.</p>
+            <span class="ft-pipe-badge">Claude API · multi-stage · Zod validation · retry on error</span>
+          </div>
+        </div>
+
+        <div class="ft-pipe-stage">
+          <div class="ft-pipe-left">
+            <div class="ft-pipe-num">4</div>
+            <div class="ft-pipe-line"></div>
+          </div>
+          <div class="ft-pipe-content">
+            <h3>Deduplication &amp; structured output</h3>
+            <p>Tasks extracted from overlapping chunks are deduplicated using Jaccard word similarity. The final set is saved to your dashboard with titles, file paths, implementation steps, confidence levels, and verbatim transcript evidence. Every task is one click away from your clipboard — ready to paste into Claude Code, Cursor, or a GitHub issue.</p>
+            <span class="ft-pipe-badge">Jaccard dedup · structured JSON · one-click copy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES GRID -->
+  <section class="ft-section">
+    <div class="container">
+      <h2>What makes the output different</h2>
+      <p class="ft-section-sub">Every field in a contextprompt task is there because AI coding assistants need it.</p>
+
+      <div class="ft-features">
+        <div class="ft-feature-card">
+          <h3>Real file paths</h3>
+          <p>Tasks reference actual files from your codebase — <code>src/routes/auth.ts</code>, not "the auth module." contextprompt matches discussion topics to your file tree using bigram/trigram search and keyword scoring against exported symbols.</p>
+        </div>
+        <div class="ft-feature-card">
+          <h3>Implementation steps</h3>
+          <p>Each task includes an ordered list of concrete steps. Not "update the auth flow" but "add POST /api/auth/refresh, validate against SQLite, issue new token with 15-minute expiry." Steps are derived from the meeting discussion and cross-referenced with your codebase.</p>
+        </div>
+        <div class="ft-feature-card">
+          <h3>Confidence scores</h3>
+          <p>Every task carries a confidence score from 0.0 to 1.0. Low-confidence tasks are flagged so you can review them before acting. High-confidence tasks can flow directly into AI coding assistants with no human review.</p>
+        </div>
+        <div class="ft-feature-card">
+          <h3>Transcript evidence</h3>
+          <p>Each task links to the exact quote and speaker that prompted it. When you need to verify what was actually decided — or who said what — the evidence is one click away without rewatching the recording.</p>
+        </div>
+        <div class="ft-feature-card">
+          <h3>Validated structured JSON</h3>
+          <p>Output is validated against a strict Zod schema before it reaches your dashboard. Invalid or incomplete responses trigger a retry rather than silently returning partial data. You always get complete, structured tasks or an explicit error.</p>
+        </div>
+        <div class="ft-feature-card">
+          <h3>Chunk-aware deduplication</h3>
+          <p>Long meetings are chunked for extraction. Tasks that appear in multiple chunks are deduplicated using Jaccard word similarity so each coding task appears exactly once, even if it was discussed several times throughout the call.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="ft-section">
+    <div class="container">
+      <h2>Manual task creation vs. contextprompt</h2>
+      <p class="ft-section-sub">The meeting ended. Here's what happens next.</p>
+
+      <div class="ft-compare">
+        <div class="ft-compare-col ft-compare-col--before">
+          <div class="ft-compare-label">Without contextprompt</div>
+          <ul class="ft-compare-list">
+            <li>Review your own notes or rewatch the recording</li>
+            <li>Translate discussion into vague Jira tickets</li>
+            <li>Look up which files are relevant to each task</li>
+            <li>Manually write implementation steps from memory</li>
+            <li>Lose context that wasn't captured in the meeting notes</li>
+            <li>Spend 30–60 min on post-meeting overhead per sprint</li>
+          </ul>
+        </div>
+        <div class="ft-compare-col ft-compare-col--after">
+          <div class="ft-compare-label">With contextprompt</div>
+          <ul class="ft-compare-list">
+            <li>Tasks appear in your dashboard before you close the meeting tab</li>
+            <li>File paths already mapped to your actual codebase</li>
+            <li>Implementation steps derived from the real discussion</li>
+            <li>Verbatim evidence links back to the exact quote</li>
+            <li>One-click copy into Claude Code, Cursor, or GitHub</li>
+            <li>Zero post-meeting overhead — extraction is automatic</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELATED LINKS -->
+  <section class="ft-section">
+    <div class="container">
+      <h2>Related features &amp; use cases</h2>
+      <p class="ft-section-sub">Task extraction is one part of the contextprompt pipeline.</p>
+      <div class="ft-related">
+        <a href="/features/repo-scanning/" class="ft-related-link">Repo scanning</a>
+        <a href="/use-cases/meeting-transcription-to-coding-tasks/" class="ft-related-link">Meeting transcription to coding tasks</a>
+        <a href="/use-cases/sprint-planning-automation/" class="ft-related-link">Sprint planning automation</a>
+        <a href="/use-cases/ai-meeting-assistant-for-developers/" class="ft-related-link">AI meeting assistant for developers</a>
+        <a href="/integrations/github/" class="ft-related-link">GitHub integration</a>
+        <a href="/integrations/jira/" class="ft-related-link">Jira integration</a>
+        <a href="/integrations/linear/" class="ft-related-link">Linear integration</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="ft-section">
+    <div class="container">
+      <h2>Frequently asked questions</h2>
+      <p class="ft-section-sub">Everything about how task extraction works in practice.</p>
+
+      <div class="ft-faq">
+        <div class="ft-faq-item">
+          <div class="ft-faq-q">How accurate is the task extraction?</div>
+          <div class="ft-faq-a">Accuracy depends on how clearly the meeting discusses implementation details. Tasks that reference specific modules, functions, or files by name consistently score above 0.85. Vague discussions produce lower-confidence tasks that are flagged for your review. In our testing, ~80% of extracted tasks from a typical sprint planning call require no editing before being passed to an AI coding assistant.</div>
+        </div>
+        <div class="ft-faq-item">
+          <div class="ft-faq-q">What meeting platforms does contextprompt support?</div>
+          <div class="ft-faq-a">contextprompt supports Zoom, Google Meet, Microsoft Teams, and Slack huddles. You paste a meeting URL into the dashboard and the bot joins as a participant. No browser extensions or local software required. See the <a href="/use-cases/ai-meeting-assistant-for-developers/">AI meeting assistant page</a> for full details.</div>
+        </div>
+        <div class="ft-faq-item">
+          <div class="ft-faq-q">Which programming languages and repos are supported?</div>
+          <div class="ft-faq-a">Repo scanning works for any file-based repository. TypeScript and JavaScript files are indexed at the AST level to extract exported functions, types, and interfaces. Other languages are included in the file tree so contextprompt can still reference paths in extracted tasks — just without deep symbol extraction.</div>
+        </div>
+        <div class="ft-faq-item">
+          <div class="ft-faq-q">How long does extraction take after a meeting ends?</div>
+          <div class="ft-faq-a">For a 1-hour meeting with a connected repo, tasks typically appear in the dashboard within 2–4 minutes of the meeting ending. The bot processes the recording as it becomes available and runs the extraction pipeline immediately — no manual trigger needed.</div>
+        </div>
+        <div class="ft-faq-item">
+          <div class="ft-faq-q">Can I edit extracted tasks before sending them to GitHub or Jira?</div>
+          <div class="ft-faq-a">Yes. Every task in your dashboard can be edited before you export it. You can adjust the title, file paths, steps, or any other field. Pro users can push tasks directly to <a href="/integrations/github/">GitHub Issues</a>, <a href="/integrations/jira/">Jira</a>, or <a href="/integrations/linear/">Linear</a> with a single click.</div>
+        </div>
+        <div class="ft-faq-item">
+          <div class="ft-faq-q">What happens if the meeting is very long?</div>
+          <div class="ft-faq-a">Transcripts longer than ~100k tokens are automatically split into overlapping chunks for extraction. Each chunk is processed independently and tasks are merged using Jaccard similarity deduplication — so if a topic was discussed in both the first and second half of a 3-hour meeting, you get one task, not two.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="ft-section">
+    <div class="container">
+      <h2>Simple pricing</h2>
+      <p class="ft-section-sub">Start extracting tasks from your meetings today. Upgrade when you need more.</p>
+
+      <div class="ft-pricing-row">
+        <div class="ft-pricing-card">
+          <h3>Free</h3>
+          <div class="ft-pricing-amount">$0</div>
+          <p class="ft-pricing-detail">1 hour/month of recording</p>
+          <p class="ft-pricing-detail">Repo-aware task extraction</p>
+          <p class="ft-pricing-detail">All meeting platforms</p>
+        </div>
+        <div class="ft-pricing-card">
+          <h3>Pro</h3>
+          <div class="ft-pricing-amount">$30<span style="font-size:1rem;color:#999">/mo</span></div>
+          <p class="ft-pricing-detail">15 hours/month of recording</p>
+          <p class="ft-pricing-detail">Push tasks to GitHub / Jira / Linear</p>
+          <p class="ft-pricing-detail">Priority support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="ft-bottom-cta">
+    <div class="container">
+      <h2>Your next meeting is already creating tasks.<br>Let contextprompt extract them.</h2>
+      <a href="/app/" class="ft-cta">Get started free</a>
+      <p class="ft-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Features</h4>
+        <a href="/features/task-extraction/">Task extraction</a>
+        <a href="/features/repo-scanning/">Repo scanning</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Use cases</h4>
+        <a href="/use-cases/ai-meeting-assistant-for-developers/">For developers</a>
+        <a href="/use-cases/sprint-planning-automation/">Sprint planning</a>
+        <a href="/use-cases/meeting-transcription-to-coding-tasks/">Meeting to tasks</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Legal</h4>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD: WebPage + FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://contextprompt.app/features/task-extraction/",
+        "url": "https://contextprompt.app/features/task-extraction/",
+        "name": "Extract Coding Tasks from Meetings — contextprompt",
+        "description": "contextprompt extracts structured coding tasks from meeting transcripts using Claude API. Every task includes real file paths from your repos, implementation steps, confidence scores, and verbatim transcript evidence.",
+        "isPartOf": { "@id": "https://contextprompt.app" },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://contextprompt.app/" },
+            { "@type": "ListItem", "position": 2, "name": "Features", "item": "https://contextprompt.app/features/" },
+            { "@type": "ListItem", "position": 3, "name": "Task Extraction", "item": "https://contextprompt.app/features/task-extraction/" }
+          ]
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How accurate is the task extraction?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Accuracy depends on how clearly the meeting discusses implementation details. Tasks that reference specific modules, functions, or files by name consistently score above 0.85. In testing, ~80% of tasks from a typical sprint planning call require no editing before being passed to an AI coding assistant."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What meeting platforms does contextprompt support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "contextprompt supports Zoom, Google Meet, Microsoft Teams, and Slack huddles. You paste a meeting URL into the dashboard and the bot joins as a participant. No browser extensions or local software required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which programming languages and repos are supported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Repo scanning works for any file-based repository. TypeScript and JavaScript files are indexed at the AST level to extract exported functions, types, and interfaces. Other languages are included in the file tree so contextprompt can still reference paths in extracted tasks."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does extraction take after a meeting ends?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "For a 1-hour meeting with a connected repo, tasks typically appear in the dashboard within 2-4 minutes of the meeting ending. The bot processes the recording as it becomes available and runs the extraction pipeline immediately."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I edit extracted tasks before sending them to GitHub or Jira?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Every task in the dashboard can be edited before export. You can adjust the title, file paths, steps, or any other field. Pro users can push tasks directly to GitHub Issues, Jira, or Linear with a single click."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What happens if the meeting is very long?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Transcripts longer than ~100k tokens are automatically split into overlapping chunks for extraction. Each chunk is processed independently and tasks are merged using Jaccard similarity deduplication, so each coding task appears exactly once regardless of how many times the topic was discussed."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+</body>
+</html>

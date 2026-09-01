@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>contextprompt vs Fellow (2026) — AI Meeting Notes for Engineering Teams</title>
+  <meta name="description" content="Fellow manages your meetings. contextprompt turns them into repo-aware coding tasks with real file paths. Compare pricing, features, and which is better for software teams.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/vs/fellow/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="contextprompt vs Fellow (2026) — AI Meeting Notes for Engineering Teams">
+  <meta property="og:description" content="Fellow structures your meetings with agendas and notes. contextprompt extracts structured coding tasks mapped to your codebase. See which is right for software teams.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/vs/fellow/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="contextprompt vs Fellow (2026)">
+  <meta name="twitter:description" content="Fellow organizes meetings. contextprompt turns them into repo-aware coding tasks. Best meeting AI for engineering teams in 2026.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/css/reset.css">
+  <link rel="stylesheet" href="/src/css/tokens.css">
+  <link rel="stylesheet" href="/src/css/layout.css">
+  <link rel="stylesheet" href="/src/css/components.css">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "contextprompt vs Fellow (2026)",
+    "description": "Detailed comparison of contextprompt and Fellow for software engineering teams. contextprompt adds repo-aware coding task extraction that Fellow doesn't offer.",
+    "url": "https://contextprompt.app/vs/fellow/",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "contextprompt", "item": "https://contextprompt.app/"},
+        {"@type": "ListItem", "position": 2, "name": "Comparisons", "item": "https://contextprompt.app/vs/"},
+        {"@type": "ListItem", "position": 3, "name": "vs Fellow", "item": "https://contextprompt.app/vs/fellow/"}
+      ]
+    }
+  }
+  </script>
+
+  <style>
+    .vs-hero {
+      padding: 5rem 0 3.5rem;
+      text-align: center;
+    }
+    .vs-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #3fb950;
+      background: rgba(63, 185, 80, 0.1);
+      border: 1px solid rgba(63, 185, 80, 0.3);
+      border-radius: 20px;
+      padding: 0.3rem 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+    .vs-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 800px;
+      margin: 0 auto 1.25rem;
+    }
+    .vs-hero h1 .highlight { color: #3fb950; }
+    .vs-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      color: #999;
+      max-width: 620px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+    .vs-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .vs-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .vs-cta:hover { opacity: 0.85; }
+    .vs-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+    }
+    .vs-verdict {
+      background: #111;
+      border: 1px solid #21262d;
+      border-left: 4px solid #3fb950;
+      border-radius: 12px;
+      padding: 1.75rem 2rem;
+      max-width: 860px;
+      margin: 0 auto 4rem;
+    }
+    .vs-verdict-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #3fb950;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.6rem;
+    }
+    .vs-verdict p {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 1.7;
+      margin: 0;
+    }
+    .vs-verdict strong { color: #e6e6e6; }
+    .vs-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .vs-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    .vs-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 580px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+    .vs-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .vs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+    }
+    .vs-table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 1rem 1.25rem;
+      text-align: left;
+      border-bottom: 2px solid #21262d;
+      white-space: nowrap;
+    }
+    .vs-table th:first-child { color: #666; }
+    .vs-table th.col-us { color: #3fb950; }
+    .vs-table th.col-them { color: #888; }
+    .vs-table td {
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid #161b22;
+      vertical-align: top;
+      color: #ccc;
+      line-height: 1.5;
+    }
+    .vs-table tr:last-child td { border-bottom: none; }
+    .vs-table td:first-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #888;
+      white-space: nowrap;
+    }
+    .vs-table .win { color: #3fb950; font-weight: 500; }
+    .vs-table .neutral { color: #ccc; }
+    .vs-table .lose { color: #888; }
+    .vs-check { color: #3fb950; }
+    .vs-cross { color: #f85149; }
+    .vs-dash { color: #555; }
+    .vs-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .vs-diff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .vs-diff-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .vs-diff-card.win { border-left: 3px solid #3fb950; }
+    .vs-diff-card.lose { border-left: 3px solid #333; }
+    .vs-diff-icon { font-size: 1.5rem; margin-bottom: 0.75rem; line-height: 1; }
+    .vs-diff-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .vs-diff-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: #999;
+      line-height: 1.6;
+    }
+    .vs-winners {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    @media (max-width: 640px) { .vs-winners { grid-template-columns: 1fr; } }
+    .vs-winner-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .vs-winner-card.us { border-top: 3px solid #3fb950; }
+    .vs-winner-card.them { border-top: 3px solid #444; }
+    .vs-winner-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+    .us .vs-winner-label { color: #3fb950; }
+    .them .vs-winner-label { color: #888; }
+    .vs-winner-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: #e6e6e6;
+      margin-bottom: 0.75rem;
+    }
+    .vs-winner-list { list-style: none; padding: 0; margin: 0; }
+    .vs-winner-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: #999;
+      padding: 0.35rem 0;
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      line-height: 1.5;
+    }
+    .vs-winner-list li::before { content: "›"; color: #555; flex-shrink: 0; margin-top: 0.05rem; }
+    .vs-bottom-cta {
+      padding: 5rem 0;
+      border-top: 1px solid #21262d;
+      text-align: center;
+    }
+    .vs-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1rem;
+    }
+    .vs-bottom-cta p {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      margin-bottom: 2rem;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+    .vs-also { padding: 3rem 0; border-top: 1px solid #21262d; }
+    .vs-also h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #666;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .vs-also-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .vs-also-link {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: #999;
+      text-decoration: none;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .vs-also-link:hover { border-color: #3fb950; color: #3fb950; }
+  </style>
+</head>
+<body>
+
+  <!-- ====== NAV ====== -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ====== HERO ====== -->
+  <section class="vs-hero">
+    <div class="container">
+      <div class="vs-badge">Comparison · 2026</div>
+      <h1>contextprompt vs Fellow<br><span class="highlight">for engineering teams</span></h1>
+      <p class="vs-hero-sub">Fellow keeps your meetings organized with agendas and notes. contextprompt keeps your sprints moving — by turning meetings into structured coding tasks that link directly to your codebase.</p>
+      <div class="vs-cta-group">
+        <a href="/app/" class="vs-cta">Try contextprompt free</a>
+        <span class="vs-cta-note">Free plan · No credit card required</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== VERDICT ====== -->
+  <section class="container">
+    <div class="vs-verdict">
+      <div class="vs-verdict-label">TL;DR</div>
+      <p><strong>Fellow</strong> is a well-designed meeting management platform — collaborative agendas, 1-on-1 frameworks, AI notes, and integrations with Jira and Linear to push action items to your project tracker. <strong>contextprompt</strong> goes further for engineering teams: it scans your actual repositories and maps every coding decision from the meeting to specific files, functions, and implementation steps. Fellow creates a task like "refactor the payment module." contextprompt creates a task with <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;color:#58a6ff;">src/payments/processor.ts</code> and the steps to get there.</p>
+    </div>
+  </section>
+
+  <!-- ====== FEATURE TABLE ====== -->
+  <section class="vs-section">
+    <div class="container">
+      <h2>Feature comparison</h2>
+      <p class="vs-section-sub">What Fellow and contextprompt offer for software development teams.</p>
+      <div class="vs-table-wrap">
+        <table class="vs-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="col-us">contextprompt</th>
+              <th class="col-them">Fellow</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Meeting transcription</td>
+              <td class="win"><span class="vs-check">✓</span> Zoom, Meet, Slack, Teams</td>
+              <td class="neutral"><span class="vs-check">✓</span> Zoom, Meet, Teams, Slack</td>
+            </tr>
+            <tr>
+              <td>AI-generated summary</td>
+              <td class="neutral"><span class="vs-check">✓</span> Included</td>
+              <td class="neutral"><span class="vs-check">✓</span> Copilot feature</td>
+            </tr>
+            <tr>
+              <td>Action items</td>
+              <td class="win"><span class="vs-check">✓</span> Code-aware, structured</td>
+              <td class="neutral"><span class="vs-check">✓</span> Generic, assignable</td>
+            </tr>
+            <tr>
+              <td>Collaborative agendas</td>
+              <td class="lose"><span class="vs-dash">–</span> Not available</td>
+              <td class="neutral"><span class="vs-check">✓</span> Core feature</td>
+            </tr>
+            <tr>
+              <td>1-on-1 management</td>
+              <td class="lose"><span class="vs-dash">–</span> Not available</td>
+              <td class="neutral"><span class="vs-check">✓</span> Templates + tracking</td>
+            </tr>
+            <tr>
+              <td>Repo / codebase scanning</td>
+              <td class="win"><span class="vs-check">✓</span> File paths + exports</td>
+              <td class="lose"><span class="vs-cross">✗</span> Not available</td>
+            </tr>
+            <tr>
+              <td>Tasks with real file paths</td>
+              <td class="win"><span class="vs-check">✓</span> Mapped to your code</td>
+              <td class="lose"><span class="vs-cross">✗</span> Not available</td>
+            </tr>
+            <tr>
+              <td>Implementation steps per task</td>
+              <td class="win"><span class="vs-check">✓</span> Included</td>
+              <td class="lose"><span class="vs-cross">✗</span> Not available</td>
+            </tr>
+            <tr>
+              <td>AI coding assistant output</td>
+              <td class="win"><span class="vs-check">✓</span> Paste into Claude Code</td>
+              <td class="lose"><span class="vs-cross">✗</span> Not available</td>
+            </tr>
+            <tr>
+              <td>GitHub issue analysis</td>
+              <td class="win"><span class="vs-check">✓</span> Pro</td>
+              <td class="lose"><span class="vs-cross">✗</span> Not available</td>
+            </tr>
+            <tr>
+              <td>Jira / Linear push</td>
+              <td class="lose"><span class="vs-dash">–</span> Export-ready tasks</td>
+              <td class="neutral"><span class="vs-check">✓</span> Native sync</td>
+            </tr>
+            <tr>
+              <td>Search past meetings</td>
+              <td class="lose"><span class="vs-dash">–</span> Per-meeting</td>
+              <td class="neutral"><span class="vs-check">✓</span> Ask Fellow AI search</td>
+            </tr>
+            <tr>
+              <td>92-language transcription</td>
+              <td class="lose"><span class="vs-dash">–</span> English-first</td>
+              <td class="neutral"><span class="vs-check">✓</span> 92 languages</td>
+            </tr>
+            <tr>
+              <td>Free tier</td>
+              <td class="win">1 hr recording / month</td>
+              <td class="neutral">Free plan (limited)</td>
+            </tr>
+            <tr>
+              <td>Pro pricing</td>
+              <td class="win">$30 / mo (whole account)</td>
+              <td class="neutral">$7 / user / mo (annual)</td>
+            </tr>
+            <tr>
+              <td>Developer-focused output</td>
+              <td class="win"><span class="vs-check">✓</span> Built for engineers</td>
+              <td class="lose">General purpose</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== KEY DIFFERENCES ====== -->
+  <section class="vs-section">
+    <div class="container">
+      <h2>Where contextprompt pulls ahead</h2>
+      <p class="vs-section-sub">Fellow gives you well-structured meeting notes. contextprompt gives you engineering work — specific, file-referenced, ready for your AI coding assistant.</p>
+
+      <div class="vs-diff-grid">
+        <div class="vs-diff-card win">
+          <div class="vs-diff-icon">📁</div>
+          <h3>Code context, not just meeting context</h3>
+          <p>contextprompt connects your repositories before processing the meeting. When the sprint planning call mentions "the broken webhook retry logic," it finds <code style="font-family:'JetBrains Mono',monospace;font-size:0.8em;color:#58a6ff;">src/jobs/retry.ts</code> and extracts a task pointing there. Fellow creates a text action item — you still have to figure out which file.</p>
+        </div>
+
+        <div class="vs-diff-card win">
+          <div class="vs-diff-icon">🤖</div>
+          <h3>Designed for AI-assisted development</h3>
+          <p>Every contextprompt task includes the file paths, implementation steps, and transcript evidence that AI coding agents need. Paste the output directly into Claude Code or Cursor and start implementing. Fellow's action items are plain text — useful for humans, not ready for agents.</p>
+        </div>
+
+        <div class="vs-diff-card win">
+          <div class="vs-diff-icon">💰</div>
+          <h3>Cheaper for teams that code together</h3>
+          <p>contextprompt Pro is $30/month for the whole account. Fellow charges $7/user/month on annual plans — affordable for individuals, but a 5-person team pays $35/month vs contextprompt's $30/month, and the gap grows. On Business ($15/user/mo) a 5-person team pays $75/month.</p>
+        </div>
+
+        <div class="vs-diff-card lose">
+          <div class="vs-diff-icon">📋</div>
+          <h3>Fellow wins: meeting structure</h3>
+          <p>Fellow's collaborative agendas, meeting templates, and 1-on-1 frameworks are genuinely valuable for engineering managers who run regular check-ins. If the problem is "we don't run great meetings," Fellow solves it. If the problem is "our meetings don't produce good tickets," contextprompt does.</p>
+        </div>
+
+        <div class="vs-diff-card lose">
+          <div class="vs-diff-icon">🔗</div>
+          <h3>Fellow wins: native Jira/Linear sync</h3>
+          <p>Fellow has native two-way sync with Jira, Linear, Asana, and ClickUp — action items created in Fellow can push directly to your tracker. contextprompt outputs structured tasks that you paste or copy into your tracker; it doesn't have a native push integration yet.</p>
+        </div>
+
+        <div class="vs-diff-card win">
+          <div class="vs-diff-icon">🎯</div>
+          <h3>contextprompt wins: task precision</h3>
+          <p>contextprompt rates each extracted task high, medium, or low confidence based on how clearly it was discussed in the meeting and how precisely it maps to a file. You instantly know which tasks are ready to implement and which need clarification — without reading through the whole transcript.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== WHO WINS ====== -->
+  <section class="vs-section">
+    <div class="container">
+      <h2>Who should pick which</h2>
+      <p class="vs-section-sub">The right tool depends on whether your problem is meeting quality or meeting output.</p>
+      <div class="vs-winners">
+        <div class="vs-winner-card us">
+          <div class="vs-winner-label">Choose contextprompt if you…</div>
+          <h3>You need code-ready output</h3>
+          <ul class="vs-winner-list">
+            <li>Sprint planning or architecture reviews → coding tasks</li>
+            <li>Use Claude Code, Cursor, GitHub Copilot, or similar</li>
+            <li>Need tasks that reference specific files in your repo</li>
+            <li>Run engineering standups, design reviews, or retros</li>
+            <li>Want to hand off tasks directly to an AI coding assistant</li>
+            <li>Have a small team and want per-account pricing</li>
+          </ul>
+        </div>
+
+        <div class="vs-winner-card them">
+          <div class="vs-winner-label">Choose Fellow if you…</div>
+          <h3>You need better meeting structure</h3>
+          <ul class="vs-winner-list">
+            <li>Run regular 1-on-1s and want structured feedback frameworks</li>
+            <li>Need collaborative pre-meeting agendas your team can edit</li>
+            <li>Want native two-way sync with Jira or Linear</li>
+            <li>Need to search across all past meeting notes in one place</li>
+            <li>Run multilingual teams across 92+ languages</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== BOTTOM CTA ====== -->
+  <section class="vs-bottom-cta">
+    <div class="container">
+      <h2>Your sprint retro should produce tickets, not notes.</h2>
+      <p>contextprompt joins your call, scans your repos, and extracts coding tasks with real file paths — ready to hand to Claude Code. Free plan, no credit card.</p>
+      <a href="/app/" class="vs-cta">Try contextprompt free</a>
+    </div>
+  </section>
+
+  <!-- ====== OTHER COMPARISONS ====== -->
+  <section class="vs-also">
+    <div class="container">
+      <h3>Also compare</h3>
+      <div class="vs-also-links">
+        <a href="/vs/otter-ai/" class="vs-also-link">contextprompt vs Otter.ai</a>
+        <a href="/vs/fireflies-ai/" class="vs-also-link">contextprompt vs Fireflies.ai</a>
+        <a href="/vs/granola/" class="vs-also-link">contextprompt vs Granola</a>
+        <a href="/vs/tldv/" class="vs-also-link">contextprompt vs tl;dv</a>
+        <a href="/vs/fathom/" class="vs-also-link">contextprompt vs Fathom</a>
+        <a href="/vs/read-ai/" class="vs-also-link">contextprompt vs Read.ai</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Compare</h4>
+        <a href="/vs/otter-ai/">vs Otter.ai</a>
+        <a href="/vs/fireflies-ai/">vs Fireflies.ai</a>
+        <a href="/vs/granola/">vs Granola</a>
+        <a href="/vs/read-ai/">vs Read.ai</a>
+        <a href="/vs/fellow/">vs Fellow</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+</body>
+</html>

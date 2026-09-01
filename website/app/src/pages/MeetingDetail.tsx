@@ -19,16 +19,22 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ReplayIcon from '@mui/icons-material/Replay';
-import { getMeeting, rerunMeeting, type MeetingDetail as MeetingDetailType } from '../api';
-import { TaskCard } from '../components/TaskCard';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
+import { getMeeting, rerunMeeting, createCheckoutSession, type MeetingDetail as MeetingDetailType } from '../api';
+import { TaskCard, buildAgentBlock } from '../components/TaskCard';
+import { useAuth } from '../hooks/useAuth';
 
 export function MeetingDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isPro = user?.plan === 'pro';
   const [meeting, setMeeting] = useState<MeetingDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [rerunning, setRerunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const fetchMeeting = () => {
     if (!id) return;
@@ -62,6 +68,31 @@ export function MeetingDetail() {
     } finally {
       setRerunning(false);
     }
+  };
+
+  const handleExportAll = () => {
+    if (!meeting) return;
+    const lines: string[] = [`# Meeting — ${formatDate(meeting.date)}\n`];
+    if (meeting.plan?.decisions?.length) {
+      lines.push('## Decisions');
+      meeting.plan.decisions.forEach((d, i) => lines.push(`${i + 1}. ${d}`));
+      lines.push('');
+    }
+    lines.push(`## Tasks (${meeting.tasks.length})`);
+    meeting.tasks.forEach((task) => {
+      lines.push(`\n### ${task.task_id}: ${task.title}`);
+      lines.push(buildAgentBlock(task).trimEnd());
+    });
+    navigator.clipboard.writeText(lines.join('\n'));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleUpgrade = async () => {
+    try {
+      const { url } = await createCheckoutSession();
+      if (url) window.location.href = url;
+    } catch { /* ignore */ }
   };
 
   if (loading) {
@@ -135,7 +166,20 @@ export function MeetingDetail() {
       )}
 
       {/* Tasks */}
-      <Typography variant="h5" sx={{ mb: 2 }}>Tasks</Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+        <Typography variant="h5">Tasks</Typography>
+        {meeting.tasks.length > 0 && (
+          <Button
+            size="small"
+            variant="outlined"
+            color={copied ? 'success' : 'primary'}
+            startIcon={copied ? <CheckIcon /> : <ContentCopyIcon />}
+            onClick={handleExportAll}
+          >
+            {copied ? 'Copied!' : 'Copy all tasks'}
+          </Button>
+        )}
+      </Stack>
       {meeting.tasks.length === 0 ? (
         <Typography color="text.secondary">No tasks extracted.</Typography>
       ) : (
@@ -144,6 +188,18 @@ export function MeetingDetail() {
             <TaskCard key={task.id} task={task} />
           ))}
         </Stack>
+      )}
+      {!isPro && meeting.tasks.length > 0 && (
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+          Need more than 1 hour of recording per month?{' '}
+          <Box
+            component="span"
+            onClick={handleUpgrade}
+            sx={{ color: 'primary.main', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+          >
+            Upgrade to Pro for 15 hours/month →
+          </Box>
+        </Typography>
       )}
 
       {/* Transcript */}

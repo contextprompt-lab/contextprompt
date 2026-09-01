@@ -60,6 +60,56 @@
   }
   </script>
 
+  <!-- JSON-LD: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does contextprompt work like Granola?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "They solve different problems. Granola is a personal AI notepad that enhances the notes you take yourself during a meeting. contextprompt is a bot-based tool that joins your meeting automatically, scans your connected repos, and extracts structured coding tasks with real file paths — without you taking a single note."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is contextprompt available on Mac like Granola?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt is web-based and works on any operating system — Mac, Windows, and Linux. Granola is a native macOS and Windows app. contextprompt requires no desktop install: you access it via browser and send a bot to your meeting URL."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does contextprompt handle meeting data privacy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "contextprompt processes meeting audio and transcripts on the server side via Recall.ai. Transcripts and extracted tasks are stored in contextprompt's database. Granola processes audio locally on your device, which is an advantage if you have strict data-handling requirements and don't want meeting audio to leave your machine."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does contextprompt require installing software on my computer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. contextprompt is entirely browser-based. You paste a meeting URL into the dashboard, the Recall.ai bot joins as a participant, and the transcript is processed server-side. Granola requires a native desktop app on macOS or Windows."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can contextprompt be used alongside Granola?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. They operate independently and don't conflict. Some engineers use Granola for personal note-taking during all their calls and contextprompt specifically for engineering meetings where they need structured coding tasks with repo context. They serve complementary needs."
+        }
+      }
+    ]
+  }
+  </script>
+
   <style>
     .vs-hero { padding: 5rem 0 3.5rem; text-align: center; }
     .vs-badge {
@@ -272,6 +322,45 @@
       transition: border-color 0.2s, color 0.2s;
     }
     .vs-also-link:hover { border-color: #3fb950; color: #3fb950; }
+    .vs-faq { padding: 4rem 0; border-top: 1px solid #21262d; }
+    .vs-faq h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    .vs-faq-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .faq-list { max-width: 740px; margin: 0 auto; }
+    .faq-item {
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .faq-q {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      padding: 1.25rem 1.5rem;
+      background: #111;
+    }
+    .faq-a {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      padding: 0 1.5rem 1.25rem;
+      background: #0d1117;
+      line-height: 1.7;
+    }
   </style>
 </head>
 <body>
@@ -482,6 +571,36 @@
             <li>You attend many varied meeting types (not just eng standups)</li>
             <li>You want a personal AI assistant for all your calls</li>
           </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== FAQ ====== -->
+  <section class="vs-faq">
+    <div class="container">
+      <h2>Common questions</h2>
+      <p class="vs-faq-sub">What engineering teams ask when comparing Granola and contextprompt.</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">Does contextprompt work like Granola?</div>
+          <div class="faq-a">They solve different problems. Granola is a personal AI notepad that enhances the notes you take yourself during a meeting. contextprompt is a bot-based tool that joins your meeting automatically, scans your connected repos, and extracts structured coding tasks with real file paths — without you taking a single note.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Is contextprompt available on Mac like Granola?</div>
+          <div class="faq-a">contextprompt is web-based and works on any OS — Mac, Windows, and Linux. Granola is a native macOS and Windows app. contextprompt requires no desktop install: access it via browser and send a bot to your meeting URL.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How does contextprompt handle meeting data privacy?</div>
+          <div class="faq-a">contextprompt processes meeting audio and transcripts server-side via Recall.ai. Granola processes audio locally on your device, which is an advantage if you have strict data-handling requirements and don't want meeting audio to leave your machine.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Does contextprompt require installing software on my computer?</div>
+          <div class="faq-a">No. contextprompt is entirely browser-based. You paste a meeting URL into the dashboard, the Recall.ai bot joins as a participant, and the transcript is processed server-side. Granola requires a native desktop app on macOS or Windows.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Can contextprompt be used alongside Granola?</div>
+          <div class="faq-a">Yes. They operate independently. Some engineers use Granola for personal note-taking during all their calls and contextprompt specifically for engineering meetings where they need structured coding tasks with repo context. They serve complementary needs.</div>
         </div>
       </div>
     </div>

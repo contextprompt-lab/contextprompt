@@ -20,6 +20,8 @@ export default defineConfig({
         'use-case-assistant': 'use-cases/ai-meeting-assistant-for-developers/index.html',
         'use-case-sprint': 'use-cases/sprint-planning-automation/index.html',
         '404': '404.html',
+        'vs-avoma': 'vs/avoma/index.html',
+        'vs-krisp': 'vs/krisp/index.html',
       },
     },
   },

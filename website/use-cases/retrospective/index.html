@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprint Retrospective Action Items That Link to Your Codebase — contextprompt</title>
+  <meta name="description" content="contextprompt joins your sprint retrospectives, captures every action item, and links each one to the real files and functions in your repos. Turn retro discussions into concrete engineering tasks in minutes.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/use-cases/retrospective/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Sprint Retrospective Action Items That Link to Your Codebase — contextprompt">
+  <meta property="og:description" content="Stop losing retro action items to spreadsheets. contextprompt captures every improvement discussed and maps it to the code that needs to change.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/use-cases/retrospective/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sprint Retrospective Action Items That Link to Your Codebase — contextprompt">
+  <meta name="twitter:description" content="Stop losing retro action items to spreadsheets. contextprompt captures every improvement and maps it to the code that needs to change.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/css/reset.css">
+  <link rel="stylesheet" href="/src/css/tokens.css">
+  <link rel="stylesheet" href="/src/css/layout.css">
+  <link rel="stylesheet" href="/src/css/components.css">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Sprint Retrospective Action Items That Link to Your Codebase — contextprompt",
+    "description": "contextprompt joins your sprint retrospectives, captures every action item, and links each one to the real files and functions in your repos.",
+    "url": "https://contextprompt.app/use-cases/retrospective/",
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://contextprompt.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Use Cases", "item": "https://contextprompt.app/use-cases/" },
+        { "@type": "ListItem", "position": 3, "name": "Retrospective", "item": "https://contextprompt.app/use-cases/retrospective/" }
+      ]
+    }
+  }
+  </script>
+
+  <style>
+    .uc-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .uc-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 800px;
+      margin: 0 auto 1.5rem;
+    }
+    .uc-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .uc-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .uc-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .uc-cta:hover { opacity: 0.85; }
+    .uc-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+
+    .uc-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .uc-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .uc-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    .uc-problems {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-problem-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .uc-problem-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #f85149;
+      margin-bottom: 0.75rem;
+    }
+    .uc-problem-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .uc-problem-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .uc-solution-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .uc-solution-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .uc-solution-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-timeline {
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .uc-timeline::before {
+      content: "";
+      position: absolute;
+      left: 19px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #21262d;
+    }
+    .uc-timeline-item {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .uc-timeline-item:last-child { margin-bottom: 0; }
+    .uc-timeline-dot {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #161b22;
+      border: 2px solid #3fb950;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .uc-timeline-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #555;
+      margin-bottom: 0.25rem;
+    }
+    .uc-timeline-content h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.35rem;
+    }
+    .uc-timeline-content p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    .uc-stat-row {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: 700px;
+      margin: 0 auto 3rem;
+    }
+    .uc-stat {
+      text-align: center;
+    }
+    .uc-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #3fb950;
+      line-height: 1;
+    }
+    .uc-stat-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+
+    .uc-testimonial {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .uc-testimonial-stars {
+      color: #f0c000;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .uc-testimonial blockquote {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      color: #e6e6e6;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .uc-testimonial-author {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .uc-testimonial-name {
+      color: #e6e6e6;
+      font-weight: 500;
+    }
+
+    .uc-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    @media (max-width: 600px) {
+      .uc-comparison { grid-template-columns: 1fr; }
+    }
+    .uc-comparison-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .uc-comparison-card.bad { border-top: 3px solid #f85149; }
+    .uc-comparison-card.good { border-top: 3px solid #3fb950; }
+    .uc-comparison-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+    .uc-comparison-card.bad .uc-comparison-label { color: #f85149; }
+    .uc-comparison-card.good .uc-comparison-label { color: #3fb950; }
+    .uc-comparison-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .uc-comparison-card ul li {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid #161b22;
+    }
+    .uc-comparison-card ul li:last-child { border-bottom: none; }
+    .uc-comparison-card.bad ul li::before { content: "✗ "; color: #f85149; }
+    .uc-comparison-card.good ul li::before { content: "✓ "; color: #3fb950; }
+
+    .uc-pricing-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .uc-pricing-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex: 1;
+      min-width: 220px;
+    }
+    .uc-pricing-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.25rem;
+    }
+    .uc-pricing-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .uc-pricing-detail {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    .uc-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .uc-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="uc-hero">
+    <div class="container">
+      <h1>Retrospective action items that <u>actually get done</u></h1>
+      <p class="uc-hero-sub">Retros surface real technical debt and process problems. contextprompt joins your retrospective on Zoom, Google Meet, Slack, or Teams, transcribes every &ldquo;we should fix&rdquo; and &ldquo;next sprint we need to&rdquo;, then maps each improvement to the specific files, functions, and systems in your repos. Leave every retro with a linked, actionable task list ready for Claude Code.</p>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">No API keys needed. Free plan includes 1 hour/month.</p>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Why retro action items disappear</h2>
+      <p class="uc-section-sub">Retrospectives generate valuable insights. Most of them are forgotten by the next standup.</p>
+
+      <div class="uc-problems">
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">//</div>
+          <h3>Action items live in a doc nobody reads</h3>
+          <p>The Confluence page or Google Doc from last sprint&rsquo;s retro has 14 action items. Three were completed. The rest were either too vague to act on or got buried when the next sprint started. Retro notes are the most written and least read document in engineering.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">?!</div>
+          <h3>Improvements lack an owner or a file</h3>
+          <p>The team agrees &ldquo;we need to improve our error handling in the payment flow&rdquo;. Nobody writes the ticket. When someone eventually does, it says &ldquo;improve error handling&rdquo; with no assignee, no file paths, no implementation steps. It sits in the backlog for two months.</p>
+        </div>
+        <div class="uc-problem-card">
+          <div class="uc-problem-icon">~></div>
+          <h3>Technical debt discussions evaporate</h3>
+          <p>The richest technical conversations happen in retros &mdash; root cause analysis, architectural concerns, performance bottlenecks. None of it gets captured with the precision that makes it actionable. The engineer who raised the concern ends up re-explaining it at the next planning meeting.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEFORE / AFTER -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Before and after contextprompt</h2>
+      <p class="uc-section-sub">The difference between retro action items that get done and ones that don&rsquo;t is specificity. contextprompt supplies the specificity automatically.</p>
+
+      <div class="uc-comparison">
+        <div class="uc-comparison-card bad">
+          <div class="uc-comparison-label">Without contextprompt</div>
+          <ul>
+            <li>Vague notes in a shared doc</li>
+            <li>No file paths or code references</li>
+            <li>No structured task format</li>
+            <li>Manual ticket creation required</li>
+            <li>Context lost before Monday</li>
+            <li>Action items forgotten next sprint</li>
+          </ul>
+        </div>
+        <div class="uc-comparison-card good">
+          <div class="uc-comparison-label">With contextprompt</div>
+          <ul>
+            <li>Structured tasks with full context</li>
+            <li>Real file paths from your repos</li>
+            <li>Implementation steps included</li>
+            <li>Ready for Claude Code or Cursor</li>
+            <li>Source quote attribution per task</li>
+            <li>Dashboard in minutes after meeting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Every improvement, captured and linked</h2>
+      <p class="uc-section-sub">contextprompt turns the 45 minutes your team spends talking about what needs to improve into a concrete engineering backlog.</p>
+
+      <div class="uc-stat-row">
+        <div class="uc-stat">
+          <div class="uc-stat-value">0</div>
+          <p class="uc-stat-label">action items forgotten</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">100%</div>
+          <p class="uc-stat-label">linked to actual code</p>
+        </div>
+        <div class="uc-stat">
+          <div class="uc-stat-value">&lt;5m</div>
+          <p class="uc-stat-label">retro to task list</p>
+        </div>
+      </div>
+
+      <div class="uc-solution-grid">
+        <div class="uc-solution-card">
+          <h3>Technical debt becomes a task</h3>
+          <p>When someone says &ldquo;our auth middleware is a mess and it caused three bugs this sprint&rdquo;, contextprompt creates a task pointing to <code>src/middleware/auth.ts</code> with implementation steps. Technical debt stops being abstract and becomes something an AI coding assistant can help you fix.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Process improvements with code context</h3>
+          <p>Not every retro action is a code change &mdash; but many process improvements do touch specific parts of the system. contextprompt distinguishes between organizational and technical improvements, treating each appropriately.</p>
+        </div>
+        <div class="uc-solution-card">
+          <h3>Quoted, attributed, and timestamped</h3>
+          <p>Every extracted task includes the exact transcript quote that generated it, with the speaker&rsquo;s name and timestamp. When someone asks why a task exists or what the team decided, the answer is right there in the task record.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS - TIMELINE -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Your retrospective, automated</h2>
+      <p class="uc-section-sub">Here is what a sprint retrospective looks like when contextprompt is handling the follow-up.</p>
+
+      <div class="uc-timeline">
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">1</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">One-time setup</div>
+            <h3>Connect your repos</h3>
+            <p>Add your project repositories from the contextprompt dashboard. contextprompt indexes your file tree, exports, and function signatures so it can map verbal references to real code during the retro.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">2</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Retro starts</div>
+            <h3>Paste the meeting link</h3>
+            <p>Drop the Zoom, Google Meet, Slack, or Teams URL into contextprompt. The bot joins as a silent participant and records the full retrospective with speaker attribution &mdash; no one needs to take notes.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">3</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Retro ends</div>
+            <h3>AI extracts every action item</h3>
+            <p>contextprompt processes the transcript, identifies every technical improvement discussed, and maps each one to the relevant files and systems in your repos. Structural issues, bug patterns, and technical debt are all captured.</p>
+          </div>
+        </div>
+        <div class="uc-timeline-item">
+          <div class="uc-timeline-dot">4</div>
+          <div class="uc-timeline-content">
+            <div class="uc-timeline-time">Minutes later</div>
+            <h3>Linked task list, ready to assign</h3>
+            <p>Structured tasks appear in your contextprompt dashboard with file paths, implementation steps, and the source quotes behind them. Assign them, paste into your tracker, or send straight to Claude Code to start the next sprint immediately.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="uc-section">
+    <div class="container">
+      <div class="uc-testimonial">
+        <div class="uc-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <blockquote>&ldquo;We were religiously doing retros but nothing ever changed. With contextprompt, every action item now has a file path and implementation steps attached. The team actually ships the improvements because the task is specific enough to execute.&rdquo;</blockquote>
+        <div class="uc-testimonial-author">
+          <span class="uc-testimonial-name">Daniel R.</span> &mdash; Engineering Manager, SaaS startup
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="uc-section">
+    <div class="container">
+      <h2>Simple pricing</h2>
+      <p class="uc-section-sub">Start capturing retro action items for free. Upgrade for the whole team when you need more monthly hours.</p>
+
+      <div class="uc-pricing-row">
+        <div class="uc-pricing-card">
+          <h3>Free</h3>
+          <div class="uc-pricing-amount">$0</div>
+          <p class="uc-pricing-detail">1 hour/month of recording</p>
+          <p class="uc-pricing-detail">Repo-aware task extraction</p>
+          <p class="uc-pricing-detail">All meeting platforms</p>
+        </div>
+        <div class="uc-pricing-card">
+          <h3>Pro</h3>
+          <div class="uc-pricing-amount">$30<span style="font-size:1rem;color:#999">/mo</span></div>
+          <p class="uc-pricing-detail">15 hours/month of recording</p>
+          <p class="uc-pricing-detail">GitHub issue integration</p>
+          <p class="uc-pricing-detail">Priority support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="uc-bottom-cta">
+    <div class="container">
+      <h2>Your next retro ends with a task list,<br>not a doc no one will read.</h2>
+      <a href="/app/" class="uc-cta">Get started free</a>
+      <p class="uc-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Use Cases</h4>
+        <a href="/use-cases/sprint-planning-automation/">Sprint Planning</a>
+        <a href="/use-cases/standup/">Standups</a>
+        <a href="/use-cases/code-review/">Code Review</a>
+        <a href="/use-cases/retrospective/">Retrospectives</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+</body>
+</html>

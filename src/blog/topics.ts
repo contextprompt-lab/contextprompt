@@ -83,6 +83,13 @@ export const seoTopics: SeoTopic[] = [
   { query: 'product owner developer communication AI', slug: 'product-owner-developer-communication-ai', cluster: 'use-case', contentType: 'high-intent', postStyle: 'product' },
   { query: 'onboarding new developers with meeting context', slug: 'onboarding-developers-meeting-context', cluster: 'use-case', contentType: 'supporting', postStyle: 'product' },
 
+  // --- Search Console opportunity queries (May 2026) ---
+  { query: 'best internal Q&A tools for engineering teams 2026', slug: 'best-internal-qa-tools-engineering-teams', cluster: 'comparison', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'best meeting bot for incident management', slug: 'best-meeting-bot-incident-management', cluster: 'use-case', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'AI notetaker for engineering teams 2026', slug: 'ai-notetaker-engineering-teams', cluster: 'product', contentType: 'high-intent', postStyle: 'product' },
+  { query: 'how to reduce engineering meetings with AI software', slug: 'reduce-engineering-meetings-ai-software', cluster: 'problem', contentType: 'high-intent', postStyle: 'editorial' },
+  { query: 'automate daily standup meetings AI tool', slug: 'automate-daily-standup-meetings-ai', cluster: 'workflow', contentType: 'high-intent', postStyle: 'product' },
+
   // --- Editorial: general developer productivity ---
   { query: 'how to write better technical meeting agendas', slug: 'better-technical-meeting-agendas', cluster: 'workflow', contentType: 'supporting', postStyle: 'editorial' },
   { query: 'async vs sync communication for engineering teams', slug: 'async-vs-sync-communication-engineering', cluster: 'thought-leadership', contentType: 'high-intent', postStyle: 'editorial' },

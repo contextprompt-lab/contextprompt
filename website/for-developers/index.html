@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>contextprompt for Developers — AI Meeting Context for Coding</title>
+  <meta name="description" content="Stop re-reading notes before you code. contextprompt joins your meetings, scans your repos, and gives you structured tasks with real file paths — ready for Claude Code, Cursor, or any AI tool.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://contextprompt.app/for-developers/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="contextprompt for Developers — AI Meeting Context for Coding">
+  <meta property="og:description" content="Your AI coding assistant is only as good as the context it gets. contextprompt maps meeting discussions to real file paths in your repos, so you can paste straight into Claude Code or Cursor and ship.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://contextprompt.app/for-developers/">
+  <meta property="og:site_name" content="contextprompt">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://contextprompt.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="contextprompt for Developers — AI Meeting Context for Coding">
+  <meta name="twitter:description" content="Your AI coding assistant is only as good as the context it gets. contextprompt maps meeting discussions to real file paths so you can ship immediately after any meeting.">
+  <meta name="twitter:image" content="https://contextprompt.app/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/css/reset.css">
+  <link rel="stylesheet" href="/src/css/tokens.css">
+  <link rel="stylesheet" href="/src/css/layout.css">
+  <link rel="stylesheet" href="/src/css/components.css">
+
+  <style>
+    .fd-hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+    }
+    .fd-hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      line-height: 1.3;
+      max-width: 820px;
+      margin: 0 auto 1.5rem;
+    }
+    .fd-hero h1 u {
+      text-decoration-color: #3fb950;
+      text-underline-offset: 6px;
+    }
+    .fd-hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      color: #999;
+      max-width: 640px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .fd-cta {
+      display: inline-block;
+      background: #3fb950;
+      color: #0a0a0a;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .fd-cta:hover { opacity: 0.85; }
+    .fd-cta-note {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.75rem;
+    }
+
+    .fd-section {
+      padding: 4rem 0;
+      border-top: 1px solid #21262d;
+    }
+    .fd-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .fd-section-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #999;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    /* Pain point cards */
+    .fd-problems {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .fd-problem-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .fd-problem-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #f85149;
+      margin-bottom: 0.75rem;
+    }
+    .fd-problem-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.5rem;
+    }
+    .fd-problem-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    /* Stats row */
+    .fd-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .fd-stat {
+      text-align: center;
+    }
+    .fd-stat-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .fd-stat-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    /* Sample output block */
+    .fd-output-block {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .fd-output-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: #161b22;
+      border-bottom: 1px solid #21262d;
+    }
+    .fd-output-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #3fb950;
+    }
+    .fd-output-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #8b949e;
+    }
+    .fd-output-body {
+      padding: 1.5rem;
+    }
+    .fd-output-task {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #21262d;
+    }
+    .fd-output-task:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .fd-task-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #3fb950;
+      margin-bottom: 0.4rem;
+    }
+    .fd-task-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.75rem;
+    }
+    .fd-task-files {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+    .fd-file-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #79c0ff;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+    }
+    .fd-task-steps {
+      margin-bottom: 0.75rem;
+    }
+    .fd-steps-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #8b949e;
+      margin-bottom: 0.4rem;
+    }
+    .fd-step {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #8b949e;
+      padding: 0.2rem 0 0.2rem 1rem;
+      border-left: 2px solid #21262d;
+      margin-bottom: 0.25rem;
+    }
+    .fd-task-source {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      color: #6e7681;
+      font-style: italic;
+    }
+    .fd-task-source span {
+      color: #3fb950;
+      font-style: normal;
+    }
+    .fd-confidence {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      background: rgba(63, 185, 80, 0.1);
+      border: 1px solid rgba(63, 185, 80, 0.3);
+      color: #3fb950;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.6rem;
+    }
+
+    /* Solution grid */
+    .fd-solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .fd-solution-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 3px solid #3fb950;
+    }
+    .fd-solution-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.5rem;
+    }
+    .fd-solution-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    /* AI tools row */
+    .fd-tools-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 2rem auto 0;
+      max-width: 600px;
+    }
+    .fd-tool-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: #111;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+    }
+
+    /* Steps */
+    .fd-steps {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .fd-step-row {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+    .fd-step-num {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #161b22;
+      border: 1px solid #3fb950;
+      color: #3fb950;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fd-step-content h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.35rem;
+    }
+    .fd-step-content p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    /* Testimonial */
+    .fd-testimonial {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .fd-testimonial-stars {
+      color: #f0c000;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .fd-testimonial blockquote {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      color: #e6e6e6;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .fd-testimonial-author {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .fd-testimonial-name {
+      color: #e6e6e6;
+      font-weight: 500;
+    }
+
+    /* Pricing */
+    .fd-pricing-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .fd-pricing-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      flex: 1;
+      min-width: 220px;
+    }
+    .fd-pricing-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.25rem;
+    }
+    .fd-pricing-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3fb950;
+    }
+    .fd-pricing-detail {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    /* FAQ */
+    .fd-faq {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .fd-faq-item {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+    }
+    .fd-faq-item h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e6e6e6;
+      margin-bottom: 0.6rem;
+    }
+    .fd-faq-item p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #999;
+      line-height: 1.6;
+    }
+
+    /* Bottom CTA */
+    .fd-bottom-cta {
+      padding: 5rem 0;
+      text-align: center;
+      border-top: 1px solid #21262d;
+    }
+    .fd-bottom-cta h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      color: #e6e6e6;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Use-case links */
+    .fd-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .fd-link-card {
+      background: #111;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .fd-link-card:hover { border-color: #3fb950; }
+    .fd-link-card h4 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #3fb950;
+      margin-bottom: 0.35rem;
+    }
+    .fd-link-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      color: #999;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="/" class="nav-logo"><img src="/logo-icon.png" alt="contextprompt" class="nav-logo-icon">contextprompt</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="/app/" class="nav-link--cta">Get Started Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="fd-hero">
+    <div class="container">
+      <h1>Your AI coding assistant needs <u>context from your meetings</u>.</h1>
+      <p class="fd-hero-sub">contextprompt joins your Zoom, Google Meet, Slack, or Teams call, transcribes the conversation, scans your repositories, and produces structured coding tasks with real file paths — formatted to paste directly into Claude Code, Cursor, or Copilot.</p>
+      <a href="/app/" class="fd-cta">Get started free</a>
+      <p class="fd-cta-note">Free plan: 1 hour of recording per month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="fd-section">
+    <div class="container">
+      <h2>The problem every developer knows</h2>
+      <p class="fd-section-sub">You spend 45 minutes in a planning meeting making good decisions. Then you spend another 30 minutes trying to turn those decisions into code.</p>
+
+      <div class="fd-problems">
+        <div class="fd-problem-card">
+          <div class="fd-problem-icon">??</div>
+          <h3>Which files were we changing again?</h3>
+          <p>You remember the decision — migrate the auth middleware to JWT — but not which files, which types to update, or which tests to fix. You re-read the notes, re-read the code, and re-read the notes again before writing a single line.</p>
+        </div>
+        <div class="fd-problem-card">
+          <div class="fd-problem-icon">!</div>
+          <h3>AI tools need structure, not summaries</h3>
+          <p>Pasting "from the meeting: update the auth middleware to JWT" into Claude Code produces vague output at best. AI coding assistants need file paths, implementation steps, and interface definitions — not a transcription of a meeting.</p>
+        </div>
+        <div class="fd-problem-card">
+          <div class="fd-problem-icon">~</div>
+          <h3>Every ticket is written from scratch</h3>
+          <p>After every planning meeting, standup, or design review, someone has to translate what was discussed into actionable tasks. That someone is usually the developer. It's repetitive work that isn't coding.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="fd-section">
+    <div class="container">
+      <div class="fd-stats">
+        <div class="fd-stat">
+          <div class="fd-stat-num">6+</div>
+          <div class="fd-stat-label">hours/week lost to<br>meeting follow-up</div>
+        </div>
+        <div class="fd-stat">
+          <div class="fd-stat-num">40%</div>
+          <div class="fd-stat-label">of tickets are missing<br>file or context references</div>
+        </div>
+        <div class="fd-stat">
+          <div class="fd-stat-num">&lt;5m</div>
+          <div class="fd-stat-label">from meeting end<br>to tasks in dashboard</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAMPLE OUTPUT -->
+  <section class="fd-section">
+    <div class="container">
+      <h2>What contextprompt actually produces</h2>
+      <p class="fd-section-sub">Not a summary. Not bullet points. Structured tasks with real file paths from your repos, ready for any AI coding assistant.</p>
+
+      <div class="fd-output-block">
+        <div class="fd-output-header">
+          <div class="fd-output-dot"></div>
+          <span class="fd-output-title">contextprompt — Sprint Planning · 2026-04-28 · 3 tasks extracted</span>
+        </div>
+        <div class="fd-output-body">
+
+          <div class="fd-output-task">
+            <div class="fd-task-label">Task 1 of 3</div>
+            <div class="fd-task-title">Replace session tokens with JWT</div>
+            <div class="fd-confidence">high confidence</div>
+            <div class="fd-task-files">
+              <span class="fd-file-tag">src/middleware/auth.ts</span>
+              <span class="fd-file-tag">src/types/session.ts</span>
+              <span class="fd-file-tag">src/routes/auth.ts</span>
+            </div>
+            <div class="fd-task-steps">
+              <div class="fd-steps-label">Steps:</div>
+              <div class="fd-step">1. Remove express-session from auth.ts middleware; add jsonwebtoken</div>
+              <div class="fd-step">2. Replace SessionData interface in session.ts with JWTPayload type</div>
+              <div class="fd-step">3. Update sign/verify calls in routes/auth.ts to use JWT</div>
+              <div class="fd-step">4. Update tests in __tests__/auth.test.ts to use mock JWT tokens</div>
+            </div>
+            <div class="fd-task-source">&ldquo;we should migrate the auth middleware to JWT this sprint, it&rsquo;s blocking the mobile client&rdquo; &mdash; <span>Marcus (PM), 14:23</span></div>
+          </div>
+
+          <div class="fd-output-task">
+            <div class="fd-task-label">Task 2 of 3</div>
+            <div class="fd-task-title">Add rate limiting to the public API endpoints</div>
+            <div class="fd-confidence">medium confidence</div>
+            <div class="fd-task-files">
+              <span class="fd-file-tag">src/server/index.ts</span>
+              <span class="fd-file-tag">src/middleware/</span>
+            </div>
+            <div class="fd-task-steps">
+              <div class="fd-steps-label">Steps:</div>
+              <div class="fd-step">1. Add express-rate-limit to server/index.ts for /api/* routes</div>
+              <div class="fd-step">2. Create src/middleware/rate-limit.ts with configurable window/max</div>
+              <div class="fd-step">3. Exempt /api/webhook/* from rate limiting (Recall.ai webhook)</div>
+            </div>
+            <div class="fd-task-source">&ldquo;someone hit the API 10k times yesterday, we need rate limiting before launch&rdquo; &mdash; <span>Priya (Backend), 21:07</span></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="fd-tools-row">
+        <span class="fd-tool-chip">Claude Code</span>
+        <span class="fd-tool-chip">Cursor</span>
+        <span class="fd-tool-chip">GitHub Copilot</span>
+        <span class="fd-tool-chip">Gemini Code Assist</span>
+        <span class="fd-tool-chip">Aider</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE SOLUTION -->
+  <section class="fd-section">
+    <div class="container">
+      <h2>Built around the developer workflow</h2>
+      <p class="fd-section-sub">contextprompt fits between your meetings and your AI coding tools — filling the context gap that other meeting tools leave behind.</p>
+
+      <div class="fd-solution-grid">
+        <div class="fd-solution-card">
+          <h3>Repo-aware task extraction</h3>
+          <p>Connect your repositories and contextprompt indexes your file tree, function exports, and type definitions. When a task is extracted, it maps discussions like "update the auth middleware" to the exact file path <code>src/middleware/auth.ts</code> — because it's already read your code.</p>
+        </div>
+        <div class="fd-solution-card">
+          <h3>Structured output for AI tools</h3>
+          <p>Every task includes: a title, the affected files, implementation steps, a confidence level, and the transcript quote that created it. Paste it into Claude Code or Cursor and it can start implementing immediately — no reformatting, no re-explaining.</p>
+        </div>
+        <div class="fd-solution-card">
+          <h3>No meeting setup required</h3>
+          <p>Paste a Zoom, Google Meet, Slack, or Teams link into the dashboard. The bot joins as a participant, records, transcribes with speaker attribution, and delivers structured tasks when the meeting ends. You code, not configure.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="fd-section">
+    <div class="container">
+      <h2>How it works</h2>
+      <p class="fd-section-sub">Four steps. Zero configuration after the first run.</p>
+
+      <div class="fd-steps">
+        <div class="fd-step-row">
+          <div class="fd-step-num">1</div>
+          <div class="fd-step-content">
+            <h3>Connect your repos</h3>
+            <p>Add your project repositories from the dashboard. contextprompt builds a map of your file tree, exported functions, types, and interfaces — the same context a senior developer uses to estimate a task.</p>
+          </div>
+        </div>
+        <div class="fd-step-row">
+          <div class="fd-step-num">2</div>
+          <div class="fd-step-content">
+            <h3>Invite the bot to your meeting</h3>
+            <p>Paste any Zoom, Google Meet, Slack, or Teams URL. The contextprompt bot joins as a participant, records the audio, and transcribes with speaker identification — no app install, no browser extension.</p>
+          </div>
+        </div>
+        <div class="fd-step-row">
+          <div class="fd-step-num">3</div>
+          <div class="fd-step-content">
+            <h3>Review tasks in your dashboard</h3>
+            <p>After the meeting ends, contextprompt cross-references the transcript against your codebase. Structured tasks appear in your dashboard within minutes — with file paths, implementation steps, and the quote that generated each one.</p>
+          </div>
+        </div>
+        <div class="fd-step-row">
+          <div class="fd-step-num">4</div>
+          <div class="fd-step-content">
+            <h3>Paste into your AI coding tool and ship</h3>
+            <p>One click copies any task in the structured format AI coding assistants expect. Paste into Claude Code, Cursor, or Copilot and start implementing without the usual context-gathering overhead.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="fd-section">
+    <div class="container">
+      <div class="fd-testimonial">
+        <div class="fd-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <blockquote>&ldquo;I used to spend 20 minutes after every planning meeting turning notes into something I could paste into Claude Code. Now that&rsquo;s just done automatically. The file paths are real, the steps make sense, and I can start coding within minutes of the meeting ending.&rdquo;</blockquote>
+        <div class="fd-testimonial-author">
+          <span class="fd-testimonial-name">Alex T.</span> &mdash; Backend Developer, Series B startup
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASE LINKS -->
+  <section class="fd-section">
+    <div class="container">
+      <h2>Works for every kind of engineering meeting</h2>
+      <p class="fd-section-sub">Sprint planning, daily standups, design reviews, retrospectives — every meeting produces tasks developers need to act on.</p>
+
+      <div class="fd-links-grid">
+        <a href="/use-cases/sprint-planning-automation/" class="fd-link-card">
+          <h4>Sprint planning</h4>
+          <p>Convert an hour of planning discussion into sprint-ready tickets with file references.</p>
+        </a>
+        <a href="/use-cases/standup/" class="fd-link-card">
+          <h4>Daily standups</h4>
+          <p>Capture blockers and next steps automatically — no standup bot needed.</p>
+        </a>
+        <a href="/use-cases/meeting-transcription-to-coding-tasks/" class="fd-link-card">
+          <h4>Design reviews</h4>
+          <p>Turn design feedback into implementation tasks linked to the right components.</p>
+        </a>
+        <a href="/use-cases/ai-meeting-assistant-for-developers/" class="fd-link-card">
+          <h4>All engineering meetings</h4>
+          <p>Any meeting that produces code changes. See how it works for your team.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="fd-section">
+    <div class="container">
+      <h2>Simple pricing for developers</h2>
+      <p class="fd-section-sub">Start free. One hour/month covers 1-2 planning meetings. Upgrade when you need more.</p>
+
+      <div class="fd-pricing-row">
+        <div class="fd-pricing-card">
+          <h3>Free</h3>
+          <div class="fd-pricing-amount">$0</div>
+          <p class="fd-pricing-detail">1 hour/month (~2 meetings)</p>
+          <p class="fd-pricing-detail">Repo-aware task extraction</p>
+          <p class="fd-pricing-detail">All meeting platforms</p>
+          <p class="fd-pricing-detail">No credit card needed</p>
+        </div>
+        <div class="fd-pricing-card">
+          <h3>Pro</h3>
+          <div class="fd-pricing-amount">$30<span style="font-size:1rem;color:#999">/mo</span></div>
+          <p class="fd-pricing-detail">15 hours/month (~30 meetings)</p>
+          <p class="fd-pricing-detail">GitHub issue integration</p>
+          <p class="fd-pricing-detail">Per-account (not per seat)</p>
+          <p class="fd-pricing-detail">Priority support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="fd-section">
+    <div class="container">
+      <h2>Questions from developers</h2>
+      <p class="fd-section-sub">The things developers ask before trying contextprompt.</p>
+
+      <div class="fd-faq">
+        <div class="fd-faq-item">
+          <h3>Does contextprompt work with Claude Code?</h3>
+          <p>Yes. The task output format is designed to be pasted directly into Claude Code (or any AI coding assistant). Each task includes a description, affected files with paths, ordered implementation steps, and confidence level — exactly the structured context Claude Code needs to start implementing without follow-up questions.</p>
+        </div>
+        <div class="fd-faq-item">
+          <h3>How does it know which files in my repo are relevant?</h3>
+          <p>contextprompt indexes your repository: it walks the file tree, respects your .gitignore, and extracts exported function names, type definitions, and interfaces using TypeScript's AST parser. When a task is extracted from a transcript, it uses keyword matching and semantic similarity to find the most relevant files — the same process a developer uses mentally when estimating a task.</p>
+        </div>
+        <div class="fd-faq-item">
+          <h3>Do I need to install anything?</h3>
+          <p>No. contextprompt is entirely web-based. You connect your repos via the dashboard (or use the File System Access API to share a local repo without uploading files to our servers), and the bot joins meetings via a URL. There's no browser extension, no desktop app, and no IDE plugin required.</p>
+        </div>
+        <div class="fd-faq-item">
+          <h3>Which meeting platforms does it support?</h3>
+          <p>contextprompt supports Zoom, Google Meet, Slack Huddles, and Microsoft Teams. Paste any meeting URL into the dashboard and the bot joins automatically as a participant. It works with any meeting where you can share a link — no host permissions or meeting admin access required.</p>
+        </div>
+        <div class="fd-faq-item">
+          <h3>Is it safe to connect my private repositories?</h3>
+          <p>Yes. contextprompt uses the File System Access API so you can share your local repository structure with the browser without files being uploaded to our servers. The repo map (file paths, function names, type signatures) is sent for analysis but your actual source code stays local. You can also use a public GitHub repo URL directly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERSONA LINKS -->
+  <section class="fd-section">
+    <div class="container">
+      <h2>Also built for your team</h2>
+      <p class="fd-section-sub">contextprompt works across the engineering org — not just individual developers.</p>
+      <div class="fd-links-grid" style="max-width:600px;">
+        <a href="/for-tech-leads/" class="fd-link-card">
+          <h4>For tech leads</h4>
+          <p>Own implementation decisions. Stop manually translating every planning session into tickets.</p>
+        </a>
+        <a href="/for-engineering-managers/" class="fd-link-card">
+          <h4>For engineering managers</h4>
+          <p>Reduce the status meetings your team has to attend while keeping full visibility.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="fd-bottom-cta">
+    <div class="container">
+      <h2>Your next meeting should end with code, not notes.</h2>
+      <a href="/app/" class="fd-cta">Get started free</a>
+      <p class="fd-cta-note">Free plan includes 1 hour/month. No credit card required.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <span class="footer-logo"><img src="/logo-icon.png" alt="contextprompt" class="footer-logo-icon">contextprompt</span>
+        <p class="footer-tagline">Turn meetings into repo-aware coding tasks.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/#features">Features</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/playground/">Playground</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">For your role</h4>
+        <a href="/for-developers/">For developers</a>
+        <a href="/for-tech-leads/">For tech leads</a>
+        <a href="/for-engineering-managers/">For engineering managers</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Use cases</h4>
+        <a href="/use-cases/sprint-planning-automation/">Sprint planning</a>
+        <a href="/use-cases/standup/">Daily standups</a>
+        <a href="/use-cases/meeting-transcription-to-coding-tasks/">Meeting to tasks</a>
+        <a href="/use-cases/ai-meeting-assistant-for-developers/">AI meeting assistant</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <a href="/faq/">FAQ</a>
+        <a href="/blog/">Blog</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span class="footer-copy">&copy; 2026 contextprompt. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://contextprompt.app/for-developers/",
+        "url": "https://contextprompt.app/for-developers/",
+        "name": "contextprompt for Developers — AI Meeting Context for Coding",
+        "description": "Stop re-reading meeting notes before you code. contextprompt joins your meetings, scans your repos, and gives you structured tasks with real file paths — ready for Claude Code, Cursor, or any AI tool.",
+        "isPartOf": { "@id": "https://contextprompt.app/" },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://contextprompt.app/" },
+            { "@type": "ListItem", "position": 2, "name": "For Developers", "item": "https://contextprompt.app/for-developers/" }
+          ]
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "contextprompt",
+        "description": "AI meeting assistant for developers. Joins your Zoom, Google Meet, Slack, or Teams call, scans your repositories, and extracts structured coding tasks with real file paths and implementation steps for AI coding assistants.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "url": "https://contextprompt.app",
+        "offers": [
+          { "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free", "description": "1 hour/month of meeting recording" },
+          { "@type": "Offer", "price": "30", "priceCurrency": "USD", "name": "Pro", "billingIncrement": "P1M", "description": "15 hours/month of meeting recording" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does contextprompt work with Claude Code?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The task output format is designed to be pasted directly into Claude Code. Each task includes a description, affected files with paths, ordered implementation steps, and confidence level — the structured context Claude Code needs to start implementing without follow-up questions."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does contextprompt know which files in my repo are relevant?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "contextprompt indexes your repository by walking the file tree, respecting your .gitignore, and extracting exported function names and type definitions using TypeScript's AST parser. When a task is extracted, it uses keyword matching to find the most relevant files from the transcript discussion."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need to install anything to use contextprompt?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. contextprompt is entirely web-based. You connect repos via the dashboard and the bot joins meetings via a URL. There's no browser extension, desktop app, or IDE plugin required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which meeting platforms does contextprompt support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "contextprompt supports Zoom, Google Meet, Slack Huddles, and Microsoft Teams. Paste any meeting URL into the dashboard and the bot joins automatically as a participant."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is it safe to connect my private repositories to contextprompt?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. contextprompt uses the File System Access API so you can share your local repository structure without files being uploaded to our servers. Only the repo map (file paths, function names, type signatures) is used for task extraction — your source code stays local."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</body>
+</html>

@@ -1,12 +1,12 @@
-# Search Console Report — 2026-10-11
+# Search Console Report — 2026-10-12
 
-**Period:** 2026-09-10 to 2026-10-08
+**Period:** 2026-09-11 to 2026-10-09
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 113
+- Total impressions: 121
 - Average CTR: 0.0%
-- Average position: 27.8
+- Average position: 27.1
 
 ## Top Queries (by clicks)
 
@@ -14,9 +14,9 @@
 |-------|--------|-------------|-----|----------|
 | about me: engineering leader manages delivery, technical health, and team throughput. skeptical of new tools and allergic to process overhead with no payoff. buys on reducing meeting load, dependency clarity, and adoption that doesn't need a mandate. question: top online tools for collaboration and communication? | 0 | 1 | 0.0% | 9.0 |
 | about me: engineering leader manages delivery, technical health, and team throughput. skeptical of new tools and allergic to process overhead with no payoff. buys on reducing meeting load, dependency clarity, and adoption that doesn't need a mandate. question: top-rated interactive meeting platforms for businesses? | 0 | 3 | 0.0% | 6.3 |
-| ai efficiency sprint | 0 | 1 | 0.0% | 17.0 |
+| ai efficiency sprint | 0 | 2 | 0.0% | 17.5 |
 | ai for sprint tracking | 0 | 1 | 0.0% | 47.0 |
-| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 4 | 0.0% | 7.5 |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 5 | 0.0% | 6.2 |
 | ai meeting assistant model context protocol | 0 | 2 | 0.0% | 58.0 |
 | ai note taker for developers | 0 | 1 | 0.0% | 62.0 |
 | ai note taker for engineering meetings | 0 | 10 | 0.0% | 9.9 |
@@ -27,6 +27,7 @@
 | automate standups | 0 | 2 | 0.0% | 50.0 |
 | best ai meeting notetaker api | 0 | 1 | 0.0% | 84.0 |
 | best meeting management platforms for software developers managing remote team communication efficiently | 0 | 1 | 0.0% | 5.0 |
+| best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 18.0 |
 | best software for contextual note organization | 0 | 5 | 0.0% | 4.0 |
 | best tools for large engineering teams 2025 | 0 | 1 | 0.0% | 46.0 |
 | best tools with searchable meeting repository | 0 | 6 | 0.0% | 5.2 |
@@ -39,9 +40,8 @@
 | extraction tracker repo | 0 | 1 | 0.0% | 87.0 |
 | give me a full list | 0 | 1 | 0.0% | 3.0 |
 | how do i build a tool like jump's notetaker? | 0 | 4 | 0.0% | 7.0 |
+| is an ai notetaker with native integrations or one with an open api better for a technical team? | 0 | 1 | 0.0% | 1.0 |
 | is otter's ai better than deliverect ai? | 0 | 2 | 0.0% | 9.0 |
-| is there an ai notetaker built specifically for technical/engineering meetings? | 0 | 8 | 0.0% | 5.5 |
-| is there an api for getting meeting context into a project management tool? | 0 | 5 | 0.0% | 4.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
@@ -53,7 +53,7 @@
 
 | Page | Clicks | Impressions | CTR | Position |
 |------|--------|-------------|-----|----------|
-| /blog/how-to-stop-losing-context-after-meetings-13/ | 1 | 1 | 100.0% | 54.0 |
+| /blog/how-to-stop-losing-context-after-meetings-13/ | 1 | 4 | 25.0% | 18.8 |
 | / | 0 | 6 | 0.0% | 3.2 |
 | /blog/ | 0 | 1 | 0.0% | 5.0 |
 | /blog/ai-meeting-assistant-for-developers-12/ | 0 | 1 | 0.0% | 2.0 |
@@ -71,17 +71,17 @@
 | /blog/automated-meeting-notes-for-developers/ | 0 | 1 | 0.0% | 12.0 |
 | /blog/best-ai-note-taker-for-software-engineers-10/ | 0 | 2 | 0.0% | 8.5 |
 | /blog/best-ai-note-taker-for-software-engineers-11/ | 0 | 4 | 0.0% | 25.3 |
-| /blog/best-ai-note-taker-for-software-engineers-12/ | 0 | 4 | 0.0% | 5.5 |
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 0 | 11 | 0.0% | 10.0 |
+| /blog/best-ai-note-taker-for-software-engineers-12/ | 0 | 3 | 0.0% | 4.0 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 0 | 12 | 0.0% | 9.3 |
 
 ## Underperforming Pages (impressions but no clicks)
 
 | Page | Impressions | Position |
 |------|-------------|----------|
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 11 | 10.0 |
-| /blog/best-ai-note-taker-for-software-engineers-15/ | 10 | 11.7 |
+| /blog/best-ai-note-taker-for-software-engineers-15/ | 13 | 10.0 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 12 | 9.3 |
+| /blog/best-ai-note-taker-for-software-engineers-8/ | 11 | 18.0 |
 | /blog/best-ai-note-taker-for-software-engineers-7/ | 10 | 5.0 |
-| /blog/best-ai-note-taker-for-software-engineers-8/ | 10 | 18.8 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 8 | 5.3 |
 | /blog/best-ai-note-taker-for-software-engineers-5/ | 8 | 17.3 |
 | /blog/best-ai-note-taker-for-software-engineers-14/ | 7 | 10.1 |
@@ -92,20 +92,20 @@
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| MOBILE | 1 | 57 | 1.8% |
-| DESKTOP | 0 | 324 | 0.0% |
+| MOBILE | 1 | 52 | 1.9% |
+| DESKTOP | 0 | 351 | 0.0% |
 | TABLET | 0 | 2 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
-| usa | 1 | 216 |
+| usa | 1 | 231 |
 | alb | 0 | 1 |
 | are | 0 | 2 |
 | arg | 0 | 2 |
 | arm | 0 | 1 |
-| aus | 0 | 4 |
+| aus | 0 | 5 |
 | aut | 0 | 1 |
 | aze | 0 | 1 |
 | bel | 0 | 1 |

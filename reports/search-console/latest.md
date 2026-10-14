@@ -1,12 +1,12 @@
-# Search Console Report — 2026-10-13
+# Search Console Report — 2026-10-14
 
-**Period:** 2026-09-12 to 2026-10-10
+**Period:** 2026-09-13 to 2026-10-11
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 127
+- Total impressions: 134
 - Average CTR: 0.0%
-- Average position: 26.4
+- Average position: 27.2
 
 ## Top Queries (by clicks)
 
@@ -16,7 +16,7 @@
 | about me: engineering leader manages delivery, technical health, and team throughput. skeptical of new tools and allergic to process overhead with no payoff. buys on reducing meeting load, dependency clarity, and adoption that doesn't need a mandate. question: top-rated interactive meeting platforms for businesses? | 0 | 3 | 0.0% | 6.3 |
 | ai efficiency sprint | 0 | 2 | 0.0% | 17.5 |
 | ai for sprint tracking | 0 | 1 | 0.0% | 47.0 |
-| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 5 | 0.0% | 6.2 |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 6 | 0.0% | 6.7 |
 | ai meeting assistant model context protocol | 0 | 2 | 0.0% | 58.0 |
 | ai note taker for developers | 0 | 1 | 0.0% | 62.0 |
 | ai note taker for engineering meetings | 0 | 11 | 0.0% | 10.0 |
@@ -24,7 +24,7 @@
 | ai note taker software | 0 | 1 | 0.0% | 12.0 |
 | ai sprint planning tool | 0 | 1 | 0.0% | 40.0 |
 | ai-assisted optimization engineering workflows | 0 | 1 | 0.0% | 71.0 |
-| automate standups | 0 | 2 | 0.0% | 50.0 |
+| automate standups | 0 | 4 | 0.0% | 64.5 |
 | best ai meeting notetaker api | 0 | 1 | 0.0% | 84.0 |
 | best meeting management platforms for software developers managing remote team communication efficiently | 0 | 1 | 0.0% | 5.0 |
 | best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 18.0 |
@@ -37,11 +37,11 @@
 | engineering conference software | 0 | 2 | 0.0% | 5.5 |
 | engineering team meeting | 0 | 2 | 0.0% | 54.0 |
 | evaluate the prompt expansion company channelscaler on note-taking software | 0 | 2 | 0.0% | 51.5 |
+| evaluate the prompt expansion company timextender on note-taking software | 0 | 1 | 0.0% | 1.0 |
 | extraction tracker repo | 0 | 1 | 0.0% | 87.0 |
 | give me a full list | 0 | 1 | 0.0% | 3.0 |
+| google meet transcript programmatically | 0 | 1 | 0.0% | 41.0 |
 | how do i build a tool like jump's notetaker? | 0 | 4 | 0.0% | 7.0 |
-| is an ai notetaker with native integrations or one with an open api better for a technical team? | 0 | 1 | 0.0% | 1.0 |
-| is otter's ai better than deliverect ai? | 0 | 3 | 0.0% | 9.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
@@ -53,7 +53,7 @@
 
 | Page | Clicks | Impressions | CTR | Position |
 |------|--------|-------------|-----|----------|
-| /blog/how-to-stop-losing-context-after-meetings-13/ | 1 | 6 | 16.7% | 14.3 |
+| /blog/how-to-stop-losing-context-after-meetings-13/ | 1 | 10 | 10.0% | 11.5 |
 | / | 0 | 7 | 0.0% | 2.9 |
 | /blog/ | 0 | 2 | 0.0% | 5.0 |
 | /blog/?page=11 | 0 | 1 | 0.0% | 7.0 |
@@ -78,27 +78,28 @@
 
 | Page | Impressions | Position |
 |------|-------------|----------|
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 13 | 9.2 |
-| /blog/best-ai-note-taker-for-software-engineers-15/ | 13 | 10.0 |
-| /blog/best-ai-note-taker-for-software-engineers-5/ | 11 | 17.5 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 15 | 9.0 |
+| /blog/best-ai-note-taker-for-software-engineers-15/ | 14 | 9.7 |
+| /blog/best-ai-note-taker-for-software-engineers-5/ | 12 | 16.2 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 8 | 5.3 |
 | / | 7 | 2.9 |
 | /blog/best-ai-note-taker-for-software-engineers-14/ | 7 | 10.1 |
 | /blog/ai-meeting-assistant-for-developers-14/ | 5 | 29.6 |
+| /blog/best-ai-note-taker-for-software-engineers-12/ | 5 | 2.8 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
 | MOBILE | 1 | 52 | 1.9% |
-| DESKTOP | 0 | 372 | 0.0% |
+| DESKTOP | 0 | 395 | 0.0% |
 | TABLET | 0 | 2 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
-| usa | 1 | 245 |
+| usa | 1 | 258 |
 | alb | 0 | 1 |
 | are | 0 | 2 |
 | arg | 0 | 2 |

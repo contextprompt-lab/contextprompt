@@ -1,12 +1,12 @@
-# Search Console Report — 2026-10-17
+# Search Console Report — 2026-10-18
 
-**Period:** 2026-09-16 to 2026-10-14
+**Period:** 2026-09-17 to 2026-10-15
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 167
+- Total impressions: 173
 - Average CTR: 0.0%
-- Average position: 25.8
+- Average position: 27.2
 
 ## Top Queries (by clicks)
 
@@ -23,13 +23,14 @@
 | ai note taker software | 0 | 1 | 0.0% | 12.0 |
 | ai sprint planning generator | 0 | 2 | 0.0% | 11.5 |
 | ai sprint planning tool | 0 | 1 | 0.0% | 40.0 |
+| ai transformation for engineering teams | 0 | 1 | 0.0% | 75.0 |
 | ai-assisted optimization engineering workflows | 0 | 1 | 0.0% | 71.0 |
 | automate standups | 0 | 4 | 0.0% | 64.5 |
 | best ai meeting assistant with an api for developers? | 0 | 1 | 0.0% | 9.0 |
 | best ai meeting notetaker api | 0 | 1 | 0.0% | 84.0 |
 | best meeting management platforms for software developers managing remote team communication efficiently | 0 | 1 | 0.0% | 5.0 |
 | best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 18.0 |
-| best software for contextual note organization | 0 | 5 | 0.0% | 4.0 |
+| best software for contextual note organization | 0 | 6 | 0.0% | 5.0 |
 | best tools for large engineering teams 2025 | 0 | 1 | 0.0% | 46.0 |
 | best tools with searchable meeting repository | 0 | 6 | 0.0% | 5.2 |
 | botless recorder api | 0 | 1 | 0.0% | 97.0 |
@@ -41,13 +42,12 @@
 | evaluate the prompt expansion company timextender on note-taking software | 0 | 1 | 0.0% | 1.0 |
 | extraction tracker repo | 0 | 1 | 0.0% | 87.0 |
 | give me a full list | 0 | 1 | 0.0% | 3.0 |
-| google meet transcript programmatically | 0 | 1 | 0.0% | 41.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
-| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 26 | 0.0% | 4.8 | Improve meta description/title |
+| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 31 | 0.0% | 4.9 | Improve meta description/title |
 | ai note taker for engineering meetings | 11 | 0.0% | 10.0 | Improve content to rank higher |
 | is there an api for getting meeting context into a project management tool? | 10 | 0.0% | 5.9 | Improve content to rank higher |
 
@@ -55,64 +55,64 @@
 
 | Page | Clicks | Impressions | CTR | Position |
 |------|--------|-------------|-----|----------|
-| /blog/how-to-stop-losing-context-after-meetings-13/ | 1 | 30 | 3.3% | 6.7 |
+| /blog/how-to-stop-losing-context-after-meetings-13/ | 1 | 35 | 2.9% | 6.5 |
 | / | 0 | 7 | 0.0% | 2.9 |
 | /blog/ | 0 | 2 | 0.0% | 5.0 |
 | /blog/?page=11 | 0 | 1 | 0.0% | 7.0 |
 | /blog/?page=13 | 0 | 1 | 0.0% | 10.0 |
 | /blog/?page=14 | 0 | 1 | 0.0% | 8.0 |
 | /blog/?page=9 | 0 | 1 | 0.0% | 9.0 |
-| /blog/ai-meeting-assistant-for-developers-14/ | 0 | 5 | 0.0% | 29.6 |
+| /blog/ai-meeting-assistant-for-developers-14/ | 0 | 6 | 0.0% | 25.2 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 0 | 8 | 0.0% | 5.3 |
 | /blog/ai-meeting-assistant-for-developers-16/ | 0 | 1 | 0.0% | 9.0 |
 | /blog/ai-meeting-assistant-for-developers-2/ | 0 | 1 | 0.0% | 8.0 |
 | /blog/ai-powered-engineering-team-workflows-2/ | 0 | 1 | 0.0% | 71.0 |
-| /blog/ai-powered-engineering-team-workflows/ | 0 | 2 | 0.0% | 62.5 |
+| /blog/ai-powered-engineering-team-workflows/ | 0 | 3 | 0.0% | 66.7 |
 | /blog/ai-tools-every-developer-should-use-in-2026-2/ | 0 | 2 | 0.0% | 3.0 |
 | /blog/async-vs-sync-communication-for-engineering-teams/ | 0 | 1 | 0.0% | 7.0 |
 | /blog/automated-meeting-notes-for-developers-3/ | 0 | 1 | 0.0% | 11.0 |
 | /blog/automated-meeting-notes-for-developers/ | 0 | 1 | 0.0% | 12.0 |
-| /blog/best-ai-note-taker-for-software-engineers-10/ | 0 | 3 | 0.0% | 12.3 |
+| /blog/best-ai-note-taker-for-software-engineers-10/ | 0 | 4 | 0.0% | 10.5 |
 | /blog/best-ai-note-taker-for-software-engineers-11/ | 0 | 3 | 0.0% | 30.7 |
-| /blog/best-ai-note-taker-for-software-engineers-12/ | 0 | 7 | 0.0% | 4.3 |
+| /blog/best-ai-note-taker-for-software-engineers-12/ | 0 | 8 | 0.0% | 5.0 |
 
 ## Underperforming Pages (impressions but no clicks)
 
 | Page | Impressions | Position |
 |------|-------------|----------|
+| /blog/best-ai-note-taker-for-software-engineers-8/ | 18 | 16.0 |
 | /blog/best-ai-note-taker-for-software-engineers-13/ | 16 | 8.1 |
-| /blog/best-ai-note-taker-for-software-engineers-8/ | 16 | 17.1 |
 | /blog/best-ai-note-taker-for-software-engineers-15/ | 15 | 9.1 |
 | /blog/best-ai-note-taker-for-software-engineers-5/ | 13 | 16.9 |
 | /blog/best-ai-note-taker-for-software-engineers-7/ | 11 | 5.2 |
 | /blog/best-ai-note-taker-for-software-engineers-6/ | 9 | 3.7 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 8 | 5.3 |
+| /blog/best-ai-note-taker-for-software-engineers-12/ | 8 | 5.0 |
+| /blog/best-ai-note-taker-for-software-engineers-2/ | 8 | 12.8 |
 | / | 7 | 2.9 |
-| /blog/best-ai-note-taker-for-software-engineers-12/ | 7 | 4.3 |
-| /blog/best-ai-note-taker-for-software-engineers-14/ | 7 | 10.1 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| MOBILE | 1 | 55 | 1.8% |
-| DESKTOP | 0 | 456 | 0.0% |
-| TABLET | 0 | 2 | 0.0% |
+| MOBILE | 1 | 54 | 1.9% |
+| DESKTOP | 0 | 472 | 0.0% |
+| TABLET | 0 | 3 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
-| usa | 1 | 301 |
+| usa | 1 | 317 |
 | alb | 0 | 1 |
 | are | 0 | 2 |
 | arg | 0 | 2 |
 | arm | 0 | 1 |
-| aus | 0 | 5 |
+| aus | 0 | 6 |
 | aut | 0 | 1 |
 | aze | 0 | 1 |
 | bel | 0 | 1 |
-| bgd | 0 | 3 |
+| bgd | 0 | 2 |
 
 ## Agent Instructions
 

@@ -1,12 +1,12 @@
-# Search Console Report — 2026-10-19
+# Search Console Report — 2026-10-20
 
-**Period:** 2026-09-18 to 2026-10-16
+**Period:** 2026-09-19 to 2026-10-17
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 186
+- Total impressions: 194
 - Average CTR: 0.0%
-- Average position: 26.2
+- Average position: 25.5
 
 ## Top Queries (by clicks)
 
@@ -21,7 +21,6 @@
 | ai note taker for product managers | 0 | 5 | 0.0% | 20.8 |
 | ai note taker software | 0 | 1 | 0.0% | 12.0 |
 | ai sprint planning generator | 0 | 2 | 0.0% | 11.5 |
-| ai sprint planning tool | 0 | 1 | 0.0% | 40.0 |
 | ai transformation for engineering teams | 0 | 1 | 0.0% | 75.0 |
 | ai-assisted optimization engineering workflows | 0 | 1 | 0.0% | 71.0 |
 | automate standups | 0 | 4 | 0.0% | 64.5 |
@@ -30,7 +29,7 @@
 | best meeting management platforms for software developers managing remote team communication efficiently | 0 | 1 | 0.0% | 5.0 |
 | best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 18.0 |
 | best software for contextual note organization | 0 | 6 | 0.0% | 5.0 |
-| best tools for large engineering teams 2025 | 0 | 1 | 0.0% | 46.0 |
+| best tools for large engineering teams 2025 | 0 | 3 | 0.0% | 47.7 |
 | best tools with searchable meeting repository | 0 | 6 | 0.0% | 5.2 |
 | botless recorder api | 0 | 1 | 0.0% | 97.0 |
 | convert meeting transcripts into tasks with openclaw | 0 | 5 | 0.0% | 60.8 |
@@ -42,12 +41,13 @@
 | extraction tracker repo | 0 | 1 | 0.0% | 87.0 |
 | give me a full list | 0 | 1 | 0.0% | 3.0 |
 | google meet transcript programmatically | 0 | 1 | 0.0% | 41.0 |
+| how do i build a tool like jump's notetaker? | 0 | 4 | 0.0% | 7.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
-| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 36 | 0.0% | 5.0 | Improve meta description/title |
+| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 38 | 0.0% | 5.0 | Improve meta description/title |
 | ai note taker for engineering meetings | 11 | 0.0% | 10.0 | Improve content to rank higher |
 | is there an api for getting meeting context into a project management tool? | 11 | 0.0% | 6.2 | Improve content to rank higher |
 
@@ -55,8 +55,8 @@
 
 | Page | Clicks | Impressions | CTR | Position |
 |------|--------|-------------|-----|----------|
-| /blog/how-to-stop-losing-context-after-meetings-13/ | 1 | 40 | 2.5% | 6.4 |
-| / | 0 | 7 | 0.0% | 2.9 |
+| /blog/how-to-stop-losing-context-after-meetings-13/ | 1 | 42 | 2.4% | 6.3 |
+| / | 0 | 6 | 0.0% | 2.8 |
 | /blog/ | 0 | 2 | 0.0% | 5.0 |
 | /blog/?page=11 | 0 | 1 | 0.0% | 7.0 |
 | /blog/?page=13 | 0 | 1 | 0.0% | 10.0 |
@@ -82,28 +82,28 @@
 |------|-------------|----------|
 | /blog/best-ai-note-taker-for-software-engineers-8/ | 18 | 16.0 |
 | /blog/best-ai-note-taker-for-software-engineers-13/ | 17 | 8.2 |
-| /blog/best-ai-note-taker-for-software-engineers-15/ | 16 | 11.3 |
+| /blog/best-ai-note-taker-for-software-engineers-15/ | 17 | 10.8 |
 | /blog/best-ai-note-taker-for-software-engineers-5/ | 13 | 16.9 |
 | /blog/best-ai-note-taker-for-software-engineers-7/ | 11 | 5.2 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 10 | 5.2 |
 | /blog/best-ai-note-taker-for-software-engineers-2/ | 9 | 5.9 |
-| /blog/best-ai-note-taker-for-software-engineers-6/ | 9 | 3.7 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 8 | 5.3 |
 | /blog/best-ai-note-taker-for-software-engineers-4/ | 8 | 10.9 |
+| /blog/best-ai-note-taker-for-software-engineers-6/ | 8 | 3.3 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
 | MOBILE | 1 | 56 | 1.8% |
-| DESKTOP | 0 | 495 | 0.0% |
-| TABLET | 0 | 4 | 0.0% |
+| DESKTOP | 0 | 506 | 0.0% |
+| TABLET | 0 | 5 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
-| usa | 1 | 334 |
+| usa | 1 | 347 |
 | alb | 0 | 1 |
 | are | 0 | 2 |
 | arg | 0 | 2 |
@@ -111,8 +111,8 @@
 | aus | 0 | 5 |
 | aut | 0 | 1 |
 | aze | 0 | 1 |
-| bel | 0 | 1 |
 | bgd | 0 | 2 |
+| bgr | 0 | 2 |
 
 ## Agent Instructions
 

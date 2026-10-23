@@ -1,10 +1,10 @@
-# Search Console Report — 2026-10-22
+# Search Console Report — 2026-10-23
 
-**Period:** 2026-09-21 to 2026-10-19
+**Period:** 2026-09-22 to 2026-10-20
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 206
+- Total impressions: 217
 - Average CTR: 0.0%
 - Average position: 25.6
 
@@ -16,7 +16,7 @@
 | about me: engineering leader manages delivery, technical health, and team throughput. skeptical of new tools and allergic to process overhead with no payoff. buys on reducing meeting load, dependency clarity, and adoption that doesn't need a mandate. question: top-rated interactive meeting platforms for businesses? | 0 | 3 | 0.0% | 6.3 |
 | action items api | 0 | 1 | 0.0% | 8.0 |
 | ai efficiency sprint | 0 | 6 | 0.0% | 18.2 |
-| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 9 | 0.0% | 5.6 |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 10 | 0.0% | 5.5 |
 | ai meeting assistant model context protocol | 0 | 2 | 0.0% | 58.0 |
 | ai note taker for engineering meetings | 0 | 11 | 0.0% | 10.0 |
 | ai note taker for product managers | 0 | 5 | 0.0% | 20.8 |
@@ -47,9 +47,10 @@
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
-| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 48 | 0.0% | 4.7 | Improve meta description/title |
+| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 54 | 0.0% | 4.7 | Improve meta description/title |
 | ai note taker for engineering meetings | 11 | 0.0% | 10.0 | Improve content to rank higher |
 | is there an api for getting meeting context into a project management tool? | 11 | 0.0% | 6.2 | Improve content to rank higher |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 10 | 0.0% | 5.5 | Improve content to rank higher |
 
 ## Top Pages (by clicks)
 
@@ -95,7 +96,7 @@
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 0 | 543 | 0.0% |
+| DESKTOP | 0 | 561 | 0.0% |
 | MOBILE | 0 | 58 | 0.0% |
 | TABLET | 0 | 5 | 0.0% |
 
@@ -107,12 +108,12 @@
 | are | 0 | 2 |
 | arg | 0 | 3 |
 | arm | 0 | 1 |
-| aus | 0 | 5 |
+| aus | 0 | 4 |
 | aut | 0 | 2 |
 | aze | 0 | 1 |
 | bgd | 0 | 2 |
 | bgr | 0 | 2 |
-| bol | 0 | 1 |
+| bra | 0 | 11 |
 
 ## Agent Instructions
 

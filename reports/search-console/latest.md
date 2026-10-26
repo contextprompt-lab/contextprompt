@@ -1,12 +1,12 @@
-# Search Console Report — 2026-10-25
+# Search Console Report — 2026-10-26
 
-**Period:** 2026-09-24 to 2026-10-22
+**Period:** 2026-09-25 to 2026-10-23
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 227
+- Total impressions: 235
 - Average CTR: 0.0%
-- Average position: 24.7
+- Average position: 23.3
 
 ## Top Queries (by clicks)
 
@@ -14,9 +14,10 @@
 |-------|--------|-------------|-----|----------|
 | about me: engineering leader manages delivery, technical health, and team throughput. skeptical of new tools and allergic to process overhead with no payoff. buys on reducing meeting load, dependency clarity, and adoption that doesn't need a mandate. question: top online tools for collaboration and communication? | 0 | 1 | 0.0% | 9.0 |
 | about me: engineering leader manages delivery, technical health, and team throughput. skeptical of new tools and allergic to process overhead with no payoff. buys on reducing meeting load, dependency clarity, and adoption that doesn't need a mandate. question: top-rated interactive meeting platforms for businesses? | 0 | 3 | 0.0% | 6.3 |
+| action item detection | 0 | 1 | 0.0% | 11.0 |
 | action items api | 0 | 3 | 0.0% | 7.3 |
 | ai efficiency sprint | 0 | 6 | 0.0% | 18.2 |
-| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 10 | 0.0% | 5.5 |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 11 | 0.0% | 5.7 |
 | ai meeting assistant model context protocol | 0 | 2 | 0.0% | 58.0 |
 | ai note taker for engineering meetings | 0 | 11 | 0.0% | 10.0 |
 | ai note taker for product managers | 0 | 5 | 0.0% | 20.8 |
@@ -25,7 +26,6 @@
 | ai transformation for engineering teams | 0 | 1 | 0.0% | 75.0 |
 | automate standups | 0 | 4 | 0.0% | 64.5 |
 | best ai meeting assistant with an api for developers? | 0 | 1 | 0.0% | 9.0 |
-| best ai meeting notetaker api | 0 | 1 | 0.0% | 84.0 |
 | best meeting management platforms for software developers managing remote team communication efficiently | 0 | 1 | 0.0% | 5.0 |
 | best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 18.0 |
 | best software for contextual note organization | 0 | 6 | 0.0% | 5.0 |
@@ -47,15 +47,17 @@
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
-| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 61 | 0.0% | 4.8 | Improve meta description/title |
+| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 66 | 0.0% | 4.9 | Improve meta description/title |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 11 | 0.0% | 5.7 | Improve content to rank higher |
 | ai note taker for engineering meetings | 11 | 0.0% | 10.0 | Improve content to rank higher |
 | is there an api for getting meeting context into a project management tool? | 11 | 0.0% | 6.2 | Improve content to rank higher |
-| ai meeting assistant for engineering teams that does not interrupt standups? | 10 | 0.0% | 5.5 | Improve content to rank higher |
 
 ## Top Pages (by clicks)
 
 | Page | Clicks | Impressions | CTR | Position |
 |------|--------|-------------|-----|----------|
+| /blog/how-to-automate-standup-meeting-follow-ups-9/ | 1 | 1 | 100.0% | 1.0 |
+| /blog/meeting-notes-to-github-issues-automated-9/ | 1 | 1 | 100.0% | 1.0 |
 | / | 0 | 6 | 0.0% | 2.8 |
 | /blog/ | 0 | 2 | 0.0% | 5.0 |
 | /blog/?page=11 | 0 | 1 | 0.0% | 7.0 |
@@ -65,17 +67,15 @@
 | /blog/ai-meeting-assistant-for-developers-12/ | 0 | 1 | 0.0% | 11.0 |
 | /blog/ai-meeting-assistant-for-developers-14/ | 0 | 6 | 0.0% | 25.2 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 0 | 8 | 0.0% | 5.3 |
-| /blog/ai-meeting-assistant-for-developers-16/ | 0 | 1 | 0.0% | 9.0 |
+| /blog/ai-meeting-assistant-for-developers-16/ | 0 | 2 | 0.0% | 11.5 |
 | /blog/ai-meeting-assistant-for-developers-6/ | 0 | 1 | 0.0% | 4.0 |
 | /blog/ai-meeting-assistant-for-developers-8/ | 0 | 1 | 0.0% | 95.0 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 0 | 1 | 0.0% | 68.0 |
 | /blog/ai-meeting-bot-for-engineering-teams-4/ | 0 | 1 | 0.0% | 78.0 |
 | /blog/ai-meeting-bot-for-engineering-teams-6/ | 0 | 2 | 0.0% | 23.5 |
-| /blog/ai-powered-engineering-team-workflows/ | 0 | 3 | 0.0% | 66.7 |
+| /blog/ai-powered-engineering-team-workflows/ | 0 | 4 | 0.0% | 50.5 |
 | /blog/ai-tools-every-developer-should-use-in-2026-2/ | 0 | 2 | 0.0% | 3.0 |
 | /blog/async-vs-sync-communication-for-engineering-teams/ | 0 | 1 | 0.0% | 7.0 |
-| /blog/automated-meeting-notes-for-developers/ | 0 | 1 | 0.0% | 12.0 |
-| /blog/best-ai-note-taker-for-software-engineers-10/ | 0 | 6 | 0.0% | 8.7 |
 
 ## Underperforming Pages (impressions but no clicks)
 
@@ -83,37 +83,37 @@
 |------|-------------|----------|
 | /blog/best-ai-note-taker-for-software-engineers-15/ | 18 | 10.7 |
 | /blog/best-ai-note-taker-for-software-engineers-13/ | 15 | 8.9 |
-| /blog/best-ai-note-taker-for-software-engineers-5/ | 13 | 16.9 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 11 | 4.8 |
 | /blog/best-ai-note-taker-for-software-engineers-2/ | 9 | 5.9 |
 | /blog/best-ai-note-taker-for-software-engineers-4/ | 9 | 10.7 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 8 | 5.3 |
-| /blog/best-ai-note-taker-for-software-engineers-6/ | 8 | 3.3 |
 | / | 6 | 2.8 |
 | /blog/ai-meeting-assistant-for-developers-14/ | 6 | 25.2 |
+| /blog/best-ai-note-taker-for-software-engineers-10/ | 6 | 8.7 |
+| /blog/best-ai-note-taker-for-software-engineers-14/ | 6 | 10.8 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 0 | 599 | 0.0% |
-| MOBILE | 0 | 59 | 0.0% |
+| DESKTOP | 1 | 624 | 0.2% |
+| MOBILE | 1 | 60 | 1.7% |
 | TABLET | 0 | 5 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
+| jpn | 1 | 4 |
+| usa | 1 | 435 |
 | alb | 0 | 1 |
 | are | 0 | 3 |
-| arg | 0 | 3 |
+| arg | 0 | 4 |
 | arm | 0 | 1 |
 | aus | 0 | 4 |
 | aut | 0 | 2 |
 | aze | 0 | 1 |
 | bgd | 0 | 2 |
-| bgr | 0 | 2 |
-| bra | 0 | 11 |
 
 ## Agent Instructions
 

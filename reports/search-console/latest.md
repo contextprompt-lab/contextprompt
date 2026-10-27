@@ -1,12 +1,12 @@
-# Search Console Report — 2026-10-26
+# Search Console Report — 2026-10-27
 
-**Period:** 2026-09-25 to 2026-10-23
+**Period:** 2026-09-26 to 2026-10-24
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 235
+- Total impressions: 239
 - Average CTR: 0.0%
-- Average position: 23.3
+- Average position: 22.4
 
 ## Top Queries (by clicks)
 
@@ -18,7 +18,6 @@
 | action items api | 0 | 3 | 0.0% | 7.3 |
 | ai efficiency sprint | 0 | 6 | 0.0% | 18.2 |
 | ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 11 | 0.0% | 5.7 |
-| ai meeting assistant model context protocol | 0 | 2 | 0.0% | 58.0 |
 | ai note taker for engineering meetings | 0 | 11 | 0.0% | 10.0 |
 | ai note taker for product managers | 0 | 5 | 0.0% | 20.8 |
 | ai note taker software | 0 | 1 | 0.0% | 12.0 |
@@ -30,7 +29,7 @@
 | best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 18.0 |
 | best software for contextual note organization | 0 | 6 | 0.0% | 5.0 |
 | best tools for large engineering teams 2025 | 0 | 3 | 0.0% | 47.7 |
-| best tools with searchable meeting repository | 0 | 6 | 0.0% | 5.2 |
+| best tools with searchable meeting repository | 0 | 5 | 0.0% | 5.4 |
 | botless recorder api | 0 | 1 | 0.0% | 97.0 |
 | convert meeting transcripts into tasks with openclaw | 0 | 5 | 0.0% | 60.8 |
 | developer meeting transcription tools | 0 | 1 | 0.0% | 4.0 |
@@ -42,15 +41,17 @@
 | google meet transcript programmatically | 0 | 1 | 0.0% | 41.0 |
 | how do i build a tool like jump's notetaker? | 0 | 4 | 0.0% | 7.0 |
 | how do i extract objections and action items from booth meetings? | 0 | 3 | 0.0% | 8.0 |
+| how to extract action items from meetings using openclaw | 0 | 2 | 0.0% | 13.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
-| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 66 | 0.0% | 4.9 | Improve meta description/title |
+| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 69 | 0.0% | 4.9 | Improve meta description/title |
 | ai meeting assistant for engineering teams that does not interrupt standups? | 11 | 0.0% | 5.7 | Improve content to rank higher |
 | ai note taker for engineering meetings | 11 | 0.0% | 10.0 | Improve content to rank higher |
 | is there an api for getting meeting context into a project management tool? | 11 | 0.0% | 6.2 | Improve content to rank higher |
+| what meeting transcription tools have the best api for developers? | 10 | 0.0% | 7.4 | Improve content to rank higher |
 
 ## Top Pages (by clicks)
 
@@ -65,7 +66,7 @@
 | /blog/?page=14 | 0 | 1 | 0.0% | 8.0 |
 | /blog/?page=9 | 0 | 1 | 0.0% | 9.0 |
 | /blog/ai-meeting-assistant-for-developers-12/ | 0 | 1 | 0.0% | 11.0 |
-| /blog/ai-meeting-assistant-for-developers-14/ | 0 | 6 | 0.0% | 25.2 |
+| /blog/ai-meeting-assistant-for-developers-14/ | 0 | 3 | 0.0% | 5.0 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 0 | 8 | 0.0% | 5.3 |
 | /blog/ai-meeting-assistant-for-developers-16/ | 0 | 2 | 0.0% | 11.5 |
 | /blog/ai-meeting-assistant-for-developers-6/ | 0 | 1 | 0.0% | 4.0 |
@@ -81,14 +82,14 @@
 
 | Page | Impressions | Position |
 |------|-------------|----------|
-| /blog/best-ai-note-taker-for-software-engineers-15/ | 18 | 10.7 |
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 15 | 8.9 |
+| /blog/best-ai-note-taker-for-software-engineers-15/ | 17 | 11.3 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 14 | 9.4 |
+| /blog/best-ai-note-taker-for-software-engineers-5/ | 12 | 11.3 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 11 | 4.8 |
-| /blog/best-ai-note-taker-for-software-engineers-2/ | 9 | 5.9 |
 | /blog/best-ai-note-taker-for-software-engineers-4/ | 9 | 10.7 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 8 | 5.3 |
+| /blog/best-ai-note-taker-for-software-engineers-2/ | 8 | 6.4 |
 | / | 6 | 2.8 |
-| /blog/ai-meeting-assistant-for-developers-14/ | 6 | 25.2 |
 | /blog/best-ai-note-taker-for-software-engineers-10/ | 6 | 8.7 |
 | /blog/best-ai-note-taker-for-software-engineers-14/ | 6 | 10.8 |
 
@@ -96,8 +97,8 @@
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 1 | 624 | 0.2% |
-| MOBILE | 1 | 60 | 1.7% |
+| DESKTOP | 1 | 628 | 0.2% |
+| MOBILE | 1 | 58 | 1.7% |
 | TABLET | 0 | 5 | 0.0% |
 
 ## Top Countries
@@ -105,9 +106,9 @@
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
 | jpn | 1 | 4 |
-| usa | 1 | 435 |
+| usa | 1 | 441 |
 | alb | 0 | 1 |
-| are | 0 | 3 |
+| are | 0 | 2 |
 | arg | 0 | 4 |
 | arm | 0 | 1 |
 | aus | 0 | 4 |

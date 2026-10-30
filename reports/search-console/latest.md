@@ -1,10 +1,10 @@
-# Search Console Report — 2026-10-29
+# Search Console Report — 2026-10-30
 
-**Period:** 2026-09-28 to 2026-10-26
+**Period:** 2026-09-29 to 2026-10-27
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 247
+- Total impressions: 262
 - Average CTR: 0.0%
 - Average position: 20.4
 
@@ -27,9 +27,9 @@
 | best ai meeting assistant with an api for developers? | 0 | 1 | 0.0% | 9.0 |
 | best meeting management platforms for software developers managing remote team communication efficiently | 0 | 1 | 0.0% | 5.0 |
 | best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 18.0 |
-| best software for contextual note organization | 0 | 6 | 0.0% | 5.0 |
+| best software for contextual note organization | 0 | 5 | 0.0% | 5.4 |
 | best tools for large engineering teams 2025 | 0 | 3 | 0.0% | 47.7 |
-| best tools with searchable meeting repository | 0 | 4 | 0.0% | 5.5 |
+| best tools with searchable meeting repository | 0 | 3 | 0.0% | 5.0 |
 | convert meeting transcripts into tasks with openclaw | 0 | 4 | 0.0% | 60.8 |
 | developer meeting transcription tools | 0 | 1 | 0.0% | 4.0 |
 | engineering conference software | 0 | 3 | 0.0% | 9.0 |
@@ -40,18 +40,19 @@
 | google meet transcript programmatically | 0 | 1 | 0.0% | 41.0 |
 | how do i build a tool like jump's notetaker? | 0 | 4 | 0.0% | 7.0 |
 | how do i extract objections and action items from booth meetings? | 0 | 3 | 0.0% | 8.0 |
-| how to extract action items from meetings using openclaw | 0 | 2 | 0.0% | 13.0 |
-| how to extract action items from messages and notes | 0 | 11 | 0.0% | 8.9 |
+| how to extract action items from meetings using openclaw | 0 | 3 | 0.0% | 15.3 |
+| how to extract action items from messages and notes | 0 | 19 | 0.0% | 8.9 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
 | nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 70 | 0.0% | 4.9 | Improve meta description/title |
+| how to extract action items from messages and notes | 19 | 0.0% | 8.9 | Improve content to rank higher |
+| is there an api for getting meeting context into a project management tool? | 12 | 0.0% | 6.6 | Improve content to rank higher |
 | ai meeting assistant for engineering teams that does not interrupt standups? | 11 | 0.0% | 5.3 | Improve content to rank higher |
-| how to extract action items from messages and notes | 11 | 0.0% | 8.9 | Improve content to rank higher |
-| is there an api for getting meeting context into a project management tool? | 11 | 0.0% | 6.2 | Improve content to rank higher |
 | what meeting transcription tools have the best api for developers? | 11 | 0.0% | 7.3 | Improve content to rank higher |
+| what's the top-rated meeting tool for engineering teams | 10 | 0.0% | 4.9 | Improve meta description/title |
 
 ## Top Pages (by clicks)
 
@@ -70,7 +71,7 @@
 | /blog/ai-meeting-assistant-for-developers-10/ | 0 | 1 | 0.0% | 8.0 |
 | /blog/ai-meeting-assistant-for-developers-12/ | 0 | 1 | 0.0% | 11.0 |
 | /blog/ai-meeting-assistant-for-developers-14/ | 0 | 2 | 0.0% | 4.0 |
-| /blog/ai-meeting-assistant-for-developers-15/ | 0 | 8 | 0.0% | 5.3 |
+| /blog/ai-meeting-assistant-for-developers-15/ | 0 | 9 | 0.0% | 5.1 |
 | /blog/ai-meeting-assistant-for-developers-16/ | 0 | 2 | 0.0% | 11.5 |
 | /blog/ai-meeting-assistant-for-developers-6/ | 0 | 1 | 0.0% | 4.0 |
 | /blog/ai-meeting-assistant-for-developers-8/ | 0 | 1 | 0.0% | 95.0 |
@@ -82,39 +83,39 @@
 
 | Page | Impressions | Position |
 |------|-------------|----------|
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 15 | 7.9 |
-| /blog/best-ai-note-taker-for-software-engineers-15/ | 14 | 8.9 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 18 | 7.8 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 11 | 4.8 |
+| /blog/best-ai-note-taker-for-software-engineers-15/ | 11 | 9.5 |
 | / | 9 | 2.2 |
-| /blog/ai-meeting-assistant-for-developers-15/ | 8 | 5.3 |
+| /blog/ai-meeting-assistant-for-developers-15/ | 9 | 5.1 |
 | /blog/best-ai-note-taker-for-software-engineers-2/ | 8 | 6.4 |
-| /blog/best-ai-note-taker-for-software-engineers-10/ | 6 | 8.7 |
-| /blog/best-ai-note-taker-for-software-engineers-14/ | 6 | 10.8 |
 | /blog/ | 5 | 4.4 |
 | /blog/ai-powered-engineering-team-workflows/ | 5 | 51.2 |
+| /blog/best-ai-note-taker-for-software-engineers-10/ | 5 | 8.2 |
+| /blog/best-ai-note-taker-for-software-engineers-14/ | 5 | 11.4 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 1 | 663 | 0.2% |
-| MOBILE | 1 | 54 | 1.9% |
-| TABLET | 0 | 4 | 0.0% |
+| DESKTOP | 1 | 679 | 0.1% |
+| MOBILE | 1 | 53 | 1.9% |
+| TABLET | 0 | 5 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
 | jpn | 1 | 4 |
-| usa | 1 | 453 |
+| usa | 1 | 458 |
 | alb | 0 | 1 |
 | are | 0 | 1 |
-| arg | 0 | 4 |
+| arg | 0 | 5 |
 | arm | 0 | 1 |
-| aus | 0 | 7 |
+| aus | 0 | 8 |
 | aut | 0 | 2 |
-| aze | 0 | 1 |
 | bel | 0 | 2 |
+| bgd | 0 | 2 |
 
 ## Agent Instructions
 

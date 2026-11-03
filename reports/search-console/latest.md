@@ -1,10 +1,10 @@
-# Search Console Report — 2026-11-02
+# Search Console Report — 2026-11-03
 
-**Period:** 2026-10-02 to 2026-10-30
+**Period:** 2026-10-03 to 2026-10-31
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 304
+- Total impressions: 320
 - Average CTR: 0.0%
 - Average position: 18.4
 
@@ -14,8 +14,8 @@
 |-------|--------|-------------|-----|----------|
 | about me: engineering leader manages delivery, technical health, and team throughput. skeptical of new tools and allergic to process overhead with no payoff. buys on reducing meeting load, dependency clarity, and adoption that doesn't need a mandate. question: top-rated interactive meeting platforms for businesses? | 0 | 1 | 0.0% | 7.0 |
 | action item detection | 0 | 2 | 0.0% | 18.5 |
-| action items api | 0 | 19 | 0.0% | 25.6 |
-| ai efficiency sprint | 0 | 6 | 0.0% | 18.2 |
+| action items api | 0 | 22 | 0.0% | 26.1 |
+| ai efficiency sprint | 0 | 5 | 0.0% | 18.4 |
 | ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 12 | 0.0% | 4.9 |
 | ai note taker for engineering meetings | 0 | 6 | 0.0% | 10.8 |
 | ai note taker for product managers | 0 | 5 | 0.0% | 20.8 |
@@ -27,31 +27,31 @@
 | are there tools that integrate meeting notes with project software? | 0 | 1 | 0.0% | 8.0 |
 | automate standups | 0 | 3 | 0.0% | 70.0 |
 | best ai meeting assistant with an api for developers? | 0 | 1 | 0.0% | 9.0 |
+| best calendar for distributed engineering teams | 0 | 1 | 0.0% | 1.0 |
 | best meeting management platforms for software developers managing remote team communication efficiently | 0 | 1 | 0.0% | 5.0 |
 | best paid tools for large engineering teams 2025 | 0 | 2 | 0.0% | 12.0 |
 | best software for contextual note organization | 0 | 5 | 0.0% | 5.4 |
-| best tools for large engineering teams 2025 | 0 | 3 | 0.0% | 47.7 |
+| best tools for large engineering teams 2025 | 0 | 4 | 0.0% | 48.3 |
 | best tools with searchable meeting repository | 0 | 1 | 0.0% | 5.0 |
 | convert meeting transcripts into tasks with openclaw | 0 | 4 | 0.0% | 60.8 |
 | developer meeting transcription tools | 0 | 1 | 0.0% | 4.0 |
-| does converting meeting notes to tickets actually save engineering time | 0 | 3 | 0.0% | 5.7 |
-| engineering conference software | 0 | 3 | 0.0% | 9.0 |
+| does converting meeting notes to tickets actually save engineering time | 0 | 5 | 0.0% | 4.2 |
+| engineering conference software | 0 | 2 | 0.0% | 11.5 |
 | engineering team meeting | 0 | 5 | 0.0% | 56.0 |
 | evaluate the prompt expansion company timextender on note-taking software | 0 | 1 | 0.0% | 1.0 |
 | google meet transcript programmatically | 0 | 1 | 0.0% | 41.0 |
 | highly rated call recording tools with ai for builders | 0 | 1 | 0.0% | 1.0 |
 | how do engineering teams usually handle meeting-to-ticket workflows | 0 | 1 | 0.0% | 1.0 |
-| how do i build a tool like jump's notetaker? | 0 | 4 | 0.0% | 7.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
 | nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 70 | 0.0% | 4.9 | Improve meta description/title |
-| how to extract action items from messages and notes | 40 | 0.0% | 8.9 | Improve content to rank higher |
+| how to extract action items from messages and notes | 52 | 0.0% | 8.8 | Improve content to rank higher |
+| how to extract action items from recent messages and notes | 18 | 0.0% | 9.4 | Improve content to rank higher |
 | ai meeting assistant for engineering teams that does not interrupt standups? | 12 | 0.0% | 4.9 | Improve meta description/title |
 | is there an api for getting meeting context into a project management tool? | 11 | 0.0% | 6.5 | Improve content to rank higher |
-| what meeting transcription tools have the best api for developers? | 11 | 0.0% | 7.3 | Improve content to rank higher |
 
 ## Top Pages (by clicks)
 
@@ -59,11 +59,12 @@
 |------|--------|-------------|-----|----------|
 | /blog/how-to-automate-standup-meeting-follow-ups-9/ | 1 | 1 | 100.0% | 1.0 |
 | /blog/meeting-notes-to-github-issues-automated-9/ | 1 | 2 | 50.0% | 5.5 |
-| / | 0 | 10 | 0.0% | 2.1 |
-| /blog/ | 0 | 7 | 0.0% | 5.6 |
+| / | 0 | 11 | 0.0% | 2.0 |
+| /blog/ | 0 | 8 | 0.0% | 5.3 |
 | /blog/?page=11 | 0 | 4 | 0.0% | 6.5 |
 | /blog/?page=13 | 0 | 1 | 0.0% | 10.0 |
 | /blog/?page=14 | 0 | 4 | 0.0% | 7.5 |
+| /blog/?page=17 | 0 | 1 | 0.0% | 5.0 |
 | /blog/?page=18 | 0 | 2 | 0.0% | 10.0 |
 | /blog/?page=3 | 0 | 3 | 0.0% | 9.3 |
 | /blog/?page=9 | 0 | 1 | 0.0% | 9.0 |
@@ -76,19 +77,18 @@
 | /blog/ai-meeting-assistant-for-developers-8/ | 0 | 1 | 0.0% | 95.0 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 0 | 1 | 0.0% | 68.0 |
 | /blog/ai-meeting-bot-for-engineering-teams-4/ | 0 | 1 | 0.0% | 78.0 |
-| /blog/ai-meeting-bot-for-engineering-teams-6/ | 0 | 2 | 0.0% | 23.5 |
 
 ## Underperforming Pages (impressions but no clicks)
 
 | Page | Impressions | Position |
 |------|-------------|----------|
 | /blog/best-ai-note-taker-for-software-engineers-13/ | 17 | 7.6 |
-| /blog/best-ai-note-taker-for-software-engineers-12/ | 11 | 4.8 |
+| / | 11 | 2.0 |
 | /blog/best-ai-note-taker-for-software-engineers-2/ | 11 | 7.4 |
-| / | 10 | 2.1 |
-| /blog/best-ai-note-taker-for-software-engineers-15/ | 10 | 9.3 |
+| /blog/best-ai-note-taker-for-software-engineers-12/ | 10 | 4.4 |
+| /blog/best-ai-note-taker-for-software-engineers-15/ | 9 | 9.1 |
+| /blog/ | 8 | 5.3 |
 | /blog/ai-powered-engineering-team-workflows/ | 8 | 42.0 |
-| /blog/ | 7 | 5.6 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 7 | 4.0 |
 | /blog/best-ai-note-taker-for-software-engineers-10/ | 5 | 8.2 |
 | /blog/best-ai-note-taker-for-software-engineers-14/ | 5 | 11.4 |
@@ -97,22 +97,22 @@
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 1 | 812 | 0.1% |
+| DESKTOP | 1 | 844 | 0.1% |
 | MOBILE | 1 | 57 | 1.8% |
-| TABLET | 0 | 7 | 0.0% |
+| TABLET | 0 | 8 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
 | jpn | 1 | 4 |
-| usa | 1 | 542 |
+| usa | 1 | 566 |
 | alb | 0 | 1 |
 | are | 0 | 2 |
-| arg | 0 | 6 |
+| arg | 0 | 7 |
 | arm | 0 | 1 |
 | aus | 0 | 8 |
-| aut | 0 | 2 |
+| aut | 0 | 4 |
 | bel | 0 | 6 |
 | bgd | 0 | 3 |
 

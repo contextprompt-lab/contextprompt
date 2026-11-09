@@ -1,12 +1,12 @@
-# Search Console Report — 2026-11-08
+# Search Console Report — 2026-11-09
 
-**Period:** 2026-10-08 to 2026-11-05
+**Period:** 2026-10-09 to 2026-11-06
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 354
+- Total impressions: 362
 - Average CTR: 0.0%
-- Average position: 20.1
+- Average position: 20.2
 
 ## Top Queries (by clicks)
 
@@ -35,13 +35,13 @@
 | convert meeting transcripts into tasks with openclaw | 0 | 4 | 0.0% | 60.8 |
 | does converting meeting notes to tickets actually save engineering time | 0 | 5 | 0.0% | 4.2 |
 | email action item extractor | 0 | 2 | 0.0% | 27.0 |
-| engineering conference software | 0 | 3 | 0.0% | 12.7 |
+| engineering conference software | 0 | 2 | 0.0% | 15.5 |
 | engineering team meeting | 0 | 5 | 0.0% | 56.0 |
 | evaluate the prompt expansion company timextender on note-taking software | 0 | 1 | 0.0% | 1.0 |
 | google meet transcript programmatically | 0 | 1 | 0.0% | 41.0 |
 | highly rated call recording tools with ai for builders | 0 | 1 | 0.0% | 1.0 |
 | how do engineering teams usually handle meeting-to-ticket workflows | 0 | 1 | 0.0% | 1.0 |
-| how do i build a tool like jump's notetaker? | 0 | 1 | 0.0% | 5.0 |
+| how do i extract objections and action items from booth meetings? | 0 | 11 | 0.0% | 5.7 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
@@ -50,16 +50,17 @@
 | how to extract action items from messages and notes | 74 | 0.0% | 8.4 | Improve content to rank higher |
 | nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 70 | 0.0% | 4.9 | Improve meta description/title |
 | how to extract action items from recent messages and notes | 32 | 0.0% | 9.5 | Improve content to rank higher |
-| how do i extract objections and action items from booth meetings? | 10 | 0.0% | 6.1 | Improve content to rank higher |
+| how do i extract objections and action items from booth meetings? | 11 | 0.0% | 5.7 | Improve content to rank higher |
 
 ## Top Pages (by clicks)
 
 | Page | Clicks | Impressions | CTR | Position |
 |------|--------|-------------|-----|----------|
+| /blog/ai-meeting-assistant-for-developers-16/ | 1 | 4 | 25.0% | 7.8 |
 | /blog/how-to-automate-standup-meeting-follow-ups-9/ | 1 | 1 | 100.0% | 1.0 |
 | /blog/meeting-notes-to-github-issues-automated-9/ | 1 | 2 | 50.0% | 5.5 |
-| / | 0 | 14 | 0.0% | 1.0 |
-| /blog/ | 0 | 11 | 0.0% | 4.5 |
+| / | 0 | 15 | 0.0% | 1.0 |
+| /blog/ | 0 | 12 | 0.0% | 4.3 |
 | /blog/?page=11 | 0 | 4 | 0.0% | 6.5 |
 | /blog/?page=13 | 0 | 1 | 0.0% | 10.0 |
 | /blog/?page=14 | 0 | 4 | 0.0% | 7.5 |
@@ -70,50 +71,49 @@
 | /blog/ai-meeting-assistant-for-developers-10/ | 0 | 1 | 0.0% | 8.0 |
 | /blog/ai-meeting-assistant-for-developers-12/ | 0 | 1 | 0.0% | 11.0 |
 | /blog/ai-meeting-assistant-for-developers-14/ | 0 | 1 | 0.0% | 3.0 |
-| /blog/ai-meeting-assistant-for-developers-15/ | 0 | 3 | 0.0% | 4.3 |
-| /blog/ai-meeting-assistant-for-developers-16/ | 0 | 2 | 0.0% | 11.5 |
+| /blog/ai-meeting-assistant-for-developers-15/ | 0 | 1 | 0.0% | 4.0 |
 | /blog/ai-meeting-assistant-for-developers-6/ | 0 | 2 | 0.0% | 7.0 |
 | /blog/ai-meeting-assistant-for-developers-8/ | 0 | 1 | 0.0% | 95.0 |
-| /blog/ai-meeting-assistant-for-developers-9/ | 0 | 5 | 0.0% | 18.8 |
+| /blog/ai-meeting-assistant-for-developers-9/ | 0 | 6 | 0.0% | 16.7 |
 | /blog/ai-meeting-bot-for-engineering-teams-4/ | 0 | 1 | 0.0% | 78.0 |
 
 ## Underperforming Pages (impressions but no clicks)
 
 | Page | Impressions | Position |
 |------|-------------|----------|
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 16 | 6.6 |
-| / | 14 | 1.0 |
-| /blog/ | 11 | 4.5 |
+| / | 15 | 1.0 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 15 | 6.3 |
+| /blog/ | 12 | 4.3 |
 | /blog/best-ai-note-taker-for-software-engineers-2/ | 10 | 8.0 |
-| /blog/best-ai-note-taker-for-software-engineers-4/ | 10 | 8.9 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 9 | 5.7 |
-| /blog/ai-powered-engineering-team-workflows/ | 8 | 42.0 |
+| /blog/best-ai-note-taker-for-software-engineers-4/ | 9 | 9.3 |
 | /blog/best-ai-note-taker-for-software-engineers-15/ | 8 | 9.5 |
-| /blog/best-ai-note-taker-for-software-engineers-5/ | 7 | 12.4 |
-| /blog/ai-meeting-assistant-for-developers-9/ | 5 | 18.8 |
+| /blog/ai-powered-engineering-team-workflows/ | 7 | 39.7 |
+| /blog/ai-meeting-assistant-for-developers-9/ | 6 | 16.7 |
+| /blog/best-ai-note-taker-for-software-engineers-5/ | 6 | 14.3 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 1 | 888 | 0.1% |
-| MOBILE | 1 | 59 | 1.7% |
-| TABLET | 0 | 11 | 0.0% |
+| DESKTOP | 2 | 882 | 0.2% |
+| MOBILE | 1 | 56 | 1.8% |
+| TABLET | 0 | 12 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
-| jpn | 1 | 4 |
-| usa | 1 | 585 |
+| jpn | 1 | 3 |
+| mlt | 1 | 3 |
+| usa | 1 | 578 |
+| aia | 0 | 1 |
 | are | 0 | 5 |
 | arg | 0 | 8 |
-| aus | 0 | 9 |
+| aus | 0 | 7 |
 | aut | 0 | 4 |
 | bel | 0 | 7 |
 | bgd | 0 | 4 |
-| bhr | 0 | 1 |
-| blr | 0 | 1 |
 
 ## Agent Instructions
 

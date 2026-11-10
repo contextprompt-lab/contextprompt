@@ -1,12 +1,12 @@
-# Search Console Report — 2026-11-09
+# Search Console Report — 2026-11-10
 
-**Period:** 2026-10-09 to 2026-11-06
+**Period:** 2026-10-10 to 2026-11-07
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 362
+- Total impressions: 355
 - Average CTR: 0.0%
-- Average position: 20.2
+- Average position: 20.1
 
 ## Top Queries (by clicks)
 
@@ -14,9 +14,9 @@
 |-------|--------|-------------|-----|----------|
 | action item detection | 0 | 2 | 0.0% | 18.5 |
 | action items api | 0 | 39 | 0.0% | 26.8 |
-| ai efficiency sprint | 0 | 5 | 0.0% | 18.4 |
+| ai efficiency sprint | 0 | 4 | 0.0% | 18.5 |
 | ai meeting assistant for engineering firms | 0 | 3 | 0.0% | 22.7 |
-| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 9 | 0.0% | 4.3 |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 8 | 0.0% | 4.8 |
 | ai note taker for engineering meetings | 0 | 1 | 0.0% | 11.0 |
 | ai note taker for product managers | 0 | 2 | 0.0% | 22.0 |
 | ai solutions for engineering teams | 0 | 1 | 0.0% | 60.0 |
@@ -29,7 +29,7 @@
 | best ai meeting assistant with an api for developers? | 0 | 1 | 0.0% | 9.0 |
 | best ai note taker for aec | 0 | 2 | 0.0% | 12.0 |
 | best calendar for distributed engineering teams | 0 | 1 | 0.0% | 1.0 |
-| best paid tools for large engineering teams 2025 | 0 | 2 | 0.0% | 12.0 |
+| best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 6.0 |
 | best software for contextual note organization | 0 | 1 | 0.0% | 10.0 |
 | best tools for large engineering teams 2025 | 0 | 3 | 0.0% | 49.0 |
 | convert meeting transcripts into tasks with openclaw | 0 | 4 | 0.0% | 60.8 |
@@ -82,21 +82,21 @@
 | Page | Impressions | Position |
 |------|-------------|----------|
 | / | 15 | 1.0 |
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 15 | 6.3 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 14 | 6.7 |
 | /blog/ | 12 | 4.3 |
-| /blog/best-ai-note-taker-for-software-engineers-2/ | 10 | 8.0 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 9 | 5.7 |
+| /blog/best-ai-note-taker-for-software-engineers-2/ | 9 | 7.9 |
 | /blog/best-ai-note-taker-for-software-engineers-4/ | 9 | 9.3 |
-| /blog/best-ai-note-taker-for-software-engineers-15/ | 8 | 9.5 |
 | /blog/ai-powered-engineering-team-workflows/ | 7 | 39.7 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 6 | 16.7 |
 | /blog/best-ai-note-taker-for-software-engineers-5/ | 6 | 14.3 |
+| /blog/best-ai-note-taker-for-software-engineers-15/ | 5 | 12.6 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 2 | 882 | 0.2% |
+| DESKTOP | 2 | 853 | 0.2% |
 | MOBILE | 1 | 56 | 1.8% |
 | TABLET | 0 | 12 | 0.0% |
 
@@ -106,11 +106,11 @@
 |---------|--------|-------------|
 | jpn | 1 | 3 |
 | mlt | 1 | 3 |
-| usa | 1 | 578 |
+| usa | 1 | 557 |
 | aia | 0 | 1 |
 | are | 0 | 5 |
 | arg | 0 | 8 |
-| aus | 0 | 7 |
+| aus | 0 | 6 |
 | aut | 0 | 4 |
 | bel | 0 | 7 |
 | bgd | 0 | 4 |

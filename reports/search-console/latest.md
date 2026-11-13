@@ -1,12 +1,12 @@
-# Search Console Report — 2026-11-12
+# Search Console Report — 2026-11-13
 
-**Period:** 2026-10-12 to 2026-11-09
+**Period:** 2026-10-13 to 2026-11-10
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 387
+- Total impressions: 391
 - Average CTR: 0.0%
-- Average position: 18.5
+- Average position: 18.3
 
 ## Top Queries (by clicks)
 
@@ -16,14 +16,12 @@
 | action items api | 0 | 39 | 0.0% | 26.8 |
 | ai efficiency sprint | 0 | 4 | 0.0% | 18.5 |
 | ai meeting assistant for engineering firms | 0 | 5 | 0.0% | 23.6 |
-| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 7 | 0.0% | 4.1 |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 6 | 0.0% | 4.7 |
 | ai solutions for engineering teams | 0 | 1 | 0.0% | 60.0 |
-| ai sprint planning generator | 0 | 2 | 0.0% | 11.5 |
 | ai transformation for engineering teams | 0 | 1 | 0.0% | 75.0 |
 | ai-powered engineering teams | 0 | 1 | 0.0% | 54.0 |
 | ai-powered solutions for engineering team workflow | 0 | 1 | 0.0% | 10.0 |
 | are there tools that integrate meeting notes with project software? | 0 | 1 | 0.0% | 8.0 |
-| best ai meeting assistant with an api for developers? | 0 | 1 | 0.0% | 9.0 |
 | best ai note taker for aec | 0 | 2 | 0.0% | 12.0 |
 | best ai note taker for repair logs | 0 | 1 | 0.0% | 25.0 |
 | best calendar for distributed engineering teams | 0 | 1 | 0.0% | 1.0 |
@@ -38,19 +36,21 @@
 | highly rated call recording tools with ai for builders | 0 | 1 | 0.0% | 1.0 |
 | how do engineering teams usually handle meeting-to-ticket workflows | 0 | 1 | 0.0% | 1.0 |
 | how do i extract objections and action items from booth meetings? | 0 | 11 | 0.0% | 5.7 |
-| how do i stop losing the context from booth conversations by the time my team follows up? | 0 | 1 | 0.0% | 1.0 |
+| how do i stop losing the context from booth conversations by the time my team follows up? | 0 | 2 | 0.0% | 3.5 |
 | how to extract action items from meetings using openclaw | 0 | 6 | 0.0% | 18.5 |
 | how to extract action items from messages and notes | 0 | 74 | 0.0% | 8.4 |
 | how to extract action items from recent messages and notes | 0 | 32 | 0.0% | 9.5 |
+| is an ai notetaker with native integrations or one with an open api better for a technical team? | 0 | 5 | 0.0% | 3.8 |
+| is otter's ai better than deliverect ai? | 0 | 1 | 0.0% | 10.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
 | how to extract action items from messages and notes | 74 | 0.0% | 8.4 | Improve content to rank higher |
-| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 64 | 0.0% | 4.7 | Improve meta description/title |
+| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 55 | 0.0% | 4.4 | Improve meta description/title |
+| which meeting tools have the best accuracy for technical discussions | 33 | 0.0% | 1.3 | Improve meta description/title |
 | how to extract action items from recent messages and notes | 32 | 0.0% | 9.5 | Improve content to rank higher |
-| which meeting tools have the best accuracy for technical discussions | 28 | 0.0% | 1.4 | Improve meta description/title |
 | what's the top-rated meeting tool for engineering teams | 17 | 0.0% | 6.1 | Improve content to rank higher |
 | how do i extract objections and action items from booth meetings? | 11 | 0.0% | 5.7 | Improve content to rank higher |
 
@@ -58,7 +58,7 @@
 
 | Page | Clicks | Impressions | CTR | Position |
 |------|--------|-------------|-----|----------|
-| /blog/ai-meeting-assistant-for-developers-16/ | 1 | 4 | 25.0% | 7.8 |
+| /blog/ai-meeting-assistant-for-developers-16/ | 1 | 3 | 33.3% | 7.3 |
 | /blog/how-to-automate-standup-meeting-follow-ups-9/ | 1 | 1 | 100.0% | 1.0 |
 | /blog/meeting-notes-to-github-issues-automated-9/ | 1 | 2 | 50.0% | 5.5 |
 | / | 0 | 14 | 0.0% | 1.0 |
@@ -85,12 +85,12 @@
 |------|-------------|----------|
 | / | 14 | 1.0 |
 | /blog/ | 11 | 4.2 |
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 11 | 6.4 |
-| /blog/best-ai-note-taker-for-software-engineers-2/ | 9 | 7.9 |
-| /blog/best-ai-note-taker-for-software-engineers-4/ | 9 | 9.3 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 10 | 6.9 |
 | /blog/best-ai-note-taker-for-software-engineers-6/ | 9 | 3.4 |
 | /blog/ai-powered-engineering-team-workflows/ | 7 | 39.7 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 7 | 7.0 |
+| /blog/best-ai-note-taker-for-software-engineers-2/ | 7 | 7.9 |
+| /blog/best-ai-note-taker-for-software-engineers-4/ | 7 | 6.7 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 6 | 16.7 |
 | /blog/best-ai-note-taker-for-software-engineers-7/ | 5 | 5.4 |
 
@@ -98,8 +98,8 @@
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 2 | 816 | 0.2% |
-| MOBILE | 1 | 56 | 1.8% |
+| DESKTOP | 2 | 796 | 0.3% |
+| MOBILE | 1 | 51 | 2.0% |
 | TABLET | 0 | 12 | 0.0% |
 
 ## Top Countries
@@ -108,7 +108,7 @@
 |---------|--------|-------------|
 | jpn | 1 | 3 |
 | mlt | 1 | 3 |
-| usa | 1 | 544 |
+| usa | 1 | 525 |
 | aia | 0 | 1 |
 | are | 0 | 5 |
 | arg | 0 | 8 |

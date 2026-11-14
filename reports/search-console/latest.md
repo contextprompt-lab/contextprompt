@@ -1,12 +1,12 @@
-# Search Console Report — 2026-11-13
+# Search Console Report — 2026-11-14
 
-**Period:** 2026-10-13 to 2026-11-10
+**Period:** 2026-10-14 to 2026-11-11
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 391
+- Total impressions: 375
 - Average CTR: 0.0%
-- Average position: 18.3
+- Average position: 18.7
 
 ## Top Queries (by clicks)
 
@@ -16,7 +16,7 @@
 | action items api | 0 | 39 | 0.0% | 26.8 |
 | ai efficiency sprint | 0 | 4 | 0.0% | 18.5 |
 | ai meeting assistant for engineering firms | 0 | 5 | 0.0% | 23.6 |
-| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 6 | 0.0% | 4.7 |
+| ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 5 | 0.0% | 5.4 |
 | ai solutions for engineering teams | 0 | 1 | 0.0% | 60.0 |
 | ai transformation for engineering teams | 0 | 1 | 0.0% | 75.0 |
 | ai-powered engineering teams | 0 | 1 | 0.0% | 54.0 |
@@ -40,7 +40,7 @@
 | how to extract action items from meetings using openclaw | 0 | 6 | 0.0% | 18.5 |
 | how to extract action items from messages and notes | 0 | 74 | 0.0% | 8.4 |
 | how to extract action items from recent messages and notes | 0 | 32 | 0.0% | 9.5 |
-| is an ai notetaker with native integrations or one with an open api better for a technical team? | 0 | 5 | 0.0% | 3.8 |
+| is an ai notetaker with native integrations or one with an open api better for a technical team? | 0 | 4 | 0.0% | 4.5 |
 | is otter's ai better than deliverect ai? | 0 | 1 | 0.0% | 10.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
@@ -48,7 +48,7 @@
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
 | how to extract action items from messages and notes | 74 | 0.0% | 8.4 | Improve content to rank higher |
-| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 55 | 0.0% | 4.4 | Improve meta description/title |
+| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 44 | 0.0% | 4.9 | Improve meta description/title |
 | which meeting tools have the best accuracy for technical discussions | 33 | 0.0% | 1.3 | Improve meta description/title |
 | how to extract action items from recent messages and notes | 32 | 0.0% | 9.5 | Improve content to rank higher |
 | what's the top-rated meeting tool for engineering teams | 17 | 0.0% | 6.1 | Improve content to rank higher |
@@ -77,7 +77,7 @@
 | /blog/ai-meeting-assistant-for-developers-9/ | 0 | 6 | 0.0% | 16.7 |
 | /blog/ai-meeting-bot-for-engineering-teams-4/ | 0 | 1 | 0.0% | 78.0 |
 | /blog/ai-meeting-bot-for-engineering-teams-6/ | 0 | 2 | 0.0% | 23.5 |
-| /blog/ai-powered-engineering-team-workflows/ | 0 | 7 | 0.0% | 39.7 |
+| /blog/ai-powered-engineering-team-workflows/ | 0 | 6 | 0.0% | 35.2 |
 
 ## Underperforming Pages (impressions but no clicks)
 
@@ -85,30 +85,29 @@
 |------|-------------|----------|
 | / | 14 | 1.0 |
 | /blog/ | 11 | 4.2 |
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 10 | 6.9 |
-| /blog/best-ai-note-taker-for-software-engineers-6/ | 9 | 3.4 |
-| /blog/ai-powered-engineering-team-workflows/ | 7 | 39.7 |
+| /blog/best-ai-note-taker-for-software-engineers-13/ | 9 | 7.6 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 7 | 7.0 |
 | /blog/best-ai-note-taker-for-software-engineers-2/ | 7 | 7.9 |
 | /blog/best-ai-note-taker-for-software-engineers-4/ | 7 | 6.7 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 6 | 16.7 |
+| /blog/ai-powered-engineering-team-workflows/ | 6 | 35.2 |
 | /blog/best-ai-note-taker-for-software-engineers-7/ | 5 | 5.4 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 2 | 796 | 0.3% |
-| MOBILE | 1 | 51 | 2.0% |
+| DESKTOP | 2 | 761 | 0.3% |
+| MOBILE | 1 | 50 | 2.0% |
 | TABLET | 0 | 12 | 0.0% |
 
 ## Top Countries
 
 | Country | Clicks | Impressions |
 |---------|--------|-------------|
-| jpn | 1 | 3 |
+| jpn | 1 | 2 |
 | mlt | 1 | 3 |
-| usa | 1 | 525 |
+| usa | 1 | 504 |
 | aia | 0 | 1 |
 | are | 0 | 5 |
 | arg | 0 | 8 |

@@ -1,19 +1,19 @@
-# Search Console Report — 2026-11-22
+# Search Console Report — 2026-11-23
 
-**Period:** 2026-10-22 to 2026-11-19
+**Period:** 2026-10-23 to 2026-11-20
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 339
+- Total impressions: 326
 - Average CTR: 0.0%
-- Average position: 17.9
+- Average position: 16.6
 
 ## Top Queries (by clicks)
 
 | Query | Clicks | Impressions | CTR | Position |
 |-------|--------|-------------|-----|----------|
 | action item detection | 0 | 2 | 0.0% | 18.5 |
-| action items api | 0 | 38 | 0.0% | 27.3 |
+| action items api | 0 | 36 | 0.0% | 28.5 |
 | ai meeting assistant for engineering firms | 0 | 6 | 0.0% | 23.3 |
 | ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 5 | 0.0% | 6.6 |
 | ai note-taking options for consultants | 0 | 1 | 0.0% | 5.0 |
@@ -50,9 +50,8 @@
 | how to extract action items from messages and notes | 74 | 0.0% | 8.4 | Improve content to rank higher |
 | which meeting tools have the best accuracy for technical discussions | 44 | 0.0% | 1.2 | Improve meta description/title |
 | how to extract action items from recent messages and notes | 32 | 0.0% | 9.5 | Improve content to rank higher |
-| what's the top-rated meeting tool for engineering teams | 17 | 0.0% | 6.1 | Improve content to rank higher |
 | how do i stop losing the context from booth conversations by the time my team follows up? | 13 | 0.0% | 1.5 | Improve meta description/title |
-| nobody wrote down what we decided in last week's roadmap meeting and now two teams remember different things. how do teams keep that from happening? | 13 | 0.0% | 5.7 | Improve content to rank higher |
+| what's the top-rated meeting tool for engineering teams | 13 | 0.0% | 7.3 | Improve content to rank higher |
 
 ## Top Pages (by clicks)
 
@@ -70,34 +69,36 @@
 | /blog/?page=3 | 0 | 3 | 0.0% | 9.3 |
 | /blog/ai-meeting-assistant-for-developers-10/ | 0 | 1 | 0.0% | 8.0 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 0 | 1 | 0.0% | 4.0 |
-| /blog/ai-meeting-assistant-for-developers-6/ | 0 | 2 | 0.0% | 7.0 |
+| /blog/ai-meeting-assistant-for-developers-6/ | 0 | 1 | 0.0% | 10.0 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 0 | 5 | 0.0% | 6.4 |
-| /blog/ai-meeting-bot-for-engineering-teams-4/ | 0 | 1 | 0.0% | 78.0 |
-| /blog/ai-meeting-bot-for-engineering-teams-6/ | 0 | 2 | 0.0% | 23.5 |
 | /blog/ai-powered-engineering-team-workflows/ | 0 | 5 | 0.0% | 27.2 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 0 | 1 | 0.0% | 10.0 |
 | /blog/best-ai-note-taker-for-software-engineers-13/ | 0 | 5 | 0.0% | 7.4 |
 | /blog/best-ai-note-taker-for-software-engineers-2/ | 0 | 3 | 0.0% | 10.0 |
+| /blog/best-ai-note-taker-for-software-engineers-3/ | 0 | 1 | 0.0% | 4.0 |
+| /blog/best-ai-note-taker-for-software-engineers-4/ | 0 | 3 | 0.0% | 8.0 |
 
 ## Underperforming Pages (impressions but no clicks)
 
 | Page | Impressions | Position |
 |------|-------------|----------|
+| /blog/best-meeting-tools-for-engineering-teams-2026-18/ | 50 | 9.7 |
 | /blog/best-meeting-tools-for-engineering-teams-2026-12/ | 23 | 11.9 |
 | /blog/best-ai-note-taker-for-software-engineers/ | 21 | 15.3 |
 | / | 14 | 1.0 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-13/ | 14 | 9.1 |
 | /blog/ | 11 | 4.2 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 5 | 6.4 |
 | /blog/ai-powered-engineering-team-workflows/ | 5 | 27.2 |
 | /blog/best-ai-note-taker-for-software-engineers-13/ | 5 | 7.4 |
-| /blog/best-meeting-tools-for-engineering-teams-2026-11/ | 5 | 13.4 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-15/ | 5 | 23.4 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 2 | 655 | 0.3% |
-| MOBILE | 1 | 42 | 2.4% |
+| DESKTOP | 2 | 640 | 0.3% |
+| MOBILE | 1 | 38 | 2.6% |
 | TABLET | 0 | 9 | 0.0% |
 
 ## Top Countries
@@ -106,7 +107,7 @@
 |---------|--------|-------------|
 | jpn | 1 | 2 |
 | mlt | 1 | 3 |
-| usa | 1 | 398 |
+| usa | 1 | 380 |
 | aia | 0 | 1 |
 | are | 0 | 5 |
 | arg | 0 | 8 |

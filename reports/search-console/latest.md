@@ -1,10 +1,10 @@
-# Search Console Report — 2026-11-24
+# Search Console Report — 2026-11-25
 
-**Period:** 2026-10-24 to 2026-11-21
+**Period:** 2026-10-25 to 2026-11-22
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 314
+- Total impressions: 305
 - Average CTR: 0.0%
 - Average position: 16.8
 
@@ -30,7 +30,7 @@
 | does converting meeting notes to tickets actually save engineering time | 0 | 5 | 0.0% | 4.2 |
 | email action item extractor | 0 | 2 | 0.0% | 27.0 |
 | engineering conference software | 0 | 3 | 0.0% | 15.3 |
-| engineering meeting | 0 | 2 | 0.0% | 25.5 |
+| engineering meeting | 0 | 3 | 0.0% | 22.3 |
 | engineering team meeting | 0 | 5 | 0.0% | 50.4 |
 | evaluate mem on meeting notes 2026 | 0 | 1 | 0.0% | 6.0 |
 | evaluate the best alternatives for automated note-taking in a highly regulated industry. | 0 | 1 | 0.0% | 3.0 |
@@ -38,8 +38,8 @@
 | how do engineering teams usually handle meeting-to-ticket workflows | 0 | 1 | 0.0% | 1.0 |
 | how do i extract objections and action items from booth meetings? | 0 | 8 | 0.0% | 4.9 |
 | how do i stop losing the context from booth conversations by the time my team follows up? | 0 | 13 | 0.0% | 1.5 |
-| how to extract action items from meetings using openclaw | 0 | 6 | 0.0% | 18.5 |
-| how to extract action items from messages and notes | 0 | 74 | 0.0% | 8.4 |
+| how to extract action items from meetings using openclaw | 0 | 4 | 0.0% | 21.3 |
+| how to extract action items from messages and notes | 0 | 72 | 0.0% | 8.4 |
 | how to extract action items from recent messages and notes | 0 | 32 | 0.0% | 9.5 |
 | is there an api for getting meeting context into a project management tool? | 0 | 1 | 0.0% | 11.0 |
 
@@ -47,11 +47,11 @@
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
-| how to extract action items from messages and notes | 74 | 0.0% | 8.4 | Improve content to rank higher |
-| which meeting tools have the best accuracy for technical discussions | 42 | 0.0% | 1.2 | Improve meta description/title |
+| how to extract action items from messages and notes | 72 | 0.0% | 8.4 | Improve content to rank higher |
+| which meeting tools have the best accuracy for technical discussions | 41 | 0.0% | 1.2 | Improve meta description/title |
 | how to extract action items from recent messages and notes | 32 | 0.0% | 9.5 | Improve content to rank higher |
 | how do i stop losing the context from booth conversations by the time my team follows up? | 13 | 0.0% | 1.5 | Improve meta description/title |
-| what's the top-rated meeting tool for engineering teams | 12 | 0.0% | 7.8 | Improve content to rank higher |
+| what's the top-rated meeting tool for engineering teams | 11 | 0.0% | 7.5 | Improve content to rank higher |
 
 ## Top Pages (by clicks)
 
@@ -82,12 +82,12 @@
 
 | Page | Impressions | Position |
 |------|-------------|----------|
-| /blog/best-meeting-tools-for-engineering-teams-2026-18/ | 50 | 9.7 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-18/ | 49 | 9.6 |
 | /blog/best-ai-note-taker-for-software-engineers/ | 22 | 14.8 |
-| /blog/best-meeting-tools-for-engineering-teams-2026-12/ | 21 | 12.5 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-12/ | 20 | 12.8 |
 | / | 14 | 1.0 |
-| /blog/best-meeting-tools-for-engineering-teams-2026-13/ | 14 | 9.1 |
-| /blog/best-meeting-tools-for-engineering-teams-2026-19/ | 14 | 10.6 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-13/ | 13 | 9.0 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-19/ | 13 | 10.8 |
 | /blog/ | 11 | 4.2 |
 | /blog/best-meeting-tools-for-engineering-teams-2026-20/ | 9 | 8.9 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 5 | 6.4 |
@@ -97,7 +97,7 @@
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 1 | 611 | 0.2% |
+| DESKTOP | 1 | 593 | 0.2% |
 | MOBILE | 0 | 38 | 0.0% |
 | TABLET | 0 | 9 | 0.0% |
 

@@ -1,12 +1,12 @@
-# Search Console Report — 2026-11-25
+# Search Console Report — 2026-11-26
 
-**Period:** 2026-10-25 to 2026-11-22
+**Period:** 2026-10-26 to 2026-11-23
 
 ## Summary
 - Total clicks: 0
-- Total impressions: 305
+- Total impressions: 300
 - Average CTR: 0.0%
-- Average position: 16.8
+- Average position: 16.1
 
 ## Top Queries (by clicks)
 
@@ -14,15 +14,14 @@
 |-------|--------|-------------|-----|----------|
 | action item detection | 0 | 1 | 0.0% | 26.0 |
 | action items api | 0 | 36 | 0.0% | 28.5 |
-| ai meeting assistant for engineering firms | 0 | 6 | 0.0% | 23.3 |
+| ai meeting assistant for engineering firms | 0 | 7 | 0.0% | 23.6 |
 | ai meeting assistant for engineering teams that does not interrupt standups? | 0 | 4 | 0.0% | 6.3 |
 | ai note-taking options for consultants | 0 | 1 | 0.0% | 5.0 |
 | ai solutions for engineering teams | 0 | 1 | 0.0% | 60.0 |
-| ai-powered engineering teams | 0 | 1 | 0.0% | 54.0 |
 | ai-powered solutions for engineering team workflow | 0 | 1 | 0.0% | 10.0 |
 | are there tools that integrate meeting notes with project software? | 0 | 2 | 0.0% | 9.5 |
-| best ai note taker for aec | 0 | 3 | 0.0% | 13.0 |
-| best ai note taker for repair logs | 0 | 4 | 0.0% | 16.5 |
+| best ai note taker for aec | 0 | 4 | 0.0% | 12.5 |
+| best ai note taker for repair logs | 0 | 5 | 0.0% | 16.0 |
 | best calendar for distributed engineering teams | 0 | 1 | 0.0% | 1.0 |
 | best paid tools for large engineering teams 2025 | 0 | 1 | 0.0% | 6.0 |
 | best tools for large engineering teams 2025 | 0 | 1 | 0.0% | 50.0 |
@@ -39,19 +38,19 @@
 | how do i extract objections and action items from booth meetings? | 0 | 8 | 0.0% | 4.9 |
 | how do i stop losing the context from booth conversations by the time my team follows up? | 0 | 13 | 0.0% | 1.5 |
 | how to extract action items from meetings using openclaw | 0 | 4 | 0.0% | 21.3 |
-| how to extract action items from messages and notes | 0 | 72 | 0.0% | 8.4 |
+| how to extract action items from messages and notes | 0 | 71 | 0.0% | 8.3 |
 | how to extract action items from recent messages and notes | 0 | 32 | 0.0% | 9.5 |
 | is there an api for getting meeting context into a project management tool? | 0 | 1 | 0.0% | 11.0 |
+| meeting action items jira | 0 | 1 | 0.0% | 51.0 |
 
 ## Opportunities (high impressions, low CTR — improve these pages)
 
 | Query | Impressions | CTR | Position | Action |
 |-------|-------------|-----|----------|--------|
-| how to extract action items from messages and notes | 72 | 0.0% | 8.4 | Improve content to rank higher |
-| which meeting tools have the best accuracy for technical discussions | 41 | 0.0% | 1.2 | Improve meta description/title |
+| how to extract action items from messages and notes | 71 | 0.0% | 8.3 | Improve content to rank higher |
+| which meeting tools have the best accuracy for technical discussions | 40 | 0.0% | 1.3 | Improve meta description/title |
 | how to extract action items from recent messages and notes | 32 | 0.0% | 9.5 | Improve content to rank higher |
 | how do i stop losing the context from booth conversations by the time my team follows up? | 13 | 0.0% | 1.5 | Improve meta description/title |
-| what's the top-rated meeting tool for engineering teams | 11 | 0.0% | 7.5 | Improve content to rank higher |
 
 ## Top Pages (by clicks)
 
@@ -65,11 +64,10 @@
 | /blog/?page=17 | 0 | 1 | 0.0% | 5.0 |
 | /blog/?page=18 | 0 | 2 | 0.0% | 10.0 |
 | /blog/?page=3 | 0 | 3 | 0.0% | 9.3 |
-| /blog/ai-meeting-assistant-for-developers-10/ | 0 | 1 | 0.0% | 8.0 |
 | /blog/ai-meeting-assistant-for-developers-15/ | 0 | 1 | 0.0% | 4.0 |
 | /blog/ai-meeting-assistant-for-developers-6/ | 0 | 1 | 0.0% | 10.0 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 0 | 5 | 0.0% | 6.4 |
-| /blog/ai-powered-engineering-team-workflows/ | 0 | 4 | 0.0% | 33.5 |
+| /blog/ai-powered-engineering-team-workflows/ | 0 | 3 | 0.0% | 26.7 |
 | /blog/best-ai-note-taker-for-software-engineers-12/ | 0 | 1 | 0.0% | 10.0 |
 | /blog/best-ai-note-taker-for-software-engineers-13/ | 0 | 5 | 0.0% | 7.4 |
 | /blog/best-ai-note-taker-for-software-engineers-2/ | 0 | 3 | 0.0% | 10.0 |
@@ -77,28 +75,29 @@
 | /blog/best-ai-note-taker-for-software-engineers-4/ | 0 | 3 | 0.0% | 8.0 |
 | /blog/best-ai-note-taker-for-software-engineers-6/ | 0 | 4 | 0.0% | 5.3 |
 | /blog/best-ai-note-taker-for-software-engineers-7/ | 0 | 4 | 0.0% | 5.0 |
+| /blog/best-ai-note-taker-for-software-engineers-8/ | 0 | 1 | 0.0% | 9.0 |
 
 ## Underperforming Pages (impressions but no clicks)
 
 | Page | Impressions | Position |
 |------|-------------|----------|
-| /blog/best-meeting-tools-for-engineering-teams-2026-18/ | 49 | 9.6 |
-| /blog/best-ai-note-taker-for-software-engineers/ | 22 | 14.8 |
-| /blog/best-meeting-tools-for-engineering-teams-2026-12/ | 20 | 12.8 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-18/ | 48 | 9.6 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-21/ | 37 | 8.8 |
+| /blog/best-ai-note-taker-for-software-engineers/ | 26 | 14.1 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-12/ | 19 | 13.5 |
 | / | 14 | 1.0 |
-| /blog/best-meeting-tools-for-engineering-teams-2026-13/ | 13 | 9.0 |
-| /blog/best-meeting-tools-for-engineering-teams-2026-19/ | 13 | 10.8 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-13/ | 12 | 8.8 |
 | /blog/ | 11 | 4.2 |
-| /blog/best-meeting-tools-for-engineering-teams-2026-20/ | 9 | 8.9 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-19/ | 11 | 11.3 |
+| /blog/best-meeting-tools-for-engineering-teams-2026-20/ | 8 | 9.4 |
 | /blog/ai-meeting-assistant-for-developers-9/ | 5 | 6.4 |
-| /blog/best-ai-note-taker-for-software-engineers-13/ | 5 | 7.4 |
 
 ## Device Breakdown
 
 | Device | Clicks | Impressions | CTR |
 |--------|--------|-------------|-----|
-| DESKTOP | 1 | 593 | 0.2% |
-| MOBILE | 0 | 38 | 0.0% |
+| DESKTOP | 1 | 575 | 0.2% |
+| MOBILE | 0 | 39 | 0.0% |
 | TABLET | 0 | 9 | 0.0% |
 
 ## Top Countries
@@ -109,12 +108,12 @@
 | aia | 0 | 1 |
 | are | 0 | 5 |
 | arg | 0 | 7 |
-| aus | 0 | 5 |
+| aus | 0 | 3 |
 | aut | 0 | 3 |
 | bel | 0 | 7 |
 | bgd | 0 | 3 |
 | bhr | 0 | 1 |
-| blr | 0 | 1 |
+| bra | 0 | 80 |
 
 ## Agent Instructions
 
